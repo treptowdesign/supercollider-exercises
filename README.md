@@ -2,4 +2,4 @@
 Learning SuperCollider Audio Synthesis
 
 ## Dailies
-My daily sketches
+My daily sketches, basic synths and routines

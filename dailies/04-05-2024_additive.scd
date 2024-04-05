@@ -41,7 +41,7 @@ SynthDef(\sine, {
 SynthDef(\saw, {
 	var freq = 440;
 	var snd;
-	snd = (1..16).collect({ |harmonic|
+	snd = (1..32).collect({ |harmonic|
 		SinOsc.ar(freq * harmonic, 0, (1 / harmonic));
 	}).sum;
 	snd = snd * Env.perc(0.1, 0.6).ar(Done.freeSelf);
@@ -87,6 +87,36 @@ SynthDef(\saw2, {
 }).play;
 )
 
+
+(
+SynthDef(\subtract, {
+	var freq = 440;
+	var snd;
+	snd = WhiteNoise.ar;
+	snd = BPF.ar(snd, freq, 0.001) * 35.dbamp;
+	snd = BPF.ar(snd, freq, 0.01) * 20.dbamp;
+	snd = snd * Env.perc(0.1, 0.6).ar(Done.freeSelf);
+	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
+}).play;
+)
+
+(
+SynthDef(\subtractStacked, {
+	var freq = 440;
+	var noise;
+	var snd;
+	noise = WhiteNoise.ar;
+	snd = (1..32).select({|x| x % 2 == 1}).collect({ |harmonic|
+		var snd;
+		snd = BPF.ar(noise, freq * harmonic, 0.0001) * (40.dbamp * (1/harmonic));
+		snd = BPF.ar(noise, freq * harmonic, 0.0001) * (40.dbamp * (1/harmonic));
+		snd;
+	}).sum;
+	snd = LPF.ar(snd, 8e3); // cut super highs
+	snd = snd * Env.perc(0.1, 0.6).ar(Done.freeSelf);
+	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
+}).play;
+)
 
 
 

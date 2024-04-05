@@ -101,19 +101,65 @@ SynthDef(\subtract, {
 )
 
 (
+SynthDef(\subtractHasher, {
+	var freq = 440;
+	var snd;
+	snd = Hasher.ar(Sweep.ar);
+	// snd = WhiteNoise.ar;
+	snd = BPF.ar(snd, freq, 0.001) * 35.dbamp;
+	snd = BPF.ar(snd, freq, 0.01) * 20.dbamp;
+	snd = snd * Env.perc(0.1, 0.6).ar(Done.freeSelf);
+	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
+}).play;
+)
+
+(
+SynthDef(\subtractHasherSineInput, {
+	var freq = 440;
+	var snd;
+	snd = Hasher.ar(SinOsc.ar(Rand(1, 1000)));
+	// snd = WhiteNoise.ar;
+	snd = BPF.ar(snd, freq, 0.001) * 35.dbamp;
+	snd = BPF.ar(snd, freq, 0.01) * 20.dbamp;
+	snd = snd * Env.perc(0.1, 0.6).ar(Done.freeSelf);
+	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
+}).play;
+)
+
+(
 SynthDef(\subtractStacked, {
 	var freq = 440;
 	var noise;
 	var snd;
-	noise = WhiteNoise.ar;
+	// noise = WhiteNoise.ar;
+	noise = Hasher.ar(Sweep.ar);
 	snd = (1..32).select({|x| x % 2 == 1}).collect({ |harmonic|
 		var snd;
-		snd = BPF.ar(noise, freq * harmonic, 0.0001) * (40.dbamp * (1/harmonic));
-		snd = BPF.ar(noise, freq * harmonic, 0.0001) * (40.dbamp * (1/harmonic));
+		snd = BPF.ar(noise, freq * harmonic, 0.0001) * (50.dbamp * (1/harmonic));
+		snd = BPF.ar(noise, freq * harmonic, 0.0001) * (50.dbamp * (1/harmonic));
 		snd;
 	}).sum;
 	snd = LPF.ar(snd, 8e3); // cut super highs
 	snd = snd * Env.perc(0.1, 0.6).ar(Done.freeSelf);
+	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
+}).play;
+)
+
+
+// highhat
+// https://www.youtube.com/watch?v=zbBY7JL9nnQ&t=1643s
+
+// WhiteNoise + pulseSwarm
+// distortion...
+(
+SynthDef(\pulseSwarm, {
+	var freq = 440;
+	var snd;
+	// snd = Pulse.ar(freq * [1, 1.75, 0.06, 0.75, 1.55].midiratio);
+	// snd = Pulse.ar([245, 306, 365, 415, 437, 619]); // roland...
+	snd = Pulse.ar([245, 306, 365, 415, 437, 619] * 0.5);
+	snd.sum;
+	snd = snd * Env.perc(0.1, 1.6).ar(Done.freeSelf);
 	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
 }).play;
 )

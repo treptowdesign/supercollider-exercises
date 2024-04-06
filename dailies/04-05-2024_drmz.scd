@@ -40,31 +40,31 @@ SynthDef(\kick, {
 	snd = (snd.clip2).tanh;
 	snd = snd * Env.perc(0.001, 0.6).ar(Done.freeSelf);
 	Out.ar(0, snd ! 2);
-}).play;
+}).add;
 )
 
 (
 SynthDef(\snare, {
 	var snd;
 	snd = SinOsc.ar(
-		230
-		* [1, 2.3, 3.8, 4.8]
+		280
+		* [1, 2.8, 3.1, 4.2]
 		* (1 + (0.3 * Env.perc(0.0, 0.05, curve: -4).ar))
 		* (1 + (0.01 * Env.perc(0.0, 0.1, curve: -2).ar))
 	);
 	snd = snd * Env.perc(0, [1, 0.3, 0.1, 0.05]).ar;
-	snd = snd * [0, -20, -25, -20].dbamp;
+	snd = snd * [0, -20, -25, -15].dbamp;
 	snd = snd.sum;
 	snd = snd + (Env.perc(0.02, 0.05).ar * BPF.ar(Hasher.ar(Sweep.ar + [0, 1]), 2120, 0.5) * 15.dbamp);
-	snd = snd * (1 + (5 * Env.perc(0, 0.01).ar));
+	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
 	snd = snd * (1 + (5 * Env.perc(0, 0.001).ar));
 	snd = (snd * 5.dbamp).tanh;
-	snd = snd * Env.perc(0.0, 0.3, curve: -2).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.0, 0.2, curve: -4).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * \amp.kr(1);
 	snd = snd * -5.dbamp;
 	Out.ar(\out.kr, snd);
-}).play;
+}).add;
 )
 
 (
@@ -75,11 +75,10 @@ SynthDef(\hat, {
 	snd = (WhiteNoise.ar.pow(9.0) * 0.8) + snd.sum;
 	snd = BPF.ar(snd, 17e3, 0.3);
 	snd = snd * (1 + (3 * Env.perc(0, 0.02).ar));
-	snd = snd * Env.perc(0.0001, 0.1).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.0001, 0.2).ar(Done.freeSelf);
 	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
-}).play;
+}).add;
 )
-
 
 (
 var bpm, beat;
@@ -92,9 +91,38 @@ Routine({
 		dur.wait;
 	};
 }).play;
+Routine({
+	var dur = (beat);
+	loop {
+		Synth(\kick);
+		dur.wait;
+	};
+}).play;
+Routine({
+	var dur = (beat);
+	loop {
+		dur.wait;
+		Synth(\snare);
+		dur.wait;
+	};
+}).play;
 )
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////
 // end...
+//////////////////////////////////

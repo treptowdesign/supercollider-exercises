@@ -155,10 +155,23 @@ SynthDef(\subtractStacked, {
 SynthDef(\pulseSwarm, {
 	var freq = 440;
 	var snd;
-	// snd = Pulse.ar(freq * [1, 1.75, 0.06, 0.75, 1.55].midiratio);
+	snd = Pulse.ar(freq * [1, 1.75, 0.06, 0.75, 1.55].midiratio);
 	// snd = Pulse.ar([245, 306, 365, 415, 437, 619]); // roland...
-	snd = Pulse.ar([245, 306, 365, 415, 437, 619] * 0.5);
-	snd.sum;
+	// snd = Pulse.ar([245, 306, 365, 415, 437, 619] * 0.5);
+	snd = (WhiteNoise.ar.pow(9.0) * 0.8) + snd.sum;
+	snd = BPF.ar(snd, 16e3, 0.3);
+	snd = snd * (1 + (6 * Env.perc(0, 0.03).ar));
+	snd = snd * Env.perc(0.001, 0.2).ar(Done.freeSelf);
+	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
+}).play;
+)
+
+(
+SynthDef(\pulseSwarm2, {
+	var freq = 440;
+	var snd;
+	// snd = Pulse.ar(freq * ((1..10) ** 1.5)) * ;
+	snd = snd.sum;
 	snd = snd * Env.perc(0.1, 1.6).ar(Done.freeSelf);
 	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
 }).play;
@@ -166,10 +179,15 @@ SynthDef(\pulseSwarm, {
 
 
 
+(440 * ((1..10) ** 1.5));
+
+
 // notes...
 
 
 (1..10).select({|x| x % 2 == 1});
+
+(1..20) ** 1.5
 
 
 // end...

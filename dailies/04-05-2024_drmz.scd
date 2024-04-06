@@ -7,7 +7,7 @@ s.meter;
 FreqScope.new(450);
 ServerOptions.outDevices;
 Server.default.options.outDevice_("External Headphones");
-// Server.default.options.outDevice_("MacBook Pro Speakers");
+Server.default.options.outDevice_("MacBook Pro Speakers");
 Server.default.reboot;
 
 // Bussing
@@ -59,7 +59,7 @@ SynthDef(\snare, {
 	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
 	snd = snd * (1 + (5 * Env.perc(0, 0.001).ar));
 	snd = (snd * 5.dbamp).tanh;
-	snd = snd * Env.perc(0.0, 0.2, curve: -4).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.0, 0.4, curve: -4).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * \amp.kr(1);
 	snd = snd * -5.dbamp;
@@ -74,21 +74,29 @@ SynthDef(\hat, {
 	snd = Pulse.ar(freq * [1, 1.72, 0.06, 0.78, 1.51].midiratio);
 	snd = (WhiteNoise.ar.pow(9.0) * 0.8) + snd.sum;
 	snd = BPF.ar(snd, 17e3, 0.3);
-	snd = snd * (1 + (3 * Env.perc(0, 0.02).ar));
+	snd = (snd.fold2).tanh;
+	snd = snd * (1 + (2 * Env.perc(0, 0.02).ar));
 	snd = snd * Env.perc(0.0001, 0.2).ar(Done.freeSelf);
-	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
+	Out.ar(0, Pan2.ar(snd, 0) * \amp.kr(1).dbamp);
 }).add;
 )
+
+Synth(\kick);
+Synth(\snare);
+Synth(\hat);
 
 (
 var bpm, beat;
 bpm = 110;
 beat = 60 / bpm;
 Routine({
-	var dur = (beat / 4);
+	var dur = (beat / 4), idx = 0;
+
 	loop {
-		Synth(\hat);
+		Synth(\hat, [amp: idx.linlin(1, 4, -10, 1)]);
 		dur.wait;
+		idx = (idx % 4) + 1;
+		idx.postln;
 	};
 }).play;
 Routine({

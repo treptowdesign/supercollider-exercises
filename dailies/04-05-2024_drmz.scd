@@ -47,7 +47,7 @@ SynthDef(\kick, {
 SynthDef(\snare, {
 	var snd;
 	snd = SinOsc.ar(
-		280
+		230
 		* [1, 2.8, 3.1, 4.2]
 		* (1 + (0.3 * Env.perc(0.0, 0.05, curve: -4).ar))
 		* (1 + (0.01 * Env.perc(0.0, 0.1, curve: -2).ar))
@@ -66,6 +66,19 @@ SynthDef(\snare, {
 	Out.ar(\out.kr, snd);
 }).add;
 )
+
+(
+SynthDef(\clap, {
+	var snd;
+	snd = BPF.ar(Hasher.ar(Sweep.ar), 1230);
+	snd = snd * 20.dbamp;
+	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.008, 1e-4, 0.005, 1e-4, 0.08], -4).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0));
+	snd = snd * \amp.kr(0.3);
+	Out.ar(\out.kr(0), snd);
+}).add;
+)
+Synth(\clap);
 
 (
 SynthDef(\hat, {
@@ -110,7 +123,7 @@ Routine({
 	var dur = (beat);
 	loop {
 		dur.wait;
-		Synth(\snare);
+		Synth(\clap);
 		dur.wait;
 	};
 }).play;

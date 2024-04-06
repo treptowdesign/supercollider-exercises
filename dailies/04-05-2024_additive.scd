@@ -178,6 +178,20 @@ SynthDef(\pulseSwarm2, {
 )
 
 
+(
+SynthDef(\pulseSwarm2, {
+	var freq = 440;
+	var snd;
+	snd = Pulse.ar(freq * [1, 1.75, 0.06, 0.75, 1.55].midiratio);
+	snd = (WhiteNoise.ar.pow(9.0) * 0.8) + snd.sum;
+	snd = BPF.ar(snd, 16e3, 0.3);
+	snd = snd * (1 + (6 * Env.perc(0, 0.03).ar));
+	snd = snd * Env.perc(0.001, 0.6).ar(Done.freeSelf);
+	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
+}).play;
+)
+
+
 
 (440 * ((1..10) ** 1.5));
 

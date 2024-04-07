@@ -19,9 +19,13 @@ s.options.numInputBusChannels; // num inputs (2 = Left & Right)
 
 // Memory Server Stuff
 s.options.memSize;
-s.options.memSize = 1048576; (original 8192)
+s.options.memSize = 1048576; // (original 8192)
 s.options.numWireBufs;
-s.options.numWireBufs = 128; (original 64)
+s.options.numWireBufs = 128; // (original 64)
+
+// Extensions
+Platform.userExtensionDir;
+Platform.systemExtensionDir;
 
 //////////////////////////////////////////////////////
 // Synths
@@ -34,21 +38,25 @@ s.options.numWireBufs = 128; (original 64)
 (
 SynthDef(\pad, {
 	var snd;
-	snd = Saw.ar(\freq.kr(440));
-	snd = snd * Env.asr(3, 1, 3).ar(Done.freeSelf, \gate.kr(1));
-	snd = snd * \amp.kr(-10).dbamp;
+	snd = Saw.ar(\freq.kr(440) * ({LFNoise2.kr(8) } ! 16 * 0.1).midiratio);
+	snd = DelayC.ar(snd, 0.1, { Rand(0, 0.01) } ! snd.size);
+	snd = Splay.ar(snd);
+	snd = snd * Env.asr(0.2, 1, 3).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * \amp.kr(-20).dbamp;
 	snd = snd ! 2;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\fx, {
 	var snd;
 	snd = In.ar(\out.kr(0), 2);
-	snd = snd + GVerb.ar(snd);
+	snd = snd + NHHall.ar(snd, 3, modDepth: 1);
 	snd = Limiter.ar(snd);
 	snd = BHiShelf.ar(snd, 3000, 1, -10);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
+
+Synth(\pad, [freq: 82.midicps]);
 
 (
 Routine({
@@ -58,7 +66,8 @@ Routine({
 	loop {
 		Routine({
 			var synth;
-			synth = Synth(\pad, [freq: frequencies.choose]);
+			//synth = Synth(\pad, [freq: frequencies.choose]);
+			synth = Synth(\pad, [freq: 440]);
 			rrand(8.0, 16.0).wait;
 			synth.set(\gate, 0);
 		}).play;
@@ -66,6 +75,10 @@ Routine({
 	};
 }).play;
 )
+
+
+
+
 
 
 

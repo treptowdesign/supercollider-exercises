@@ -72,7 +72,7 @@ SynthDef(\snare, {
 (
 SynthDef(\clap, {
 	var snd;
-	snd = BPF.ar(Hasher.ar(Sweep.ar), 1630);
+	snd = BPF.ar(Hasher.ar(Sweep.ar), 130);
 	snd = snd * 20.dbamp;
 	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.008, 1e-4, 0.005, 1e-4, 0.08], -2).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));

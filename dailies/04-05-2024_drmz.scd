@@ -43,6 +43,8 @@ SynthDef(\kick, {
 }).add;
 )
 
+Synth(\kick);
+
 (
 SynthDef(\snare, {
 	var snd;
@@ -70,11 +72,11 @@ SynthDef(\snare, {
 (
 SynthDef(\clap, {
 	var snd;
-	snd = BPF.ar(Hasher.ar(Sweep.ar), 1230);
+	snd = BPF.ar(Hasher.ar(Sweep.ar), 1630);
 	snd = snd * 20.dbamp;
-	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.008, 1e-4, 0.005, 1e-4, 0.08], -4).ar(Done.freeSelf);
+	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.008, 1e-4, 0.005, 1e-4, 0.08], -2).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
-	snd = snd * \amp.kr(0.3);
+	snd = snd * \amp.kr(0.1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -109,7 +111,6 @@ Routine({
 		Synth(\hat, [amp: idx.linlin(1, 4, -10, 1)]);
 		dur.wait;
 		idx = (idx % 4) + 1;
-		idx.postln;
 	};
 }).play;
 Routine({
@@ -130,7 +131,15 @@ Routine({
 )
 
 
-
+(
+SynthDef(\rhh, {
+	var snd, freq = \freq.kr(440 * [1, 1.14, 0.98, 0.77, 0.81].midiratio);
+	snd = Pulse.ar(freq);
+	snd = snd.sum;
+	snd = snd * -10.dbamp;
+	Out.ar(0, snd ! 2);
+}).play;
+)
 
 
 

@@ -44,11 +44,22 @@ SynthDef(\sine, {
 (
 SynthDef(\sine, {
 	var freq = \freq.kr(440);
-	var drive = \drive.kr(3);
+	var drive = \drive.kr(6);
 	var snd;
-	snd = SinOsc.ar(freq);
+	snd = VarSaw.ar(freq);
 	snd = (snd * drive.dbamp).fold2;
 	snd = snd * Env.perc(0.1, 0.6).ar(Done.freeSelf);
+	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
+}).play;
+)
+
+(
+SynthDef(\sine, {
+	var freq = \freq.kr(440);
+	var snd;
+	snd = SinOsc.ar(freq);
+	snd = (snd * 2).fold2;
+	// snd = snd * Env.perc(0.1, 0.6).ar(Done.freeSelf);
 	Out.ar(0, Pan2.ar(snd, 0) * 1.dbamp);
 }).play;
 )

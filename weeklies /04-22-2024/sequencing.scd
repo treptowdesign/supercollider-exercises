@@ -33,7 +33,7 @@ SynthDef(\snare, {
 	snd = LPF.ar(snd, velocity.linexp(0, 1, 1000, 16000));
 	snd = (snd * -3.dbamp).clip2;
 	snd = snd * Env.perc(0.001, \decay.kr(1) * 0.7, curve: -1).ar;
-	snd = snd * -5.dbamp;
+	snd = snd * -10.dbamp;
 	snd = snd * velocity;
 	snd = snd * \amp.kr(1);
 	snd = Pan2.ar(snd, \pan.kr(0)) * 3.dbamp + GVerb.ar(snd * -15.dbamp, 10, 3);
@@ -85,15 +85,16 @@ Routine({
 }).play;
 Routine({
 	loop {
+		play.(\kick, 1/3, [amp: -20]);
+		play.(\kick, 1/3, [amp: -20]);
+		play.(\kick, 1/3, [amp: -20]);
+		play.(\snare, 1);
 		play.(\kick, 1/4, [amp: -20]);
 		play.(\kick, 1/4, [amp: -20]);
 		play.(\kick, 1/4, [amp: -20]);
 		play.(\kick, 1/4, [amp: -20]);
 		play.(\snare, 1);
-		play.(\kick, 1/3, [amp: -20]);
-		play.(\kick, 1/3, [amp: -20]);
-		play.(\kick, 1/3, [amp: -20]);
-		play.(\snare, 1);
+
 	};
 }).play;
 
@@ -101,18 +102,16 @@ Routine({
 	var tatum;
 	tatum = beat / 4;
 	loop {
-		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(19)]);
-		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
-		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
-		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
-
-		play.(\paramsSynth, 1, [initFreq: getNote.(0), freq: getNote.(12)]);
-
 		play.(\paramsSynth, 1/3, [initFreq: getNote.(7), freq: getNote.(0)]);
 		play.(\paramsSynth, 1/3, [initFreq: getNote.(7), freq: getNote.(0)]);
 		play.(\paramsSynth, 1/3, [initFreq: getNote.(7), freq: getNote.(0)]);
-
 		play.(\paramsSynth, 1, [initFreq: getNote.(7), freq: getNote.(0)]);
+
+		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
+		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
+		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
+		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
+		play.(\paramsSynth, 1, [initFreq: getNote.(0), freq: getNote.(12)]);
 
 	};
 }).play;

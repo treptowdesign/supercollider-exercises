@@ -62,7 +62,7 @@ SynthDef(\padLow, {
 	snd = LFTri.ar(freq * (LFNoise2.kr(3) * 0.1).midiratio);
 	snd = snd ! 2;
 	snd = snd * env;
-	snd = snd * -20.dbamp;
+	snd = snd * -16.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\padMid, {
@@ -94,6 +94,13 @@ SynthDef(\padHigh, {
 	snd = snd * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\fxSidechain, { | trigger=0 |
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = FreeVerb.ar(snd, 0.6, 0.9);
+	snd = snd * EnvGen.kr(Env([1,0,0,1], [0.0001, 0.1, 0.1]), trigger, doneAction: 0);
+	Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 Synth(\padLow, [freq: 440, duration: 4]);
@@ -103,6 +110,8 @@ Synth(\percAlgoB);
 Synth(\perc2AlgoB);
 
 Scale.dorian.degrees;
+
+~fxBus.index;
 
 (
 var s, bpm, beat, root, scale;
@@ -128,66 +137,88 @@ play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	wait.(duration);
 };
-Routine({ // Hat
-	loop {
-		[
-			0.8, 0.1, 0.2, 0.2, 0.6, 0.2, 0.1, 0.2,
-			0.5, 0.2, 0.2, 0.1, 0.4, 0.1, 0.2, 0.2
-		].do { |rel, index|
-			play.(\swarmHat, 1/4, [amp: (index % 8).linlin(1, 8, -16, -8), rel: rel]);
-		};
-	};
-}).play;
-Routine({ // Hat
-	loop {
-		play.(\perc2AlgoB, 0.25);
-		play.(\perc2AlgoB, 0.75);
-		play.(\percAlgoB, 1);
-	};
-}).play;
-Routine({ // Kick & Clap
-	loop {
-		play.(\delKick, 0.25);
-		play.(\delKick, 0.75);
-		play.(\clapYcgm, 1, [amp: -5]);
-		play.(\delKick, 0.25);
-		play.(\delKick, 0.25);
-		play.(\delKick, 0.5);
-		play.(\clapYcgm, 0.5, [amp: -5]);
-		play.(\clapYcgm, 0.5, [amp: -18, filtCutoff: 15e3]);
 
-		play.(\delKick, 0.25);
-		play.(\delKick, 0.75);
-		play.(\clapYcgm, 0.5, [amp: -5]);
-		play.(\clapYcgm, 0.5, [amp: -18, filtCutoff: 15e3]);
-		play.(\delKick, 0.25);
-		play.(\delKick, 0.25);
-		play.(\delKick, 0.5);
-		play.(\clapYcgm, 0.75, [amp: -5]);
-		play.(\clapYcgm, 0.25, [amp: -18, filtCutoff: 15e3]);
-	};
-}).play;
-Routine({ // Pad
-	var dur;
-	dur = beat * 4;
-	loop {
-		[
-			[0, 3, 7, 10, 2], // i9
-			[5, 9, 0, 2, 4], // bVI9
-			[9, 1, 4, 7], // V7
-			[8, 0, 3, 5], // IVMaj7
-		].do { |chord, index|
-			// Synth(\padLow, [freq: (root + chord[0] + (12 * 0)).midicps, duration: dur * 1.5]);
-			chord.do { |deg|
-				Synth(\padLow, [freq: (root + deg + (12 * 1)).midicps, duration: dur * 1.5]);
-				Synth(\padMid, [freq: (root + deg + (12 * 3)).midicps, duration: dur * 1.5]);
-				Synth(\padHigh, [freq: (root + deg + (12 * 2)).midicps, duration: dur * 1.5]);
-				// Synth(\padMid, [freq: (root + deg + (12 * 3)).midicps, duration: dur * 1.5]);
-				// Synth(\padLow, [freq: (root + deg + (12 * 2)).midicps, duration: dur * 1.5]);
+Routine({
+	var fx;
+	~fxBus = Bus.audio(s, 2);
+	fx = Synth.tail(nil, \fxSidechain, [in: ~fxBus, out: 0]);
+
+	Routine({ // Hat
+		loop {
+			[
+				0.8, 0.1, 0.2, 0.2, 0.6, 0.2, 0.1, 0.2,
+				0.5, 0.2, 0.2, 0.1, 0.4, 0.1, 0.2, 0.2
+			].do { |rel, index|
+				play.(\swarmHat, 1/4, [amp: (index % 8).linlin(1, 8, -16, -8), rel: rel]);
 			};
-			dur.wait;
 		};
-	};
+	}).play;
+	Routine({ // Hat
+		loop {
+			play.(\perc2AlgoB, 0.25);
+			play.(\perc2AlgoB, 0.75);
+			play.(\percAlgoB, 1);
+		};
+	}).play;
+	Routine({ // fx sidechain
+		loop {
+			fx.set(\trigger, 1);
+			wait.(0.25);
+			fx.set(\trigger, 0);
+			wait.(0.75);
+			fx.set(\trigger, 1);
+			wait.(1);
+			fx.set(\trigger, 0);
+			wait.(1);
+
+		};
+	}).play;
+	Routine({ // Kick & Clap
+		loop {
+			play.(\delKick, 0.25);
+			play.(\delKick, 0.75);
+			play.(\clapYcgm, 1, [amp: -5]);
+			play.(\delKick, 0.25);
+			play.(\delKick, 0.25);
+			play.(\delKick, 0.5);
+			play.(\clapYcgm, 0.75, [amp: -5]);
+			play.(\clapYcgm, 0.25, [amp: -18, filtCutoff: 15e3]);
+
+
+			play.(\delKick, 0.25);
+			play.(\delKick, 0.75);
+			play.(\clapYcgm, 0.5, [amp: -5]);
+			play.(\clapYcgm, 0.5, [amp: -18, filtCutoff: 15e3]);
+			play.(\delKick, 0.25);
+			play.(\delKick, 0.25);
+			play.(\delKick, 0.5);
+			play.(\clapYcgm, 0.75, [amp: -5]);
+			play.(\clapYcgm, 0.25, [amp: -18, filtCutoff: 15e3]);
+		};
+	}).play;
+	Routine({ // Pad
+		var dur;
+		dur = beat * 4;
+		loop {
+			[
+				[0, 3, 7, 10, 2], // i9
+				[5, 9, 0, 2, 4], // bVI9
+				[9, 1, 4, 7], // V7
+				[8, 0, 3, 5], // IVMaj7
+			].do { |chord, index|
+				// Synth(\padLow, [freq: (root + chord[0] + (12 * 0)).midicps, duration: dur * 1.5]);
+				chord.do { |deg|
+					Synth(\padLow, [freq: (root + deg + (12 * 1)).midicps, duration: dur * 1.5, out: ~fxBus]);
+					Synth(\padLow, [freq: (root + deg + (12 * 2)).midicps, duration: dur * 1.5, out: ~fxBus]);
+					// Synth(\padMid, [freq: (root + deg + (12 * 3)).midicps, duration: dur * 1.5]);
+					// Synth(\padHigh, [freq: (root + deg + (12 * 2)).midicps, duration: dur * 1.5]);
+					// Synth(\padMid, [freq: (root + deg + (12 * 3)).midicps, duration: dur * 1.5]);
+					// Synth(\padLow, [freq: (root + deg + (12 * 2)).midicps, duration: dur * 1.5]);
+				};
+				dur.wait;
+			};
+		};
+	}).play;
 }).play;
 )
 

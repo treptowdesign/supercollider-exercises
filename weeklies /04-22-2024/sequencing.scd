@@ -5,6 +5,7 @@ SynthDef(\paramsSynth, {
 	snd = VarSaw.ar(XLine.kr(initFreq, freq, 0.1), 0, 0.1);
 	snd = snd + RLPF.ar(snd, XLine.kr(cutoffMin, cutoffMax, rel), rq);
 	snd = (snd * 2.dbamp).tanh;
+	snd = snd + CombC.ar(snd * -10.dbamp, 0.4, 0.4, 4);
 	snd = snd * Env.perc(atk, rel).ar(Done.freeSelf);
 	Out.ar(0, Pan2.ar(snd * amp.dbamp, pan));
 }).add;
@@ -89,7 +90,6 @@ Routine({
 		play.(\kick, 1/4, [amp: -20]);
 		play.(\kick, 1/4, [amp: -20]);
 		play.(\snare, 1);
-
 		play.(\kick, 1/3, [amp: -20]);
 		play.(\kick, 1/3, [amp: -20]);
 		play.(\kick, 1/3, [amp: -20]);
@@ -101,7 +101,7 @@ Routine({
 	var tatum;
 	tatum = beat / 4;
 	loop {
-		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
+		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(19)]);
 		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
 		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);
 		play.(\paramsSynth, 0.25, [initFreq: getNote.(0), freq: getNote.(12)]);

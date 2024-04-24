@@ -10,7 +10,7 @@ SynthDef(\filteredcSynth, {
 	arg freq=440, pan=0, amp=1, atk=0.01, rel=0.6, cutoff=7000, rq=0.5, gate=1;
 	var snd;
 	snd = VarSaw.ar(freq.lag(0.2), 0, 0.9);
-	snd = snd * Pulse.kr(20, 0.1).range(0, 1);
+	// snd = snd * Pulse.kr(20, 0.35).range(0, 1);
 	snd = RLPF.ar(snd, cutoff, rq);
 	snd = snd * EnvGen.kr(Env.perc(atk, rel), gate, doneAction: 2);
 	Out.ar(0, Pan2.ar(snd * amp.dbamp, pan));
@@ -25,7 +25,7 @@ Synth(\filteredcSynth);
 var s, bpm, beat, root, scale;
 var randomNote;
 s = Server.default;
-bpm = 140;
+bpm = 110;
 beat = 60 / bpm;
 root = 42;
 scale = Scale.dorian.degrees;

@@ -98,7 +98,7 @@ SynthDef(\fxSidechain, { | trigger=0 |
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
 	snd = FreeVerb.ar(snd, 0.6, 0.9);
-	snd = snd * EnvGen.kr(Env([1,0,0,1], [0.0001, 0.1, 0.1]), trigger, doneAction: 0);
+	snd = snd * EnvGen.kr(Env([1,0,0,1], [0.00001, 0.025, 0.1]), trigger, doneAction: 0);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -153,23 +153,27 @@ Routine({
 			};
 		};
 	}).play;
-	Routine({ // Hat
+	/*Routine({ // Hat
 		loop {
 			play.(\perc2AlgoB, 0.25);
 			play.(\perc2AlgoB, 0.75);
 			play.(\percAlgoB, 1);
 		};
-	}).play;
+	}).play;*/
 	Routine({ // fx sidechain
 		loop {
 			fx.set(\trigger, 1);
-			wait.(0.25);
+			wait.(0.2);
 			fx.set(\trigger, 0);
-			wait.(0.75);
+			wait.(0.05);
+
 			fx.set(\trigger, 1);
-			wait.(1);
+			wait.(0.2);
 			fx.set(\trigger, 0);
-			wait.(1);
+			wait.(0.55);
+
+
+			wait(1);
 
 		};
 	}).play;

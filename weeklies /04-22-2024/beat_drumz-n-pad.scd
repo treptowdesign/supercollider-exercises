@@ -105,7 +105,7 @@ SynthDef(\keys, {
 	snd = snd * Env.perc(0.001, 1.0, curve: -10).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -20.dbamp;
+	snd = snd * -22.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
 
@@ -133,7 +133,7 @@ SynthDef(\keysFX, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
 	snd = snd + CombC.ar(snd * -25.dbamp, 0.3, 0.3, 2);
-	snd = FreeVerb.ar(snd, 0.4, 0.8);
+	snd = FreeVerb.ar(snd, 0.5, 0.8);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -190,7 +190,7 @@ playLayer = { |synthDef, duration, args = #[]|
 
 Routine({
 	Routine({ // Hat
-		if(true, { loop {
+		if(false, { loop {
 			[
 				0.8, 0.1, 0.2, 0.2, 0.6, 0.2, 0.1, 0.2,
 				0.5, 0.2, 0.2, 0.1, 0.4, 0.1, 0.2, 0.2
@@ -200,7 +200,7 @@ Routine({
 		}; });
 	}).play;
 	Routine({ // Percs
-		if(true, { loop {
+		if(false, { loop {
 
 			play.(\perc2AlgoB, 0.25);
 			play.(\perc2AlgoB, 0.75);
@@ -215,7 +215,7 @@ Routine({
 	}).play;
 	Routine({ // Kick & Clap
 		wait.(16);
-		if(true, { loop {
+		if(false, { loop {
 
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.75);
@@ -240,7 +240,7 @@ Routine({
 	}).play;
 	Routine({ // Sidechain Trigger
 		wait.(16);
-		if(true, { loop {
+		if(false, { loop {
 			s.bind { fx.set(\trigger, 1); };
 			wait.(0.05);
 			s.bind { fx.set(\trigger, 0); };
@@ -270,7 +270,7 @@ Routine({
 	Routine({ // Pad 16barLoop
 		var dur;
 		dur = beat * 4;
-		if(true, { loop {
+		if(false, { loop {
 			[
 				[0, 3, 7, 10, 2], // i9
 				[5, 9, 0, 2, 4], // bVI9
@@ -293,7 +293,7 @@ Routine({
 	Routine({ // Key
 		// wait.(16);
 		wait.(8);
-		if(true, { loop {
+		if(false, { loop {
 			[
 				0, 0, \, \, 7, \, \, \, 0, 0, 0, \, 7, \, \, \,
 				0, 0, \, \, 7, \, \, \, 0, 0, 0, \, 7, \, \, 7,
@@ -316,7 +316,7 @@ Routine({
 	}).play;
 
 	Routine({ // PluckBass
-		wait.(16);
+		// wait.(16);
 		if(true, { loop {
 			[
 				\, \, \, \, 0, \, \, \, \, 0, 0, 0, \, \, \, \,
@@ -338,7 +338,7 @@ Routine({
 
 )
 
-
+s.makeWindow;
 
 
 

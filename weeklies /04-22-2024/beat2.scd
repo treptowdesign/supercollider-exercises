@@ -7,28 +7,29 @@ SynthDef(\swarmHat, {
 	snd = BPF.ar(snd, 16e3, 0.3);
 	snd = snd * (1 + (6 * Env.perc(0, 0.03).ar));
 	snd = snd * Env.perc(0.001, rel).ar(Done.freeSelf);
-	Out.ar(0, Pan2.ar(snd, 0) * amp.dbamp);
+	Out.ar(0, Pan2.ar(snd, 0) * amp.dbamp * -4.dbamp);
 }).add;
 SynthDef(\delKick, {
 	var snd;
-	snd = SinOsc.ar(58 * (1 + (3 * Env.perc(0, 0.1).ar)) * (1 + (4 * Env.perc(0, 0.01).ar)));
-	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 10320, 0.3) * Env.perc(0.01, 0.04).ar);
+	snd = SinOsc.ar(60 * (1 + (1.5 * Env.perc(0, 0.1).ar)) * (1 + (2 * Env.perc(0, 0.01).ar)));
+	snd = snd * (1 + (2 * Env.perc(0, 0.01).ar));
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 9320, 0.3) * Env.perc(0.01, 0.04).ar);
 	snd = snd.clip2 + (snd.fold2 * -7.dbamp);
-	snd = snd * Env.perc(0.001, 0.2).ar;
-	snd = snd + DelayC.ar(snd * -24.dbamp, 0.1, [0.03, 0.045]);
-	snd = snd * Env.linen(0.0, 0.5, 0.1, curve: -4).ar(Done.freeSelf);
-	snd = snd * \amp.kr(-20).dbamp;
+	snd = snd * Env.perc(0.001, 0.25).ar;
+	snd = snd + DelayC.ar(snd * -28.dbamp, 0.2, [0.03, 0.045]);
+	snd = snd * Env.linen(0.0, 0.5, 0.1, curve: -2).ar(Done.freeSelf);
+	snd = snd * \amp.kr(-22).dbamp;
 	Out.ar(\out.kr(0), snd ! 2);
 }).add;
 SynthDef(\clapYcgm, {
 	var snd;
-	snd = BPF.ar(Hasher.ar(Sweep.ar), 1610);
+	snd = BPF.ar(Hasher.ar(Sweep.ar), 1510);
 	snd = snd * 20.dbamp;
 	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.008, 1e-4, 0.005, 1e-4, 0.08], -4).ar(Done.freeSelf);
 	snd = LPF.ar(snd, \filtCutoff.kr(2e4));
+	// snd = snd * (1 + (1.1 * Env.perc(0.001, 0.01).ar));
 	snd = Pan2.ar(snd, \pan.kr(0));
-	snd = snd * \amp.kr(1).dbamp;
+	snd = snd * \amp.kr(1).dbamp * -2.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\percAlgoB, {
@@ -40,7 +41,7 @@ SynthDef(\percAlgoB, {
 	snd = snd * Env.perc(0.0, 1).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -22.dbamp;
+	snd = snd * -26.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
 SynthDef(\perc2AlgoB, {
@@ -105,7 +106,7 @@ SynthDef(\keys, {
 	snd = snd * Env.perc(0.001, 1.0, curve: -10).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -22.dbamp;
+	snd = snd * -20.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
 
@@ -124,15 +125,15 @@ SynthDef(\pluckBass, {
 SynthDef(\fxSidechain, { | trigger=1 |
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = FreeVerb.ar(snd, 0.8, 0.5);
-	snd = snd * EnvGen.kr(Env([1,0,0,1], [0.0001, 0.06, 0.13], 'lin'), trigger, doneAction: 0);
-	snd = snd + (snd * 10.dbamp).tanh * -10.dbamp;
+	snd = FreeVerb.ar(snd, 0.5, 0.9);
+	snd = snd + (snd * 14.dbamp).tanh * -22.dbamp;
+	snd = snd * EnvGen.kr(Env([1,0,0.15,1], [0.0001, 0.08, 0.2], 'lin'), trigger, doneAction: 0);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\keysFX, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd + CombC.ar(snd * -25.dbamp, 0.3, 0.3, 2);
+	snd = snd + CombL.ar(snd * -15.dbamp, 0.25, 0.1, 1);
 	snd = FreeVerb.ar(snd, 0.5, 0.8);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -190,17 +191,17 @@ playLayer = { |synthDef, duration, args = #[]|
 
 Routine({
 	Routine({ // Hat
-		if(false, { loop {
+		if(true, { loop {
 			[
-				0.8, 0.1, 0.2, 0.2, 0.6, 0.2, 0.1, 0.2,
+				0.6, 0.1, 0.2, 0.2, 0.5, 0.2, 0.1, 0.2,
 				0.5, 0.2, 0.2, 0.1, 0.4, 0.1, 0.2, 0.2
 			].do { |rel, index|
-				play.(\swarmHat, 1/4, [amp: (index % 4).linlin(1, 4, -22, -14), rel: rel]);
+				play.(\swarmHat, 1/4, [amp: (index % 8).linlin(1, 4, -26, -16), rel: rel]);
 			};
 		}; });
 	}).play;
 	Routine({ // Percs
-		if(false, { loop {
+		if(true, { loop {
 
 			play.(\perc2AlgoB, 0.25);
 			play.(\perc2AlgoB, 0.75);
@@ -215,7 +216,7 @@ Routine({
 	}).play;
 	Routine({ // Kick & Clap
 		wait.(16);
-		if(false, { loop {
+		if(true, { loop {
 
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.75);
@@ -223,24 +224,24 @@ Routine({
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.5);
-			play.(\clapYcgm, 0.75, [amp: -10]);
-			play.(\clapYcgm, 0.25, [amp: -16, filtCutoff: 15e3]);
+			play.(\clapYcgm, 0.75, [amp: -12]);
+			play.(\clapYcgm, 0.25, [amp: -18, filtCutoff: 15e3]);
 
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.75);
-			play.(\clapYcgm, 0.5, [amp: -10]);
-			play.(\clapYcgm, 0.5, [amp: -20, filtCutoff: 15e3]);
+			play.(\clapYcgm, 0.5, [amp: -12]);
+			play.(\clapYcgm, 0.5, [amp: -22, filtCutoff: 15e3]);
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.5);
-			play.(\clapYcgm, 0.75, [amp: -10]);
-			play.(\clapYcgm, 0.25, [amp: -16, filtCutoff: 15e3]);
+			play.(\clapYcgm, 0.75, [amp: -12]);
+			play.(\clapYcgm, 0.25, [amp: -18, filtCutoff: 15e3]);
 
 		}; });
 	}).play;
 	Routine({ // Sidechain Trigger
-		// wait.(16);
-		if(true, { loop {
+		wait.(16);
+		if(false, { loop {
 			s.bind { fx.set(\trigger, 1); };
 			wait.(0.05);
 			s.bind { fx.set(\trigger, 0); };
@@ -270,7 +271,7 @@ Routine({
 	Routine({ // Pad 16barLoop
 		var dur;
 		dur = beat * 4;
-		if(true, { loop {
+		if(false, { loop {
 			[
 				[0, 3, 7, 10, 2], // i9
 				[5, 9, 0, 2, 4], // bVI9
@@ -281,7 +282,7 @@ Routine({
 
 					Synth(\padLow, [freq: (root + deg + (12 * 1)).midicps, duration: dur * 1.5, amp: -32, out: ~fxBus]);
 					// Synth(\padHigh, [freq: (root + deg + (12 * 1)).midicps, duration: dur * 1.5, amp: -32, out: ~fxBus]);
-					// Synth(\padLow, [freq: (root + deg + (12 * 2)).midicps, duration: dur * 1.5, amp: -18, out: ~fxBus]);
+					Synth(\padLow, [freq: (root + deg + (12 * 3)).midicps, duration: dur * 1.5, amp: -40, out: ~fxBus]);
 					Synth(\padHigh, [freq: (root + deg + (12 * 2)).midicps, duration: dur * 1.5, amp: -24, out: ~fxBus]);
 
 				};
@@ -291,20 +292,14 @@ Routine({
 	}).play;
 
 	Routine({ // Key
-		// wait.(16);
-		wait.(8);
-		if(false, { loop {
+		wait.(16);
+		// wait.(8);
+		if(true, { loop {
 			[
-				0, 0, \, \, 7, \, \, \, 0, 0, 0, \, 7, \, \, \,
-				0, 0, \, \, 7, \, \, \, 0, 0, 0, \, 7, \, \, 7,
-				0, 0, \, \, 7, \, \, \, 0, 0, 0, \, 7, \, \, \,
-				0, 0, \, \, 7, \, \, \, 0, 0, 0, \, 7, \, 7, 7,
-
-				0, 0, 0, 0, 7, \, 7, \, 0, 0, 0, \, 7, \, \, \,
-				0, 0, \, \, 7, \, \, \, 0, 0, 0, \, 7, \, \, 7,
-				0, 0, \, \, 7, 7, 7, 7, 0, 0, \, 0, 7, \, \, \,
-				0, 0, \, \, 7, \, \, \, 0, 0, 0, \, 7, \, 7, 7,
-
+				0, 0, 7, \, 3, \, 2, \, \, \, 2, \, \, 2, \, \,
+				5, \, 0, \, 2, \, 5, \, \, \, \, \, \, \, \, \,
+				9, \, 1, \, 4, \, 7, \, \, \, \, \, \, \, \, \,
+				8, \, 0, \, 3, \, 5, \, \, \, \, \, \, \, \, \,
 			].do { |deg|
 				if(deg == \, {
 					wait.(0.25);
@@ -316,13 +311,11 @@ Routine({
 	}).play;
 
 	Routine({ // PluckBass
-		// wait.(16);
-		if(false, { loop {
+		wait.(16);
+		if(true, { loop {
 			[
 				\, \, \, \, 0, \, \, \, \, 0, 0, 0, \, \, \, \,
 				\, \, \, \, 0, \, \, \, \, \, 0, 0, 0, 0, 0, 0,
-				\, \, \, \, 0, \, \, \, \, 0, 0, 0, \, \, \, \,
-				\, \, \, \, 0, \, \, \, \, \, 12, 12, 12, 0, 0, 0,
 			].do { |deg|
 				if(deg == \, {
 					wait.(0.25);

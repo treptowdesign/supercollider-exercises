@@ -19,10 +19,11 @@ s.options.numInputBusChannels; // num inputs (2 = Left & Right)
 
 // Memory Server Stuff
 s.options.memSize;
-s.options.memSize = 1048576; // (original 8192)
+s.options.memSize = 1048576; // 2.pow(20); (original 8192)
 s.options.numWireBufs;
 s.options.numWireBufs = 128; // (original 64)
 
 //////////////////////////////////////////////////////
 // End...
 //////////////////////////////////////////////////////
+

@@ -15,10 +15,22 @@ NHHall (pluging from Nathan Ho)
 (
 SynthDef(\delaySynth, {
 	var snd, trigger;
-	trigger = Dust.kr(5);
+	trigger = Dust.kr(2);
 	snd = SinOsc.ar(\freq.kr(440));
 	snd = snd * EnvGen.kr(Env.perc(0.001, 0.2), trigger);
-	snd = CombL.ar(snd, 0.5, 0.2, 1);
+	snd = CombN.ar(snd, 0.4, 0.15, 3);
+	Out.ar(\out.kr(0), Pan2.ar(snd * \amp.kr(1.dbamp), \pan.kr(0)));
+}).play;
+)
+
+(
+SynthDef(\delaySynth, { |maxDelay=0.1, minDelay=0.05, decay=4|
+	var snd, trigger, delayMod;
+	trigger = Dust.kr(2);
+	delayMod = SinOsc.kr(2).range(minDelay, maxDelay);
+	snd = SinOsc.ar(\freq.kr(440));
+	snd = snd * EnvGen.kr(Env.perc(0.01, 0.2), trigger);
+	snd = CombL.ar(snd, maxDelay, delayMod, decay);
 	Out.ar(\out.kr(0), Pan2.ar(snd * \amp.kr(1.dbamp), \pan.kr(0)));
 }).play;
 )

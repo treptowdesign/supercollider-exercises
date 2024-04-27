@@ -24,9 +24,9 @@ SynthDef(\delaySynth, {
 )
 
 (
-SynthDef(\delaySynth, { |maxDelay=0.1, minDelay=0.05, decay=4|
+SynthDef(\delaySynth, { |maxDelay=0.5, minDelay=0.01, decay=2|
 	var snd, trigger, delayMod;
-	trigger = Dust.kr(2);
+	trigger = Dust.kr(5);
 	delayMod = SinOsc.kr(2).range(minDelay, maxDelay);
 	snd = SinOsc.ar(\freq.kr(440));
 	snd = snd * EnvGen.kr(Env.perc(0.01, 0.2), trigger);
@@ -35,6 +35,11 @@ SynthDef(\delaySynth, { |maxDelay=0.1, minDelay=0.05, decay=4|
 }).play;
 )
 
+Synth(\delaySynth, [maxDelay: 0.4, minDelay: 0.1, decay: 8]);
+Synth(\delaySynth, [maxDelay: 0.4, minDelay: 0.1, decay: 1]);
+Synth(\delaySynth, [maxDelay: 1, minDelay: 0.2, decay: 1]);
+Synth(\delaySynth, [maxDelay: 0.2, minDelay: 0.1, decay: 6]);
+Synth(\delaySynth, [maxDelay: 0.8, minDelay: 0.01, decay: 0.1]);
 
 ////////////////////////////////////////////////////////////////
 // Synth Definitions

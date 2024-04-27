@@ -137,6 +137,7 @@ SynthDef(\keysFX, {
 	snd = FreeVerb.ar(snd, 0.5, 0.8);
 	Out.ar(\out.kr(0), snd);
 }).add;
+
 )
 
 Synth(\padLow, [freq: 440, duration: 4]);

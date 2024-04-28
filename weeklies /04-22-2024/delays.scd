@@ -12,17 +12,21 @@ NHHall (pluging from Nathan Ho)
 // Synth Definitions
 ////////////////////////////////////////////////////////////////
 
+// static delay val
 (
-SynthDef(\delaySynth, {
+SynthDef(\delaySynthStatic, { |maxDelay=0.4, delay=0.15, decay=3|
 	var snd, trigger;
 	trigger = Dust.kr(2);
 	snd = SinOsc.ar(\freq.kr(440));
 	snd = snd * EnvGen.kr(Env.perc(0.001, 0.2), trigger);
-	snd = CombN.ar(snd, 0.4, 0.15, 3);
+	snd = CombN.ar(snd, maxDelay, delay, decay);
 	Out.ar(\out.kr(0), Pan2.ar(snd * \amp.kr(1.dbamp), \pan.kr(0)));
 }).play;
 )
 
+Synth(\delaySynthStatic, [maxDelay: 0.5, minDelay: 0.2, decay: 1]);
+
+// modulated delay val
 (
 SynthDef(\delaySynth, { |maxDelay=0.5, minDelay=0.01, decay=2|
 	var snd, trigger, delayMod;
@@ -40,6 +44,8 @@ Synth(\delaySynth, [maxDelay: 0.4, minDelay: 0.1, decay: 1]);
 Synth(\delaySynth, [maxDelay: 1, minDelay: 0.2, decay: 1]);
 Synth(\delaySynth, [maxDelay: 0.2, minDelay: 0.1, decay: 6]);
 Synth(\delaySynth, [maxDelay: 0.8, minDelay: 0.01, decay: 0.1]);
+
+Synth(\delaySynth, [maxDelay: 0.6, minDelay: 0.05, decay: 0.2]);
 
 ////////////////////////////////////////////////////////////////
 // Synth Definitions

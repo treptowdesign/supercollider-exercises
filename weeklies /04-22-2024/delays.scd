@@ -19,6 +19,7 @@ SynthDef(\delaySynthStatic, { |maxDelay=0.4, delay=0.15, decay=3|
 	trigger = Dust.kr(2);
 	snd = SinOsc.ar(\freq.kr(440));
 	snd = snd * EnvGen.kr(Env.perc(0.001, 0.2), trigger);
+	snd = MoogFF.ar(snd, EnvGen.kr(Env([20, 8000, 20], [0.05, 0.01]), trigger), 2);
 	snd = CombN.ar(snd, maxDelay, delay, decay);
 	Out.ar(\out.kr(0), Pan2.ar(snd * \amp.kr(1.dbamp), \pan.kr(0)));
 }).play;

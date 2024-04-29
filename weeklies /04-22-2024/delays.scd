@@ -46,6 +46,7 @@ Synth(\delaySynth, [maxDelay: 1, minDelay: 0.2, decay: 1]);
 Synth(\delaySynth, [maxDelay: 0.2, minDelay: 0.1, decay: 6]);
 Synth(\delaySynth, [maxDelay: 0.8, minDelay: 0.01, decay: 0.1]);
 Synth(\delaySynth, [maxDelay: 0.6, minDelay: 0.05, decay: 0.2]);
+Synth(\delaySynth, [maxDelay: 0.5, minDelay: 0.25, decay: 0.05]);
 
 ////////////////////////////////////////////////////////////////
 // Synth Definitions

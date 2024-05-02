@@ -147,6 +147,7 @@ Synth(\percAlgoB);
 Synth(\perc2AlgoB);
 Synth(\keys);
 Synth(\pluckBass, [freq: 89]);
+Synth(\swarmHat);
 
 Scale.dorian.degrees;
 

@@ -113,10 +113,10 @@ SynthDef(\keys, {
 SynthDef(\pluckBass, {
 	var snd;
 	snd = Pulse.ar(\freq.kr(60) * XLine.ar(2, 1, 0.01));
-	snd = MoogFF.ar(snd, Env.perc(0.02, \filtVal.kr(0.35)).ar.linexp(0, 1, 80, 6000), 1) * 6.dbamp;
+	snd = MoogFF.ar(snd, Env.perc(0.02, \filtVal.kr(0.45)).ar.linexp(0, 1, 80, 4000), 1) * 6.dbamp;
 	snd = snd * Env.perc(0.001, 0.8).ar(Done.freeSelf);
 	snd = snd ! 2;
-	snd = snd * -16.dbamp;
+	snd = snd * -12.dbamp;
 	snd = snd * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -134,7 +134,14 @@ SynthDef(\keysFX, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
 	snd = snd + CombL.ar(snd * -15.dbamp, 0.25, 0.1, 1);
-	snd = FreeVerb.ar(snd, 0.5, 0.8);
+	snd = FreeVerb.ar(snd, 0.1, 0.8);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\bassFX, {
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	// snd = snd + CombL.ar(snd * -15.dbamp, 0.25, 0.1, 1);
+	snd = FreeVerb.ar(snd, 0.7, 0.6);
 	Out.ar(\out.kr(0), snd);
 }).add;
 
@@ -155,13 +162,15 @@ Scale.dorian.degrees;
 (
 ~fxBus = Bus.audio(s, 2);
 ~keysBus = Bus.audio(s, 2);
+~bassFxBus = Bus.audio(s, 2);
 )
 ~fxBus.index;
 ~keysBus.index;
+~bassFxBus.index;
 
 (
 var s, bpm, beat, root, scale;
-var randomNote, getNote, wait, play, playLayer, fx, keyBus;
+var randomNote, getNote, wait, play, playLayer, fx, keyBus, bassBus;
 s = Server.default;
 bpm = 108;
 beat = 60 / bpm;
@@ -170,6 +179,7 @@ scale = Scale.dorian.degrees;
 //
 fx = Synth.tail(nil, \fxSidechain, [in: ~fxBus, out: 0, trigger: 0]);
 keyBus = Synth.tail(nil, \keysFX, [in: ~keysBus, out: 0, trigger: 0]);
+bassBus = Synth.tail(nil, \keysFX, [in: ~bassFxBus, out: 0, trigger: 0]);
 
 randomNote = { |octave|
 	(root + scale.choose + (12 * octave)).midicps;
@@ -198,7 +208,7 @@ Routine({
 				0.6, 0.1, 0.2, 0.2, 0.5, 0.2, 0.1, 0.2,
 				0.5, 0.2, 0.2, 0.1, 0.4, 0.1, 0.2, 0.2
 			].do { |rel, index|
-				play.(\swarmHat, 1/4, [amp: (index % 8).linlin(1, 4, -26, -16), rel: rel]);
+				play.(\swarmHat, 1/4, [amp: (index % 8).linlin(1, 4, -22, -16), rel: rel]);
 			};
 		}; });
 	}).play;
@@ -242,8 +252,8 @@ Routine({
 		}; });
 	}).play;
 	Routine({ // Sidechain Trigger
-		wait.(16);
-		if(false, { loop {
+		// wait.(16);
+		if(true, { loop {
 			s.bind { fx.set(\trigger, 1); };
 			wait.(0.05);
 			s.bind { fx.set(\trigger, 0); };
@@ -273,7 +283,7 @@ Routine({
 	Routine({ // Pad 16barLoop
 		var dur;
 		dur = beat * 4;
-		if(false, { loop {
+		if(true, { loop {
 			[
 				[0, 3, 7, 10, 2], // i9
 				[5, 9, 0, 2, 4], // bVI9
@@ -282,10 +292,10 @@ Routine({
 			].do { |chord, index|
 				chord.do { |deg|
 
-					Synth(\padLow, [freq: (root + deg + (12 * 1)).midicps, duration: dur * 1.5, amp: -32, out: ~fxBus]);
+					Synth(\padLow, [freq: (root + deg + (12 * 1)).midicps, duration: dur * 1.5, amp: -28, out: ~fxBus]);
 					// Synth(\padHigh, [freq: (root + deg + (12 * 1)).midicps, duration: dur * 1.5, amp: -32, out: ~fxBus]);
-					Synth(\padLow, [freq: (root + deg + (12 * 3)).midicps, duration: dur * 1.5, amp: -40, out: ~fxBus]);
-					Synth(\padHigh, [freq: (root + deg + (12 * 2)).midicps, duration: dur * 1.5, amp: -24, out: ~fxBus]);
+					Synth(\padLow, [freq: (root + deg + (12 * 3)).midicps, duration: dur * 1.5, amp: -36, out: ~fxBus]);
+					Synth(\padHigh, [freq: (root + deg + (12 * 2)).midicps, duration: dur * 1.5, amp: -22, out: ~fxBus]);
 
 				};
 				dur.wait;
@@ -298,7 +308,7 @@ Routine({
 		// wait.(8);
 		if(true, { loop {
 			[
-				0, 0, 7, \, 3, \, 2, \, \, \, 2, \, \, 2, \, \,
+				0, 0, 7, \, 3, \, 2, \, \, \, \, \, 2, \, 2, \,
 				5, \, 0, \, 2, \, 5, \, \, \, \, \, \, \, \, \,
 				9, \, 1, \, 4, \, 7, \, \, \, \, \, \, \, \, \,
 				8, \, 0, \, 3, \, 5, \, \, \, \, \, \, \, \, \,
@@ -316,15 +326,25 @@ Routine({
 		// wait.(16);
 		if(true, { loop {
 			[
+				/*0, \, \, \, 0, \, \, \, \, 0, 0, 0, \, \, \, \,
 				0, \, \, \, 0, \, \, \, \, 0, 0, 0, \, \, \, \,
 				0, \, \, \, 0, \, \, \, \, 0, 0, 0, \, \, \, \,
-				0, \, \, \, 0, \, \, \, \, 0, 0, 0, \, \, \, \,
-				0, \, \, \, 0, \, \, \, \, \, 0, 0, 0, 0, 0, 0,
+				0, \, \, \, 0, \, \, \, \, \, 0, 0, 0, 0, 0, 0,*/
+				/*\, \, 2, 2, \, 2, 2, \, \, \, \, \, \, \, \, \,
+				\, \, -1, -1, \, -1, -1, \, \, \, \, \, \, \, \, \,*/
+
+				\, \, 0, 0, \, 0, 0, \, \, \, \, \, \, \, \, \,
+				\, \, 0, 0, \, 0, 0, \, \, \, \, \, \, \, \, \,
+
+				/*\, \, 0, 0, \, 0, 0, \, \, \, \, \, \, \, \, \,
+				\, \, 5, 5, \, 5, 5, \, \, \, \, \, \, \, \, \,
+				\, \, 9, 9, \, 9, 9, \, \, \, \, \, \, \, \, \,
+				\, \, 8, 8, \, 8, 8, \, \, \, \, \, \, \, \, \,*/
 			].do { |deg|
 				if(deg == \, {
 					wait.(0.25);
 				}, {
-					play.(\pluckBass, 0.25, [freq: (root + deg + (12 * (-1))).midicps, out: 0]);
+					play.(\pluckBass, 0.25, [freq: (root + deg + (12 * (-1))).midicps, out: ~bassFxBus]);
 				});
 			};
 		}; });

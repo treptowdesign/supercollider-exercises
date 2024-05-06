@@ -103,20 +103,20 @@ SynthDef(\keys, {
 	snd = SinOsc.ar(freq + snd);
 	snd = snd * Env([0, 10, 0.5, 1], [0.001, 0.01, 0.001], curve: -4).ar;
 	snd = snd.fold2;
-	snd = snd * Env.perc(0.001, 1.0, curve: -10).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.001, 0.6, curve: -10).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -20.dbamp;
+	snd = snd * -22.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
 
 SynthDef(\pluckBass, {
 	var snd;
 	snd = Pulse.ar(\freq.kr(60) * XLine.ar(2, 1, 0.01));
-	snd = MoogFF.ar(snd, Env.perc(0.02, \filtVal.kr(0.45)).ar.linexp(0, 1, 80, 3000), 1) * 6.dbamp;
-	snd = snd * Env.perc(0.001, 0.8).ar(Done.freeSelf);
+	snd = MoogFF.ar(snd, Env.perc(0.02, \filtVal.kr(0.4)).ar.linexp(0, 1, 80, 3000), 1) * 6.dbamp;
+	snd = snd * Env.perc(0.001, 0.6).ar(Done.freeSelf);
 	snd = snd ! 2;
-	snd = snd * -10.dbamp;
+	snd = snd * -14.dbamp;
 	snd = snd * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -127,13 +127,13 @@ SynthDef(\fxSidechain, { | trigger=1 |
 	snd = In.ar(\in.kr(0), 2);
 	snd = FreeVerb.ar(snd, 0.5, 0.9);
 	snd = snd + (snd * 14.dbamp).tanh * -22.dbamp;
-	snd = snd * EnvGen.kr(Env([1,0,0.15,1], [0.0001, 0.08, 0.2], 'lin'), trigger, doneAction: 0);
+	snd = snd * EnvGen.kr(Env([1,0,0.15,1], [0.0001, 0.07, 0.25], 'lin'), trigger, doneAction: 0);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\keysFX, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd + CombL.ar(snd * -15.dbamp, 0.25, 0.1, 1);
+	snd = snd + CombL.ar(snd * -20.dbamp, 0.25, 0.1, 1);
 	snd = FreeVerb.ar(snd, 0.1, 0.8);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -141,7 +141,7 @@ SynthDef(\bassFX, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
 	// snd = snd + CombL.ar(snd * -15.dbamp, 0.25, 0.1, 1);
-	snd = FreeVerb.ar(snd, 0.7, 0.6);
+	snd = FreeVerb.ar(snd, 0.6, 0.4);
 	Out.ar(\out.kr(0), snd);
 }).add;
 
@@ -237,17 +237,17 @@ Routine({
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.5);
 			play.(\clapYcgm, 0.75, [amp: -12]);
-			play.(\clapYcgm, 0.25, [amp: -18, filtCutoff: 15e3]);
+			play.(\clapYcgm, 0.25, [amp: -14, filtCutoff: 10e3]);
 
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.75);
 			play.(\clapYcgm, 0.5, [amp: -12]);
-			play.(\clapYcgm, 0.5, [amp: -22, filtCutoff: 15e3]);
+			play.(\clapYcgm, 0.5, [amp: -14, filtCutoff: 10e3]);
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.25);
 			play.(\delKick, 0.5);
 			play.(\clapYcgm, 0.75, [amp: -12]);
-			play.(\clapYcgm, 0.25, [amp: -18, filtCutoff: 15e3]);
+			play.(\clapYcgm, 0.25, [amp: -14, filtCutoff: 10e3]);
 
 		}; });
 	}).play;

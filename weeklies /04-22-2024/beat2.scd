@@ -116,7 +116,7 @@ SynthDef(\pluckBass, {
 	snd = MoogFF.ar(snd, Env.perc(0.02, \filtVal.kr(0.4)).ar.linexp(0, 1, 80, 3000), 1) * 6.dbamp;
 	snd = snd * Env.perc(0.001, 0.6).ar(Done.freeSelf);
 	snd = snd ! 2;
-	snd = snd * -14.dbamp;
+	snd = snd * -18.dbamp;
 	snd = snd * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -283,7 +283,7 @@ Routine({
 	Routine({ // Pad 16barLoop
 		var dur;
 		dur = beat * 4;
-		if(true, { loop {
+		if(false, { loop {
 			[
 				[0, 3, 7, 10, 2], // i9
 				[5, 9, 0, 2, 4], // bVI9

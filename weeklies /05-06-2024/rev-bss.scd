@@ -28,7 +28,7 @@ SynthDef(\metalRise, {
 		Env.perc(0.35, 0.15).ar.linlin(0, 1, 60, 6000),
 		Env.perc(0.35, 0.15).ar.linlin(0, 1, 1, 2)
 	);
-	snd = CombN.ar(snd, 0.05, 0.05, 2);
+	// snd = CombN.ar(snd, 0.05, 0.05, 2);
 	snd = snd * Env.perc(0.001, 2).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), Pan2.ar(snd * \amp.kr(1.dbamp), \pan.kr(0)));
 }).play;
@@ -177,12 +177,6 @@ SynthDef(\delayPWBass, {
 )
 
 
-
-
-
-
-
-
 // bussing
 (
 ~fxBus = Bus.audio(s, 2);
@@ -213,7 +207,8 @@ Routine({
 		8.do {
 			note = (root + scale.choose + (12 * octave)).midicps;
 			// note = freqs.next;
-			s.bind { Synth(\delayPWBass, [freq: note, out: ~fxBus]); };
+			s.bind { Synth(\delayPWBass, [freq: note, out: 0]); };
+			// s.bind { Synth(\delayHollowBassSub, [freq: note, out: 0]); };
 			dur.wait;
 		};
 	};

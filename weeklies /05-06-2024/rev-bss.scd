@@ -170,7 +170,7 @@ SynthDef(\delayPWBass, {
 	snd = Pulse.ar(\freq.kr(60), env.linexp(0, 1, 0.2, 0.9));
 	snd = snd * (1 + (1.35 * Env.perc(0.001, 0.02).ar));
 	snd = MoogFF.ar(snd, env.linexp(0, 1, 60, 4000), 1.5);
-	// snd = snd + (CombN.ar(snd, 0.2, 0.1, 6) * -25.dbamp);
+	// snd = snd + (CombN.ar(snd, 0.2, 0.1, 6) * -5.dbamp);
 	snd = snd * Env.perc(0.001, 5, 1, -8).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), Pan2.ar(snd * \amp.kr(1.dbamp), \pan.kr(0)));
 }).play;
@@ -202,12 +202,31 @@ Routine({
 	// var freqs = Pseq([440, 550, 660, 880], inf).asStream;
 	tatum = beat / 4;
 	loop {
-		dur = tatum  * [2, 4].choose;
-		octave = [-1, 0].choose;
+		dur = tatum  * [1, 2].choose;
+		octave = [2, 3].choose;
 		8.do {
 			note = (root + scale.choose + (12 * octave)).midicps;
 			// note = freqs.next;
-			s.bind { Synth(\delayPWBass, [freq: note, out: 0]); };
+			// s.bind { Synth(\delayPWBass, [freq: note, out: 0]); };
+			s.bind { Synth(\synth, [freq: note, out: ~fxBus]); };
+			// s.bind { Synth(\delayHollowBassSub, [freq: note, out: 0]); };
+			dur.wait;
+		};
+	};
+}).play;
+
+Routine({
+	var tatum, dur, note, octave;
+	// var freqs = Pseq([440, 550, 660, 880], inf).asStream;
+	tatum = beat / 4;
+	loop {
+		dur = tatum  * [4].choose;
+		octave = [-1].choose;
+		8.do {
+			note = (root + scale.choose + (12 * octave)).midicps;
+			// note = freqs.next;
+			// s.bind { Synth(\delayPWBass, [freq: note, out: 0]); };
+			// s.bind { Synth(\synth, [freq: note, out: ~fxBus]); };
 			// s.bind { Synth(\delayHollowBassSub, [freq: note, out: 0]); };
 			dur.wait;
 		};

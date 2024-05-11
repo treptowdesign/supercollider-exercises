@@ -13,8 +13,7 @@ SynthDef(\k, {
 		* (1 + (1.5 * Env.perc(0, 0.1).ar))
 		* (1 + (2 * Env.perc(0, 0.01).ar))
 	);
-	snd = (snd).tanh;
-	snd = snd * Env.perc(0.001, 0.3).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.001, 0.6).ar(Done.freeSelf);
 	Out.ar(0, snd ! 2);
 }).play;
 )

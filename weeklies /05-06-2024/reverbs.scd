@@ -10,7 +10,7 @@ SynthDef(\fx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
 	// snd = GVerb.ar(snd) * -10.dbamp;
-	snd = FreeVerb.ar(snd) * 1.dbamp;
+	// snd = FreeVerb.ar(snd) * 1.dbamp;
 	snd = NHHall.ar(snd) * 1.dbamp;
 	Out.ar(\out.kr(0), snd * \amp.kr(1.dbamp));
 }).add;

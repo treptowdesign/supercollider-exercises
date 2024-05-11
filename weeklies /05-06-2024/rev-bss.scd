@@ -140,9 +140,10 @@ SynthDef(\delayHollowBass, {
 
 (
 SynthDef(\delayHollowBassSub, {
-	var snd, sub;
-	sub = SinOsc.ar(\freq.kr(60)) * 0.5;
-	snd = Saw.ar(\freq.kr(60));
+	var snd, sub, freq;
+	freq = \freq.kr(60);
+	sub = SinOsc.ar(freq) * 0.5;
+	snd = Saw.ar(freq);
 	snd = snd * (1 + (2 * Env.perc(0.001, 0.02).ar));
 	snd = BPF.ar(snd, (1..12).normalize.linexp(0, 1, 20, 4000), 0.1) * (1..12).linlin(1, 20, 12, 1).dbamp;
 	snd = snd.sum;
@@ -169,7 +170,7 @@ SynthDef(\delayPWBass, {
 	env = Env.perc(0, 6, 1, -2).ar;
 	snd = Pulse.ar(\freq.kr(60), env.linexp(0, 1, 0.2, 0.9));
 	snd = snd * (1 + (1.35 * Env.perc(0.001, 0.02).ar));
-	snd = MoogFF.ar(snd, env.linexp(0, 1, 60, 4000), 1.5);
+	snd = MoogFF.ar(snd, env.linexp(0, 1, 60, 6000), 1.5);
 	// snd = snd + (CombN.ar(snd, 0.2, 0.1, 6) * -5.dbamp);
 	snd = snd * Env.perc(0.001, 5, 1, -8).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), Pan2.ar(snd * \amp.kr(1.dbamp), \pan.kr(0)));

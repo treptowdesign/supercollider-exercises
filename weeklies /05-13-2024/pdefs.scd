@@ -57,23 +57,14 @@ Pdef(\pad,
 SynthDef(\pulseChorusPad, {
     arg freq = 440, width = 0.5, amp = 0.5, gate = 1, attack = 2, release = 3, depth = 0.3, rate = 0.25;
     var env, osc, chorus, lfo;
-
-    // Amplitude envelope
     env = EnvGen.kr(Env.adsr(attack, 0.5, 0.7, release), gate, doneAction: 2);
-
-    // Pulse wave oscillator
     osc = Pulse.ar(freq, width);
-
-    // LFO for chorus effect
     lfo = SinOsc.kr(rate, 0, depth, 1);
     chorus = DelayC.ar(osc, 0.03, lfo * 0.015 + 0.015);
-
-    // Output
-    Out.ar(0, (osc + chorus) * env * amp * 0.5 ! 2); // Mixing original and chorus signals
+    Out.ar(0, (osc + chorus) * env * amp * 0.5 ! 2);
 }).add;
 )
 
-// Example usage
 (
 Pdef(\pulseChorusPad).clear;
 Pdef(\pulseChorusPad,

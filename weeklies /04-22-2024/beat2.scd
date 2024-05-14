@@ -324,7 +324,7 @@ Routine({
 
 	Routine({ // PluckBass
 		// wait.(16);
-		if(true, { loop {
+		if(false, { loop {
 			[
 				/*0, \, \, \, 0, \, \, \, \, 0, 0, 0, \, \, \, \,
 				0, \, \, \, 0, \, \, \, \, 0, 0, 0, \, \, \, \,

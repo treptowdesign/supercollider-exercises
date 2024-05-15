@@ -70,7 +70,7 @@ Pdef(\pulseChorusPad).clear;
 Pdef(\pulseChorusPad,
     Pbind(
         \instrument, \pulseChorusPad,
-        \dur, Pseq([2, 2, 4, 4], inf),
+        \dur, Pseq([2, 2, 2, 4], inf),
         \freq, Pseq([220, 330, 440, 550], inf),
         \attack, 2,
         \release, 3,

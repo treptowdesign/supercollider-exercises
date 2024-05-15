@@ -160,10 +160,6 @@ SynthDef(\delayHollowBassSub, {
 }).play;
 )
 
-
-
-
-
 (
 SynthDef(\delayPWBass, {
 	var snd, env;
@@ -176,6 +172,9 @@ SynthDef(\delayPWBass, {
 	Out.ar(\out.kr(0), Pan2.ar(snd * \amp.kr(1.dbamp), \pan.kr(0)));
 }).play;
 )
+
+
+
 
 
 // bussing

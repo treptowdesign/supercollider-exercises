@@ -79,7 +79,7 @@ Routine({
 Routine({
 	loop {
 		beat.wait;
-		s.bind { Synth(\clapYcgm, [out: 0]); };
+		s.bind { Synth(\clapYcgm, [ou=t: 0]); };
 		beat.wait;
 	};
 }).play;

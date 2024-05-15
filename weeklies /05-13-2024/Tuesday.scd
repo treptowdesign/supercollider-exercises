@@ -1,2 +1,22 @@
 // Chorus effect
-{Mix.ar(VarSaw.ar(([72, 62, 65, 69] +.x [0, 0.135]).midicps) * 0.1) ! 2}.play;
+
+Ndef(\lfo, {Saw.kr(8).unipolar(1)});
+Ndef(\s, {Mix.ar(VarSaw.ar(([72, 62, 65, 69] + 0 +.x [0, 0.135]).midicps) * 0.1) * (Ndef(\lfo)) ! 2});
+Ndef(\s).play;
+
+(
+Tdef(\chords, {
+    loop {
+        [0, 3, 7, -1].do { |n|
+            Ndef(\s, {
+                var freqs = ([72, 62, 65, 69] + n +.x [0, 0.135]).midicps;
+				var signal = VarSaw.ar(freqs)) * 0.1;
+                Mix.ar(signal) * (Ndef(\lfo)) ! 2
+            });
+            2.wait;
+        };
+    };
+});
+)
+
+Tdef(\chords).play;

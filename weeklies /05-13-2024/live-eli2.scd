@@ -16,7 +16,7 @@ Ndef(\pad, { Mix.ar( VarSaw.ar(([72, 62, 65, 69] +.x [0, 0.137]).midicps) * 0.1)
 Tdef(\npat, {
 	loop {
 		[0, 3, -2, 5].do { |n|
-			Ndef(\pad, { Mix.ar( VarSaw.ar(([72, 62, 65, 69] + n +.x [0, 0.137]).midicps) * 0.0.5) ! 2 });
+			Ndef(\pad, { Mix.ar( VarSaw.ar(([72, 62, 65, 69] + n +.x [0, 0.137]).midicps) * 0.05) ! 2 });
 			2.wait;
 		}
 	}

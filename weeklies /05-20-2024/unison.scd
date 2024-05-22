@@ -26,9 +26,17 @@ Routine({
 	dur = beat / 2;
 	loop {
 		octave = 2;
-		note = (root + scale.choose + (12 * octave)).midicps;
-		Synth(\synth, [freq: note]);
-		dur.wait;
+		[
+			0, 2, 6, 2, \, 2, 6, 3,
+			0, 3, 6, 2, \, 3, 6, 0
+
+		].do {|deg|
+			if(deg != \, {
+				note = (root + scale[deg] + (12 * octave)).midicps;
+				Synth(\synth, [freq: note]);
+			});
+			dur.wait;
+		};
 	};
 }).play;
 )

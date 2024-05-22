@@ -8,7 +8,7 @@ SynthDef(\synth, {
 	snd = VarSaw.ar(freq, 0, 0);
 	snd = snd.sum;
 	snd = MoogFF.ar(snd, 14000, 0);
-	snd = snd * Env.perc(0.05, freq).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.05, rel).ar(Done.freeSelf);
 	Out.ar(0, snd * -15.dbamp ! 2);
 }).play;
 )
@@ -25,8 +25,36 @@ Synth(\synth, [freq: (42 + 24 + 14).midicps]);
 
 Scale.dorian.degrees;
 
-[ 0, 1, 2, 3, 4, 5, 6  ]
-[ 0, 2, 3, 5, 7, 9, 10 ]
+[  0,  1,  2,  3,  4,  5,  6,  7]
+
+[  0,  2,  3,  5,  7,  9, 10, 12]
+[-12,-10, -9  -7, -5, -3, -2,  0]
+
+[
+-12, -10, -9  -7, -5, -3, -2,  0,
+  0,   2,  3,  5,  7,  9, 10, 12,
+ 12,  14, 15, 17, 19, 21, 22, 24
+]
+
+// chords dorian
+
+[0, 3, 7, 10] // 1
+[2, 5, 9, 12] // 2
+[3, 7, 10, 14] // 3
+[5, 9, 12, 15] // 4
+[7, 10, 14, 17] // 5
+
+(
+var chord, root, octave, note;
+root = 42;
+octave = 2;
+chord = [0, 3, 7, 10];
+chord.do{ |deg|
+	note = (root + deg + (12 * octave)).midicps;
+	Synth(\synth, [freq: note, rel: 1.2]);
+};
+)
+
 
 (
 var s, bpm, beat, root, scale;
@@ -35,7 +63,7 @@ bpm = 110;
 beat = 60 / bpm;
 root = 42;
 scale = Scale.dorian.degrees;
-Routine({
+/*Routine({
 	var dur, octave, note;
 	dur = beat / 4;
 	loop {
@@ -47,24 +75,25 @@ Routine({
 		].do {|deg|
 			if(deg != \, {
 				note = (root + scale[deg] + (12 * octave)).midicps;
-				Synth(\synth, [freq: note]);
+				Synth(\synth, [freq: note, rel: 1.2]);
 			});
 			dur.wait;
 		};
 	};
-}).play;
+}).play;*/
 Routine({
 	var dur, octave, note;
 	dur = beat * 2;
 	loop {
-		octave = 1;
+		octave = 2;
 		[
-			[0, 5, 10, 12],
-			[1, 6, 12, 17],
+			[0, 3, 7, 10, (2 + 12)],
+			[(10 -12), 2, 5, 9],
+			[(9 -12), 0, 3, 7, 12]
 		].do { |chord|
 			chord.do {|deg|
 				note = (root + deg + (12 * octave)).midicps;
-				Synth(\synth, [freq: note]);
+				Synth(\synth, [freq: note, rel: 1.2]);
 
 			};
 			dur.wait;

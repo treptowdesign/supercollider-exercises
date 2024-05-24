@@ -43,12 +43,19 @@ Scale.dorian.degrees;
 [3, 7, 10, 14] // 3
 [5, 9, 12, 15] // 4
 [7, 10, 14, 17] // 5
+[9, 12, 15, 19] // 6
+[10, 14, 17, 21] // 7
+
+
+[9, 12, 15, 19] -12
+
+-2, 2, 5, 9
 
 (
 var chord, root, octave, note;
 root = 42;
 octave = 2;
-chord = [0, 3, 7, 10];
+chord = [3, 7, 10, 14];
 chord.do{ |deg|
 	note = (root + deg + (12 * octave)).midicps;
 	Synth(\synth, [freq: note, rel: 1.2]);
@@ -87,9 +94,10 @@ Routine({
 	loop {
 		octave = 2;
 		[
-			[0, 3, 7, 10, (2 + 12)],
-			[(10 -12), 2, 5, 9],
-			[(9 -12), 0, 3, 7, 12]
+			[0, 3, 7, 10],
+			[-2, 2, 5, 9],
+			[-3, 0, 3, 7],
+			[3, 7, 10, 14]
 		].do { |chord|
 			chord.do {|deg|
 				note = (root + deg + (12 * octave)).midicps;

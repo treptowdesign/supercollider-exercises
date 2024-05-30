@@ -44,7 +44,7 @@ SynthDef(\bass, {
 	snd = snd + (snd.tanh * 0.2);
 	snd = snd * (1 + (1 * Env.perc(0, 0.4).ar));
 	snd = snd * Env.perc(0.008, rel, curve: -6).ar(Done.freeSelf);
-	Out.ar(0, snd * -26.dbamp * vol.dbamp ! 2);
+	Out.ar(0, snd * -24.dbamp * vol.dbamp ! 2);
 }).add;
 )
 

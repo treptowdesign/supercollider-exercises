@@ -7,13 +7,26 @@ SynthDef(\synth, {
 	detunes = [0] ++ (detunes.collect {|val| val + Rand(-0.05, 0.05)});
 	freq = \freq.kr(440) * (detunes * spread).midiratio;
 	rel = \rel.kr(1.2);
-	snd = VarSaw.ar(freq, 0, freq.collect { Rand(0.4, 0.6)});
+	snd = VarSaw.ar(freq, 0, freq.collect { Rand(0.45, 0.55)});
 	snd = Splay.ar(snd);
-	snd = MoogFF.ar(snd, 11e3, 1) * 9.dbamp;
+	snd = MoogFF.ar(snd, 10e3, 1) * 9.dbamp;
 	snd = snd * (1 + (2 * Env.perc(0.001, 0.02).ar));
-	snd = snd * Env.perc(0.25, rel, curve: -2).ar;
-	snd = snd * Env.linen(0, \duration.kr(1), 0.1, curve: -4).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.14, rel, curve: -2).ar;
+	snd = snd * Env.linen(0, \duration.kr(1), 0.1, curve: -8).ar(Done.freeSelf);
 	Out.ar(0, snd * -20.dbamp * vol.dbamp ! 2);
+}).add;
+SynthDef(\bass, {
+	var freq, snd, rel, vol;
+	vol = \vol.kr(0);
+	freq = \freq.kr(60);
+	rel = \rel.kr(0.8);
+	snd = Pulse.ar(freq);
+	// snd = RLPF.ar(snd, 800, 0.4);
+	snd = MoogFF.ar(snd, Env.perc(0.01, 0.6).kr.linexp(0, 1, 60, 1800), 0.6) * 10.dbamp;
+	snd = snd + (snd.tanh * 0.5);
+	snd = snd * (1 + (1 * Env.perc(0, 0.4).ar));
+	snd = snd * Env.perc(0.008, rel, curve: -6).ar(Done.freeSelf);
+	Out.ar(0, snd * -26.dbamp * vol.dbamp ! 2);
 }).add;
 )
 
@@ -27,7 +40,7 @@ SynthDef(\kick, {
 	snd = snd.clip2;
 	snd = snd.tanh;
 	snd = snd * Env.perc(0.001, 0.5 * velocity).ar(Done.freeSelf);
-	snd = snd * -2.dbamp;
+	snd = snd * -4.dbamp;
 	snd = snd * \amp.kr(1);
 	snd = snd ! 2;
 	Out.ar(\out.kr(0), snd);
@@ -117,7 +130,7 @@ Routine({
 			dur = chord[1];
 			notes.do {|deg|
 				var note = (42 + deg + (12 * 1)).midicps;
-				s.bind { Synth(\synth, [freq: note, spread: 1, rel: dur * beat * 1.8, duration: dur * beat]); };
+				s.bind { Synth(\synth, [freq: note, spread: 1.25, rel: dur * beat * 1.8, duration: dur * beat]); };
 			};
 			(beat * dur).wait
 		};

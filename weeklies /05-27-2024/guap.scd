@@ -40,8 +40,8 @@ SynthDef(\bass, {
 	rel = \rel.kr(0.8);
 	snd = Pulse.ar(freq);
 	// snd = RLPF.ar(snd, 800, 0.4);
-	snd = MoogFF.ar(snd, Env.perc(0.01, 0.4).kr.linexp(0, 1, 60, 1800), 0.6) * 10.dbamp;
-	snd = snd + (snd.tanh * 0.5);
+	snd = MoogFF.ar(snd, Env.perc(0.01, 0.6).kr.linexp(0, 1, 60, 1600), 0.6) * 10.dbamp;
+	snd = snd + (snd.tanh * 0.2);
 	snd = snd * (1 + (1 * Env.perc(0, 0.4).ar));
 	snd = snd * Env.perc(0.008, rel, curve: -6).ar(Done.freeSelf);
 	Out.ar(0, snd * -26.dbamp * vol.dbamp ! 2);
@@ -154,9 +154,9 @@ Routine({
 				// s.bind { Synth(\synth, [freq: note, spread: 1, rel: dur * beat * 1.8, duration: dur * beat, vol: -10]); };
 
 				var note = (42 + deg + (12 * 1)).midicps;
-				s.bind { Synth(\synthSin, [freq: note, spread: 1, rel: dur * beat * 4, duration: dur * beat, vol: -18]); };
+				s.bind { Synth(\synthSin, [freq: note, spread: 1, rel: dur * beat * 4, duration: dur * beat, vol: -16]); };
 				note = (42 + deg + (12 * 2)).midicps;
-				s.bind { Synth(\synth, [freq: note, spread: 1, rel: dur * beat * 4, duration: dur * beat, vol: -20]); };
+				s.bind { Synth(\synth, [freq: note, spread: 1, rel: dur * beat * 4, duration: dur * beat, vol: -18]); };
 			};
 			(beat * dur).wait
 		};
@@ -173,7 +173,7 @@ Routine({
 			if(idx == 1, { vol = -10; });
 			if(idx == 2, { vol = -5; });
 			(idx = (idx % 4) + 1 );
-			s.bind { Synth(\bass, [freq: (42 + note + (12 * 0)).midicps, vol: vol ]); };
+			s.bind { Synth(\bass, [freq: (42 + note + (12 * 1.neg)).midicps, vol: vol ]); };
 			(beat / 4).wait
 		};
 	};

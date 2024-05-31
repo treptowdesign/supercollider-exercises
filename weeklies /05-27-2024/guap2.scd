@@ -63,9 +63,6 @@ SynthDef(\bass, {
 	snd = snd * Env.perc(0, rel, curve: -6).ar(Done.freeSelf);
 	Out.ar(0, snd * -22.dbamp * vol.dbamp ! 2);
 }).add;
-)
-
-(
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1);
@@ -154,23 +151,22 @@ Routine({
 	dur = beat;
 	loop {
 		[
-			// Guap
-			[0 + [0, 3, -5].sort, 7],
-			[1 + [0, 3, -5, -2].sort, 1],
-			[0 + [0, 3, -5].sort, 7],
-			[1 + [0, 3, -5, -2].sort, 1],
-			[0 + [0, 3, -5].sort, 7],
-			[1 + [0, 3, -5, -2].sort, 1],
-			[0 + [0, 3, -5].sort, 4],
-			[7 + [0, 3, -5].sort, 2],
-			[1 + [0, 3, -5, -2].sort, 2],
+			(notes: 0 + [0, 3, -5].sort, length: 7),
+			(notes: 1 + [0, 3, -5, -2], length: 1),
+			(notes: 0 + [0, 3, -5].sort, length: 7),
+			(notes: 1 + [0, 3, -5, -2], length: 1),
+			(notes: 0 + [0, 3, -5].sort, length: 7),
+			(notes: 1 + [0, 3, -5, -2], length: 1),
+			(notes: 0 + [0, 3, -5].sort, length: 4),
+			(notes: 7 + [0, 3, -5].sort, length: 2),
+			(notes: 1 + [0, 3, -5, -2], length: 2),
 		].do { |chord|
-			var notes = chord[0];
-			dur = chord[1];
+			notes = chord[\notes];
+			dur = chord[\length];
 			notes.do {|deg|
 				var note = (42 + deg + (12 * 1)).midicps;
 				Routine({
-					rrand(0, 0.15).wait;
+					rrand(0, 0.12).wait;
 					s.bind { Synth(\organ, [freq: note, spread: 1, rel: dur * beat * 8, duration: dur * beat]); };
 				}).play;
 			};

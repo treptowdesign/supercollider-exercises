@@ -2,12 +2,17 @@
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1);
-	snd = SinOsc.ar(58 * (1 + (2 * Env.perc(0.001, 0.02).ar) * velocity) * (1 + (0.6 * Env.perc(0.001, 0.2).ar) * velocity));
+	snd = SinOsc.ar(
+		58
+		* XLine.kr(1.05, 1, 0.03)
+		* (1 + (2 * Env.perc(0.001, 0.02).ar) * velocity)
+		* (1 + (0.6 * Env.perc(0.001, 0.2).ar) * velocity)
+	);
 	snd = snd * (1 + (3 * Env.perc(0, 0.03).ar));
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar).pow(9.0), 16328, 0.3) * Env.perc(0.01, 0.04).ar * (-8.dbamp * velocity) );
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar).pow(9.0), 16328, 0.3) * Env.perc(0.01, 0.05).ar * (-8.dbamp * velocity) );
 	snd = (snd * 1.dbamp).clip2;
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.001, 0.4).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.001, 0.6).ar(Done.freeSelf);
 	snd = snd * -14.dbamp;
 	snd = snd * \amp.kr(1);
 	snd = snd ! 2;
@@ -45,7 +50,7 @@ SynthDef(\hat, {
 }).add;
 )
 
-
+Synth(\kick);
 
 
 (

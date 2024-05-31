@@ -2,12 +2,12 @@
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1);
-	snd = SinOsc.ar(58 * (1 + (2 * Env.perc(0.001, 0.024).ar) * velocity) * (1 + (0.7 * Env.perc(0.001, 0.2).ar) * velocity));
+	snd = SinOsc.ar(56 * (1 + (2 * Env.perc(0.001, 0.02).ar) * velocity) * (1 + (0.7 * Env.perc(0.001, 0.2).ar) * velocity));
 	snd = snd * (1 + (3 * Env.perc(0, 0.03).ar * velocity));
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar).pow(9.0), 16328, 0.3) * Env.perc(0.01, 0.04).ar * -8.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar).pow(9.0), 14328, 0.3) * Env.perc(0.01, 0.04).ar * -8.dbamp);
 	snd = snd.clip2;
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.001, 0.5 * velocity).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.001, 0.3 * velocity).ar(Done.freeSelf);
 	snd = snd * -8.dbamp;
 	snd = snd * \amp.kr(1);
 	snd = snd ! 2;
@@ -43,4 +43,29 @@ SynthDef(\hat, {
 	snd = snd * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
+)
+
+
+(
+var s, bpm, beat, root, scale;
+
+s = Server.default;
+bpm = 120;
+beat = 60 / bpm;
+root = 42;
+scale = Scale.phrygian.degrees;
+
+Routine({
+	loop {
+		s.bind{ Synth(\kick); };
+		(beat/2).wait;
+		s.bind{ Synth(\hat); };
+		(beat/2).wait;
+		s.bind{ Synth(\clap); };
+		(beat/2).wait;
+		s.bind{ Synth(\hat); };
+		(beat/2).wait;
+	};
+}).play;
+
 )

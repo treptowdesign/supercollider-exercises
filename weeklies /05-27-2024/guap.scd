@@ -40,10 +40,10 @@ SynthDef(\bass, {
 	rel = \rel.kr(0.8);
 	snd = Pulse.ar(freq);
 	// snd = RLPF.ar(snd, 800, 0.4);
-	snd = MoogFF.ar(snd, Env.perc(0.01, 0.6).kr.linexp(0, 1, 60, 1600), 0.6) * 10.dbamp;
+	snd = MoogFF.ar(snd, Env.perc(0.01, 0.8).kr.linexp(0, 1, 60, 1800), 1) * 10.dbamp;
 	snd = snd + (snd.tanh * 0.2);
-	snd = snd * (1 + (1 * Env.perc(0, 0.4).ar));
-	snd = snd * Env.perc(0.008, rel, curve: -6).ar(Done.freeSelf);
+	snd = snd * (1 + (1 * Env.perc(0, 0.8).ar));
+	snd = snd * Env.perc(0.001, rel, curve: -6).ar(Done.freeSelf);
 	Out.ar(0, snd * -24.dbamp * vol.dbamp ! 2);
 }).add;
 )
@@ -165,7 +165,7 @@ Routine({
 	var idx = 1, vol = 0;
 	loop {
 		[
-			0, 0, 1, 0,
+			0, 0, 0, 0,
 		].do { |note|
 			vol = 2;
 			if(idx == 1, { vol = -10; });

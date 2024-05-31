@@ -8,9 +8,9 @@ SynthDef(\synth, {
 	freq = \freq.kr(440) * (detunes * spread).midiratio;
 	rel = \rel.kr(1.2);
 	snd = VarSaw.ar(freq, 0, 0.75);
-	snd = HPF.ar(snd, 300);
+	snd = HPF.ar(snd, 100);
 	snd = Splay.ar(snd);
-	snd = MoogFF.ar(snd, 8e3, 1) * 5.dbamp;
+	snd = MoogFF.ar(snd, 16e3, 1) * 5.dbamp;
 	snd = snd * (1 + (2 * Env.perc(0.001, 0.02).ar));
 	snd = snd * Env.perc(0.14, rel, curve: -2).ar;
 	snd = snd * Env.linen(0, \duration.kr(1), 0.1, curve: -8).ar(Done.freeSelf);
@@ -70,7 +70,7 @@ SynthDef(\clap, {
 	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.008, 1e-4, 0.005, 1e-4, 0.08], -4).ar(Done.freeSelf);
 	snd = LPF.ar(snd, \filtCutoff.kr(2e4));
 	snd = snd * (1 + (1.1 * Env.perc(0.001, 0.01).ar));
-	snd = snd + DelayN.ar(snd * -15.dbamp, 0.05, [25e-3, 38e-3]);
+	snd = snd + DelayL.ar(snd * -15.dbamp, 0.05, [25e-3, 38e-3]);
 	snd = snd * \amp.kr(1).dbamp * -18.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -149,14 +149,12 @@ Routine({
 			notes.do {|deg|
 				// var note = (42 + deg + (12 * 1)).midicps;
 				// s.bind { Synth(\synthSin, [freq: note, spread: 1, rel: dur * beat * 1.8, duration: dur * beat]); };
-
 				// note = (42 + deg + (12 * 2)).midicps;
 				// s.bind { Synth(\synth, [freq: note, spread: 1, rel: dur * beat * 1.8, duration: dur * beat, vol: -10]); };
-
 				var note = (42 + deg + (12 * 1)).midicps;
-				s.bind { Synth(\synthSin, [freq: note, spread: 1, rel: dur * beat * 4, duration: dur * beat, vol: -16]); };
+				s.bind { Synth(\synthSin, [freq: note, spread: 1, rel: dur * beat * 4, duration: dur * beat, vol: -24]); };
 				note = (42 + deg + (12 * 2)).midicps;
-				s.bind { Synth(\synth, [freq: note, spread: 1, rel: dur * beat * 4, duration: dur * beat, vol: -18]); };
+				s.bind { Synth(\synth, [freq: note, spread: 1, rel: dur * beat * 4, duration: dur * beat, vol: -12]); };
 			};
 			(beat * dur).wait
 		};

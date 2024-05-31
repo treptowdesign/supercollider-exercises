@@ -33,14 +33,14 @@ SynthDef(\hat, {
 	snd = FreqShift.ar(snd, -210);
 	snd = HPF.ar(snd, 1560);
 	snd = BPF.ar(snd, [8230, 5640, 1230, 6500, 8243], 0.08);
-	snd = snd * Env.perc(0.01, 1.0 * [0.8, 0.4, 0.6, 0.1, 0.15, 0.2]).ar;
+	snd = snd * Env.perc(0.01, 0.5 * [0.8, 0.4, 0.6, 0.1, 0.15, 0.2]).ar;
 	snd = snd.sum;
 	snd = snd * (1 + Env.perc(0, 0.01).ar);
 	snd = snd.clip2;
 	snd = snd + PitchShift.ar(snd, 0.02, 2);
 	snd = snd ! 2;
 	snd = snd * Env.linen(0, \duration.kr(0.3), 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * -20.dbamp;
+	snd = snd * -20.dbamp * \amp.kr(0).dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -57,14 +57,20 @@ scale = Scale.phrygian.degrees;
 
 Routine({
 	loop {
-		s.bind{ Synth(\kick); };
-		(beat/2).wait;
+		s.bind{ Synth(\kick, [velocity: 1]); };
+		(beat/4).wait;
+		s.bind{ Synth(\kick, [velocity: 0.8]); };
+		(beat/4).wait;
 		s.bind{ Synth(\hat); };
-		(beat/2).wait;
+		(beat/4).wait;
+		s.bind{ Synth(\hat, [amp: -15]); };
+		(beat/4).wait;
 		s.bind{ Synth(\clap); };
 		(beat/2).wait;
 		s.bind{ Synth(\hat); };
-		(beat/2).wait;
+		(beat/4).wait;
+		s.bind{ Synth(\hat, [amp: -15]); };
+		(beat/4).wait;
 	};
 }).play;
 

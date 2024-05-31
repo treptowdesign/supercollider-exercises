@@ -2,13 +2,13 @@
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1);
-	snd = SinOsc.ar(56 * (1 + (2 * Env.perc(0.001, 0.02).ar) * velocity) * (1 + (0.7 * Env.perc(0.001, 0.2).ar) * velocity));
-	snd = snd * (1 + (3 * Env.perc(0, 0.03).ar * velocity));
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar).pow(9.0), 14328, 0.3) * Env.perc(0.01, 0.04).ar * -8.dbamp);
-	snd = snd.clip2;
+	snd = SinOsc.ar(58 * (1 + (2 * Env.perc(0.001, 0.02).ar) * velocity) * (1 + (0.6 * Env.perc(0.001, 0.2).ar) * velocity));
+	snd = snd * (1 + (3 * Env.perc(0, 0.03).ar));
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar).pow(9.0), 16328, 0.3) * Env.perc(0.01, 0.04).ar * (-8.dbamp * velocity) );
+	snd = (snd * 1.dbamp).clip2;
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.001, 0.3 * velocity).ar(Done.freeSelf);
-	snd = snd * -8.dbamp;
+	snd = snd * Env.perc(0.001, 0.4).ar(Done.freeSelf);
+	snd = snd * -14.dbamp;
 	snd = snd * \amp.kr(1);
 	snd = snd ! 2;
 	Out.ar(\out.kr(0), snd);
@@ -21,7 +21,7 @@ SynthDef(\clap, {
 	snd = LPF.ar(snd, \filtCutoff.kr(2e4));
 	snd = snd * (1 + (1.1 * Env.perc(0.001, 0.01).ar));
 	snd = snd + DelayL.ar(snd * -15.dbamp, 0.05, [25e-3, 38e-3]);
-	snd = snd * \amp.kr(1).dbamp * -18.dbamp;
+	snd = snd * \amp.kr(1).dbamp * -22.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hat, {
@@ -46,6 +46,8 @@ SynthDef(\hat, {
 )
 
 
+
+
 (
 var s, bpm, beat, root, scale;
 
@@ -59,11 +61,28 @@ Routine({
 	loop {
 		s.bind{ Synth(\kick, [velocity: 1]); };
 		(beat/4).wait;
-		s.bind{ Synth(\kick, [velocity: 0.8]); };
+		s.bind{ Synth(\kick, [velocity: 0.85]); };
 		(beat/4).wait;
 		s.bind{ Synth(\hat); };
 		(beat/4).wait;
 		s.bind{ Synth(\hat, [amp: -15]); };
+		(beat/4).wait;
+		s.bind{ Synth(\clap); };
+		(beat/2).wait;
+		s.bind{ Synth(\hat); };
+		s.bind{ Synth(\kick, [velocity: 0.8]); };
+		(beat/4).wait;
+		s.bind{ Synth(\hat, [amp: -15]); };
+		(beat/4).wait;
+
+		s.bind{ Synth(\kick, [velocity: 1]); };
+		(beat/4).wait;
+		s.bind{ Synth(\kick, [velocity: 0.85]); };
+		(beat/4).wait;
+		s.bind{ Synth(\hat); };
+		(beat/4).wait;
+		s.bind{ Synth(\hat, [amp: -15]); };
+		s.bind{ Synth(\kick, [velocity: 0.8]); };
 		(beat/4).wait;
 		s.bind{ Synth(\clap); };
 		(beat/2).wait;

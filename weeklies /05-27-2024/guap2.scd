@@ -101,6 +101,7 @@ bpm = 110;
 beat = 60 / bpm;
 root = 42;
 scale = Scale.phrygian.degrees;
+
 Routine({
 	loop {
 		s.bind { Synth(\kick); };
@@ -156,7 +157,7 @@ Routine({
 			notes.do { |deg, index|
 				var note = (42 + deg + (12 * 1)).midicps;
 				Routine({
-					if(index > 0, { rrand(0, 0.12).wait; });
+					if(index > 0, { rrand(0, 0.2).wait; });
 					s.bind { Synth(\organ, [freq: note, duration: dur]); };
 				}).play;
 			};

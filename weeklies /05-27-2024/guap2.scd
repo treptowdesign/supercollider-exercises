@@ -2,15 +2,15 @@
 SynthDef(\organ, {
 	var snd, duration;
 	duration = \duration.kr(3.0);
-	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 6] * (LFNoise2.kr(12 ! 3) * 0.1).midiratio);
-	snd = snd * Env.perc(0, [5, 6, 3, 2]).ar;
-	snd = snd * [-6, 0, -8, -30].dbamp;
-	snd = snd * (1 + (0.2 * LFNoise2.kr(15 ! snd.size)));
+	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4] * (LFNoise2.kr(12 ! 3) * 0.1).midiratio);
+	snd = snd * Env.perc(0, [5, 6, 3]).ar;
+	snd = snd * [-4, 0, -8].dbamp;
+	snd = snd * (1 + (0.2 * LFNoise2.kr(16 ! snd.size)));
 	snd = snd.sum;
 	snd = HPF.ar(snd, 200);
 	snd = LPF.ar(snd, XLine.kr(8000, 800, 4.0));
 	// snd = snd * Select.kr(Sweep.ar > 0.02, [ToggleFF.kr(Dust.ar(200)), DC.ar(1)]);
-	snd = snd + GVerb.ar(snd * -12.dbamp, 14, 3, damping: 0.4);
+	snd = snd + GVerb.ar(snd * -12.dbamp, 10, 4, damping: 0.4);
 	// snd = snd * Env.perc(0.001, duration, curve: 2).ar(Done.freeSelf);
 	snd = snd * (1 + (0.5 * Env.perc(0.001, 0.2).ar));
 	snd = snd * Line.kr(1, 0.2, duration) * Env.perc(0, 0.8).kr.range(1, 0.6); // shaping vol...

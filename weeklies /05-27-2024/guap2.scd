@@ -13,7 +13,7 @@ SynthDef(\organ, {
 	snd = snd + GVerb.ar(snd * -12.dbamp, 10, 4, damping: 0.4);
 	// snd = snd * Env.perc(0.001, duration, curve: 2).ar(Done.freeSelf);
 	snd = snd * (1 + (0.5 * Env.perc(0.001, 0.2).ar));
-	snd = snd * Line.kr(1, 0.2, duration) * Env.perc(0, 0.8).kr.range(1, 0.6); // shaping vol...
+	snd = snd * Line.kr(1, 0.6, duration) * Env.perc(0, 0.8).kr.range(1, 0.6); // shaping vol...
 	snd = snd * Env.linen(0.001, duration, 0.0, curve: -4).kr(Done.freeSelf);
 	snd = snd * -24.dbamp * \amp.kr(0).dbamp;
 	Out.ar(\out.kr(0), snd);
@@ -25,7 +25,7 @@ SynthDef(\bass, {
 	rel = \rel.kr(0.6);
 	snd = Pulse.ar(freq);
 	// snd = RLPF.ar(snd, 800, 0.4);
-	snd = MoogFF.ar(snd, Env.perc(0.01, 0.6).kr.linexp(0, 1, 80, 1400), 0.8) * 10.dbamp;
+	snd = MoogFF.ar(snd, Env.perc(0.01, 0.6).kr.linexp(0, 1, 80, 1200), 0.8) * 10.dbamp;
 	snd = snd + (snd.tanh * 0.5);
 	snd = snd * (1 + (1 * Env.perc(0, 0.4).ar));
 	snd = snd * Env.perc(0.05, rel, curve: -4).ar(Done.freeSelf);
@@ -90,6 +90,8 @@ SynthDef(\hatGlitch, {
 }).add;
 )
 
+Synth(\bass);
+
 
 (
 var s, bpm, beat, root, scale;
@@ -99,7 +101,6 @@ bpm = 110;
 beat = 60 / bpm;
 root = 42;
 scale = Scale.phrygian.degrees;
-
 Routine({
 	loop {
 		s.bind { Synth(\kick); };
@@ -156,7 +157,7 @@ Routine({
 				var note = (42 + deg + (12 * 1)).midicps;
 				Routine({
 					if(index > 0, { rrand(0, 0.12).wait; });
-					s.bind { Synth(\organ, [freq: note, spread: 1, rel: dur * 8, duration: dur]); };
+					s.bind { Synth(\organ, [freq: note, duration: dur]); };
 				}).play;
 			};
 			(dur).wait;
@@ -187,6 +188,6 @@ Scale.phrygian.degrees; // [ 0, 1, 3, 5, 7, 8, 10 ]
 
 
 
-
+s.makeWindow;
 
 // end...

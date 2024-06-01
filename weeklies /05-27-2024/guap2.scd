@@ -2,17 +2,19 @@
 SynthDef(\organ, {
 	var snd, duration;
 	duration = \duration.kr(3.0);
-	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 6] * (LFNoise2.kr(10 ! 3) * 0.1).midiratio);
-	snd = snd * Env.perc(0, [5, 7, 4, 1]).ar;
-	snd = snd * [-6, 0, -8, -26].dbamp;
-	snd = snd * (1 + (0.3 * LFNoise2.kr(16 ! snd.size)));
+	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 6] * (LFNoise2.kr(12 ! 3) * 0.3).midiratio);
+	snd = snd * Env.perc(0, [4, 7, 3, 2]).ar;
+	snd = snd * [-6, 0, -8, -30].dbamp;
+	snd = snd * (1 + (0.2 * LFNoise2.kr(15 ! snd.size)));
 	snd = snd.sum;
-	snd = LPF.ar(snd, XLine.kr(8000, 600, 4.0));
-	snd = snd * Select.kr(Sweep.ar > 0.02, [ToggleFF.kr(Dust.ar(200)), DC.ar(1)]);
-	snd = snd + GVerb.ar(snd * -14.dbamp, 20, 3, damping: 0.4);
+	snd = HPF.ar(snd, 200);
+	snd = LPF.ar(snd, XLine.kr(7000, 800, 1.0));
+	// snd = snd * Select.kr(Sweep.ar > 0.02, [ToggleFF.kr(Dust.ar(200)), DC.ar(1)]);
+	snd = snd + GVerb.ar(snd * -12.dbamp, 14, 3, damping: 0.4);
 	// snd = snd * Env.perc(0.001, duration, curve: 2).ar(Done.freeSelf);
-	snd = snd * Line.kr(1, 0.6, duration) * Env.perc(0, 0.6).kr.range(1, 0.6); // shaping vol...
-	snd = snd * Env.linen(0.001, duration, 0.0, curve: -4).kr(Done.freeSelf);
+	snd = snd * (1 + (0.75 * Env.perc(0.001, 0.2).ar));
+	snd = snd * Line.kr(1, 0.6, duration) * Env.perc(0, 0.8).kr.range(1, 0.8); // shaping vol...
+	snd = snd * Env.linen(0.001, duration, 0.0, curve: -8).kr(Done.freeSelf);
 	snd = snd * -24.dbamp * \amp.kr(0).dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -23,7 +25,7 @@ SynthDef(\bass, {
 	rel = \rel.kr(0.6);
 	snd = Pulse.ar(freq);
 	// snd = RLPF.ar(snd, 800, 0.4);
-	snd = MoogFF.ar(snd, Env.perc(0.01, 0.6).kr.linexp(0, 1, 80, 1500), 0.8) * 10.dbamp;
+	snd = MoogFF.ar(snd, Env.perc(0.01, 0.6).kr.linexp(0, 1, 80, 1400), 0.8) * 10.dbamp;
 	snd = snd + (snd.tanh * 0.5);
 	snd = snd * (1 + (1 * Env.perc(0, 0.4).ar));
 	snd = snd * Env.perc(0.05, rel, curve: -4).ar(Done.freeSelf);
@@ -37,7 +39,7 @@ SynthDef(\kick, {
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar).pow(9.0), 16328, 0.3) * Env.perc(0.01, 0.04).ar * -8.dbamp);
 	snd = snd.clip2;
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.001, 0.5 * velocity).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.001, 0.4 * velocity).ar(Done.freeSelf);
 	snd = snd * -6.dbamp;
 	snd = snd * \amp.kr(1);
 	snd = snd ! 2;
@@ -61,29 +63,29 @@ SynthDef(\hat, {
 	snd = CombC.ar(snd, 1 / freqs, 1 / freqs, 0.1);
 	snd = snd.sum * -15.dbamp;
 	snd = FreqShift.ar(snd, -210);
-	snd = HPF.ar(snd, 1880);
-	snd = BPF.ar(snd, [8230, 5640, 1390, 6500, 8943], 0.1);
-	snd = snd * Env.perc(0.01, 1.0 * [0.8, 0.3, 0.4, 0.1, 0.2, 0.5]).ar;
+	snd = HPF.ar(snd, 1680);
+	snd = BPF.ar(snd, [8220, 5660, 1390, 6500, 8953], 0.08);
+	snd = snd * Env.perc(0.01, 1.0 * [0.8, 0.15, 0.4, 0.1, 0.2, 0.5]).ar;
 	snd = snd.sum;
-	snd = snd * (1 + Env.perc(0, 0.01).ar);
+	snd = snd * (1 + Env.perc(0, 0.02).ar);
 	snd = snd.clip2;
 	snd = snd + PitchShift.ar(snd, 0.02, 2);
-	snd = snd ! 2;
-	snd = snd * Env.linen(0, \duration.kr(0.3), 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * -22.dbamp;
+	snd = (snd * -5.dbamp) + GVerb.ar(snd * -10.dbamp, 10, 0.2);
+	snd = snd * Env.linen(0, \duration.kr(0.25), 0.01, curve: -8).ar(Done.freeSelf);
+	snd = snd * -25.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hatGlitch, {
 	var snd, duration;
 	duration = \duration.kr(0.3);
 	snd = BPF.ar(Hasher.ar(Sweep.ar), 16020, 0.3) * 4.dbamp;
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 14820, 0.1) * 2.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 9890, 0.08) * -5.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 10820, 0.1) * 2.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 7890, 0.08) * -5.dbamp);
 	snd = snd * (1 + Env.perc(0.0, 0.01).ar);
 	snd = snd * Env.perc(0.0, 0.1).ar;
-	snd = snd + GVerb.ar(snd, 8, 0.2);
+	snd = snd + GVerb.ar(snd, 8, 0.3);
 	snd = snd * Env.linen(0, duration, 0.005, curve: -4).ar(Done.freeSelf);
-	snd = snd * -30.dbamp;
+	snd = snd * -35.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -116,9 +118,11 @@ Routine({
 Routine({
 	loop {
 		(beat/2 - 0.01).wait;
+		s.bind { Synth(\hatGlitch); };
 		s.bind { Synth(\hat); };
 		(beat/2).wait;
 		(beat/2 + 0.01).wait;
+		s.bind { Synth(\hatGlitch); };
 		s.bind { Synth(\hat); };
 		(beat/2).wait;
 	};
@@ -164,7 +168,7 @@ Routine({
 	var idx = 1, vol = 0;
 	loop {
 		[ -5, 0, 0, 0 ].do { |note|
-			vol = 2;
+			vol = 0;
 			if(idx == 1, { vol = -12; });
 			if(idx == 2, { vol = -8; });
 			(idx = (idx % 4) + 1 );

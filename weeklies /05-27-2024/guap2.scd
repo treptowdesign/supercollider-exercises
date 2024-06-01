@@ -2,19 +2,19 @@
 SynthDef(\organ, {
 	var snd, duration;
 	duration = \duration.kr(3.0);
-	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 6] * (LFNoise2.kr(12 ! 3) * 0.3).midiratio);
-	snd = snd * Env.perc(0, [4, 7, 3, 2]).ar;
+	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 6] * (LFNoise2.kr(12 ! 3) * 0.1).midiratio);
+	snd = snd * Env.perc(0, [5, 6, 3, 2]).ar;
 	snd = snd * [-6, 0, -8, -30].dbamp;
 	snd = snd * (1 + (0.2 * LFNoise2.kr(15 ! snd.size)));
 	snd = snd.sum;
 	snd = HPF.ar(snd, 200);
-	snd = LPF.ar(snd, XLine.kr(7000, 800, 1.0));
+	snd = LPF.ar(snd, XLine.kr(8000, 800, 4.0));
 	// snd = snd * Select.kr(Sweep.ar > 0.02, [ToggleFF.kr(Dust.ar(200)), DC.ar(1)]);
 	snd = snd + GVerb.ar(snd * -12.dbamp, 14, 3, damping: 0.4);
 	// snd = snd * Env.perc(0.001, duration, curve: 2).ar(Done.freeSelf);
-	snd = snd * (1 + (0.75 * Env.perc(0.001, 0.2).ar));
-	snd = snd * Line.kr(1, 0.6, duration) * Env.perc(0, 0.8).kr.range(1, 0.8); // shaping vol...
-	snd = snd * Env.linen(0.001, duration, 0.0, curve: -8).kr(Done.freeSelf);
+	snd = snd * (1 + (0.5 * Env.perc(0.001, 0.2).ar));
+	snd = snd * Line.kr(1, 0.2, duration) * Env.perc(0, 0.8).kr.range(1, 0.6); // shaping vol...
+	snd = snd * Env.linen(0.001, duration, 0.0, curve: -4).kr(Done.freeSelf);
 	snd = snd * -24.dbamp * \amp.kr(0).dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -85,7 +85,7 @@ SynthDef(\hatGlitch, {
 	snd = snd * Env.perc(0.0, 0.1).ar;
 	snd = snd + GVerb.ar(snd, 8, 0.3);
 	snd = snd * Env.linen(0, duration, 0.005, curve: -4).ar(Done.freeSelf);
-	snd = snd * -35.dbamp;
+	snd = snd * -32.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 )

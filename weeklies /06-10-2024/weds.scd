@@ -2,8 +2,8 @@
 SynthDef(\sinBass, {
 	var snd;
 	snd = SinOsc.ar(
-		60 * [1, 2, 3, 6],
-		[0, pi, 0, 0.25pi],
+		60 * [1, 2, 3, 7],
+		[0, pi/2, pi/4, 0],
 		[1, 0.8, 0.5, 0.3]);
 	snd = snd.sum;
 	snd = (snd * 1.dbamp).tanh * 0.dbamp;

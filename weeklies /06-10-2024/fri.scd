@@ -44,17 +44,17 @@ Scale.aeolian.degrees;
 
 
 (
-// root (3rd)
-[0, 3].do {|degree| Synth(\organ, [freq: (66 + degree).midicps]); };
+// root (5th)
+[0, 7].do {|degree| Synth(\organ, [freq: (66 + degree).midicps]); };
 )
 
 (
-// iv (3rd)
-[5, 8].do {|degree| Synth(\organ, [freq: (66 + degree).midicps]); };
+// iv (3rd) inverted
+[5, -4].do {|degree| Synth(\organ, [freq: (66 + degree).midicps]); };
 )
 
 (
-// diad
+// 7th (3rd) inverted
 [2, -2].do {|degree| Synth(\organ, [freq: (66 + degree).midicps]); };
 )
 
@@ -71,7 +71,7 @@ Scale.aeolian.degrees;
 
 (
 // root (5th)
-[0, 7].do {|degree| Synth(\organ, [freq: (66 + degree).midicps]); };
+[0, 3].do {|degree| Synth(\organ, [freq: (66 + degree).midicps]); };
 )
 
 

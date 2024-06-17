@@ -292,7 +292,7 @@ Synth(\organ, [freq: (66 + 2).midicps]);
 Synth(\organ, [freq: (66 + 14).midicps]);
 )
 
-
+s.makeWindow;
 //////////////////////////////////////////////////////
 // SPACE
 (

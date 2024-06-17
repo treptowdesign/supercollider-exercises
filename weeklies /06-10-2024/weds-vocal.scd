@@ -7,9 +7,9 @@ SynthDef(\b1, {
 	var snd, dur;
 	dur = \dur.kr(0.5);
 	snd = Pulse.ar(40);
-	snd = BPF.ar(snd, XLine.ar(200, 900, dur), 0.2) * 20.dbamp;
+	snd = BPF.ar(snd, XLine.ar(200, 1100, dur), 0.2) * 20.dbamp;
 	snd = (snd * 2.dbamp).tanh;
-	snd = Latch.ar(snd, Impulse.ar(6200));
+	snd = Latch.ar(snd, Impulse.ar(950));
 	snd = snd + GVerb.ar(snd * -10.dbamp, 20, 8, 1) * -8.dbamp;
 	// snd = Pan2.ar(snd, 0);
 	snd = snd * Env.linen(0, dur, 0.005, curve: -4).ar(Done.freeSelf);

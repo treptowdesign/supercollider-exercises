@@ -9,6 +9,27 @@ SynthDef(\synth, { |freq=440|
 	snd = snd * Env.perc(0.01, 1.6).ar(Done.freeSelf);
 	Out.ar(0, snd * -12.dbamp ! 2);
 }).add;
+SynthDef(\strings, {
+	var snd, freq, detune, rate;
+	freq = \freq.kr(440);
+	rate = 1;
+	detune = ((LFNoise2.kr(3 * rate) * 0.3) + (LFNoise2.kr(8) * 0.01) + Line.kr(10, 0, 0.003)).midiratio;
+
+	snd = SinOsc.ar(
+		freq
+		* (LFNoise2.kr(3 ! 8 * rate) * 0.7).midiratio * detune)
+	    * 200
+	    * (1 + Env.perc(0.05 * ExpRand(0.5, 2.0), 0.3 * ExpRand(0.5, 2.0)).ar
+	);
+	snd = SinOsc.ar((freq * (LFNoise2.kr(3 ! 8 * rate) * 0.1).midiratio * detune) + snd);
+	snd = snd * (1 + LFNoise2.ar(3 ! snd.size));
+	snd = Splay.ar(snd);
+	snd = LPF.ar(snd, LFNoise2.kr(3).linexp(0, 1, 600, 1200));
+	snd = snd * Env.linen(0.01, \duration.kr(2.0), 0.2, curve: -4).ar(Done.freeSelf);
+	snd = Limiter.ar(snd);
+	snd = snd * -20.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 
@@ -26,6 +47,34 @@ SynthDef(\noise, {
 Scale.aeolian.degrees; // [ 0, 2, 3, 5, 7, 8, 10 ]
 Scale.phrygian.degrees; // [ 0, 1, 3, 5, 7, 8, 10 ]
 Scale.dorian.degrees; // [ 0, 2, 3, 5, 7, 9, 10 ]
+
+
+Synth(\strings, [freq: (58 + 14).midicps]);
+Synth(\strings, [freq: (58 + 10).midicps]);
+Synth(\strings, [freq: (58 + 7).midicps]);
+
+
+Synth(\strings, [freq: (58 + 5).midicps]);
+Synth(\strings, [freq: (58 + 8).midicps]);
+Synth(\strings, [freq: (58 + 10).midicps]);
+Synth(\strings, [freq: (58 + 5).midicps]);
+Synth(\strings, [freq: (58 + 10).midicps]);
+
+(
+var root;
+root = 58;
+[-12, 2, 7, 10].do{ |degree| // Bb7 sus2
+	Synth(\strings, [freq: (root + degree).midicps]);
+};
+)
+
+(
+var root;
+root = 58;
+[-14, 1, 5, 8].do{ |degree| // Ab min7
+	Synth(\strings, [freq: (root + degree).midicps]);
+};
+)
 
 
 Synth(\synth, [freq: (58 + 14).midicps]);

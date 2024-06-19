@@ -12,9 +12,8 @@ SynthDef(\synth, { |freq=440|
 SynthDef(\strings, {
 	var snd, freq, detune, rate;
 	freq = \freq.kr(440);
-	rate = 1;
-	detune = ((LFNoise2.kr(3 * rate) * 0.3) + (LFNoise2.kr(8) * 0.01) + Line.kr(10, 0, 0.003)).midiratio;
-
+	rate = ;
+	detune = ((LFNoise2.kr(3 * rate) * 0.3) + (LFNoise2.kr(8) * 0.1) + Line.kr(10, 0, 0.003)).midiratio;
 	snd = SinOsc.ar(
 		freq
 		* (LFNoise2.kr(3 ! 8 * rate) * 0.7).midiratio * detune)
@@ -24,7 +23,7 @@ SynthDef(\strings, {
 	snd = SinOsc.ar((freq * (LFNoise2.kr(3 ! 8 * rate) * 0.1).midiratio * detune) + snd);
 	snd = snd * (1 + LFNoise2.ar(3 ! snd.size));
 	snd = Splay.ar(snd);
-	snd = LPF.ar(snd, LFNoise2.kr(3).linexp(0, 1, 600, 1200));
+	snd = LPF.ar(snd, LFNoise2.kr(3).linexp(0, 1, 600, 800));
 	snd = snd * Env.linen(0.01, \duration.kr(2.0), 0.2, curve: -4).ar(Done.freeSelf);
 	snd = Limiter.ar(snd);
 	snd = snd * -20.dbamp;
@@ -40,7 +39,7 @@ SynthDef(\noise, {
 	snd = Latch.ar(snd, Impulse.ar(5000));
 	snd = snd.clip2;
 	snd = snd * Env.perc(0.01, 0.8).ar(Done.freeSelf);
-	Out.ar(0, snd * -12.dbamp ! 2);
+	Out.ar(0, snd * -10.dbamp ! 2);
 }).play;
 )
 

@@ -12,7 +12,7 @@ SynthDef(\synth, { |freq=440|
 SynthDef(\strings, {
 	var snd, freq, detune, rate;
 	freq = \freq.kr(440);
-	rate = ;
+	rate = 10;
 	detune = ((LFNoise2.kr(3 * rate) * 0.3) + (LFNoise2.kr(8) * 0.1) + Line.kr(10, 0, 0.003)).midiratio;
 	snd = SinOsc.ar(
 		freq
@@ -42,6 +42,11 @@ SynthDef(\noise, {
 	Out.ar(0, snd * -10.dbamp ! 2);
 }).play;
 )
+
+// C, C#/Db, D, D#/Eb, E, F, F#/Gb, G, G#/Ab, A, A#/Bb, B
+
+// 0      1  2  3      4  5      6  7      8   9  10 11
+// D#/Eb, E, F, F#/Gb, G, G#/Ab, A, A#/Bb, Bb, B, C, C#/Db
 
 Scale.aeolian.degrees; // [ 0, 2, 3, 5, 7, 8, 10 ]
 Scale.phrygian.degrees; // [ 0, 1, 3, 5, 7, 8, 10 ]
@@ -74,6 +79,8 @@ root = 58;
 	Synth(\strings, [freq: (root + degree).midicps]);
 };
 )
+
+Synth(\synth, [freq: (58 + 12.neg).midicps]); // root
 
 
 Synth(\synth, [freq: (58 + 14).midicps]);

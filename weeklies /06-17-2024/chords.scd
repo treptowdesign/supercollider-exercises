@@ -35,7 +35,7 @@ var s, bpm, beat, root, scale;
 s = Server.default;
 bpm = 110;
 beat = 60 / bpm;
-root = 42;
+root = 42; // 42 = F# / Gb
 scale = Scale.aeolian.degrees;
 
 Routine({
@@ -43,10 +43,10 @@ Routine({
 	dur = beat;
 	loop {
 		[
-			(notes: [5, 8, 12, 3], length: 4),
-			(notes: [1, 5, 8, 0], length: 4),
-			(notes: [7, 10, 14, 5], length: 4),
-			(notes: [0, 3, 7, 10], length: 4),
+			(notes: [5 - 12, 5, 8, 12, 15], length: 4),
+			(notes: [1 - 12, 1, 5, 8, 12], length: 4),
+			(notes: [7 - 12, 7, 10, 14, 17], length: 4),
+			(notes: [0 - 12, 0, 3, 7, 10], length: 4),
 
 		].do { |chord|
 			notes = chord[\notes].sort;

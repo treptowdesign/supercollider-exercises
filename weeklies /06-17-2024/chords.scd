@@ -20,6 +20,14 @@ SynthDef(\organ, {
 
 )
 
+// scales
+Scale.aeolian.degrees; // [0, 2, 3, 5, 7, 8, 10]
+Scale.dorian.degrees; // [0, 2, 3, 5, 7, 9, 10]
+Scale.phrygian.degrees; // [0, 1, 3, 5, 7, 8, 10]
+
+Scale.harmonicMinor.degrees; // [ 0, 2, 3, 5, 7, 8, 11 ]
+
+
 
 (
 var s, bpm, beat, root, scale;
@@ -35,9 +43,10 @@ Routine({
 	dur = beat;
 	loop {
 		[
-			(notes: 2 + [-12, 0, 3, 7, 2], length: 4),
-			(notes: 7 + [-12, 0, 3, 7, -2], length: 4),
-			(notes: 0 + [-12, 0, 5, 7, 10], length: 4),
+			(notes: [5, 8, 12, 3], length: 4),
+			(notes: [1, 5, 8, 0], length: 4),
+			(notes: [7, 10, 14, 5], length: 4),
+			(notes: [0, 3, 7, 10], length: 4),
 
 		].do { |chord|
 			notes = chord[\notes].sort;

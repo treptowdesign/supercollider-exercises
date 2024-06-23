@@ -2,7 +2,7 @@
 SynthDef(\fmBass, {
 	var snd, freq, noise;
 	freq = \freq.kr(50);
-	snd = SinOsc.ar(freq) * 260 * Env.perc(0.01, 8, curve: -4).ar;
+	snd = SinOsc.ar(freq) * 240 * Env.perc(0.01, 8, curve: -4).ar;
 	snd = SinOsc.ar(freq + snd);
 	snd = snd.clip2;
 	snd = (snd + snd.clip2) * -8.dbamp;
@@ -26,11 +26,12 @@ Synth(\fmBass, [freq: 40]);
 Synth(\fmBass, [freq: 50]);
 Synth(\fmBass, [freq: 100]);
 
+{SinOsc.ar(60) ! 2}.play
 
 (
 SynthDef(\808, {
 	var snd, freq, noise;
-	freq = \freq.kr(60) * (1 + (3.4 * Env.perc(0.001, 0.04).ar));
+	freq = \freq.kr(50) * (1 + (3.4 * Env.perc(0.001, 0.04).ar));
 	snd = SinOsc.ar(freq) * Line.kr(120, 1, 2.4);
 	snd = SinOsc.ar(freq + snd);
 	// snd = snd.clip2;

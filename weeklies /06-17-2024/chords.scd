@@ -88,7 +88,7 @@ Routine({
 	loop {
 		[
 			// (notes:  0 + [0, 7, 9, 2], length: 4), // root, 5th, 13th (6th), 9th (2nd)
-			(notes:  0 + [0, 5, 7, 14], length: 4),
+			(notes:  0 + [0, 3, 7], length: 4),
 
 		].do { |chord|
 			notes = chord[\notes].sort;

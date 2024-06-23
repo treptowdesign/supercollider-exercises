@@ -2,7 +2,7 @@
 SynthDef(\organ, {
 	var snd, duration;
 	duration = \duration.kr(3.0);
-	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4] * (LFNoise2.kr(7 ! 3) * 0.2).midiratio);
+	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 10] * (LFNoise2.kr(7 ! 3) * 0.2).midiratio);
 	snd = snd * Env.perc(0, [5.5, 7, 4]).ar;
 	snd = snd * [-2, 0, -10].dbamp;
 	snd = snd * (1 + (0.3 * LFNoise2.kr(11 ! snd.size)));

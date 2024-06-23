@@ -28,7 +28,80 @@ Scale.phrygian.degrees; // [0, 1, 3, 5, 7, 8, 10]
 Scale.harmonicMinor.degrees; // [ 0, 2, 3, 5, 7, 8, 11 ]
 
 
+(
+var s, bpm, beat, root, scale;
 
+s = Server.default;
+bpm = 110;
+beat = 60 / bpm;
+root = 44; //
+scale = Scale.aeolian.degrees;
+
+Routine({
+	var dur, notes;
+	dur = beat;
+	loop {
+		[
+			// (notes:  0 + [0, 7, 9, 2], length: 4), // root, 5th, 13th (6th), 9th (2nd)
+			(notes:  0 + [0, 5, 7, 14], length: 4),
+
+		].do { |chord|
+			notes = chord[\notes].sort;
+			dur = chord[\length] * beat;
+			notes.do { |deg, index|
+				var note = (42 + deg + (12 * 1)).midicps;
+				Routine({
+					if(index > 0, { rrand(0, 0.1).wait; });
+					s.bind { Synth(\organ, [freq: note, duration: dur]); };
+				}).play;
+			};
+			(dur).wait;
+		};
+	};
+}).play;
+)
+
+
+
+
+
+
+(
+var s, bpm, beat, root, scale;
+
+s = Server.default;
+bpm = 110;
+beat = 60 / bpm;
+root = 44; //
+scale = Scale.aeolian.degrees;
+
+Routine({
+	var dur, notes;
+	dur = beat;
+	loop {
+		[
+			// i (sus2) -> vii
+			(notes:  0 + [0, 2, 7, 12], length: 4),
+			(notes: -2 + [0, 3, 7, 12], length: 4),
+
+		].do { |chord|
+			notes = chord[\notes].sort;
+			dur = chord[\length] * beat;
+			notes.do { |deg, index|
+				var note = (42 + deg + (12 * 1)).midicps;
+				Routine({
+					if(index > 0, { rrand(0, 0.2).wait; });
+					s.bind { Synth(\organ, [freq: note, duration: dur]); };
+				}).play;
+			};
+			(dur).wait;
+		};
+	};
+}).play;
+)
+
+
+// Explicit interval numbers
 (
 var s, bpm, beat, root, scale;
 
@@ -43,6 +116,7 @@ Routine({
 	dur = beat;
 	loop {
 		[
+			// iv - bii - v - i
 			(notes: [5 - 12, 5, 8, 12, 15], length: 4),
 			(notes: [1 - 12, 1, 5, 8, 12], length: 4),
 			(notes: [7 - 12, 7, 10, 14, 17], length: 4),

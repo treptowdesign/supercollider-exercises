@@ -62,6 +62,15 @@ Synth(\bend, [freq: 110, scale: 5]);
 Synth(\snare);
 Synth(\kick);
 
+(
+var root = 42, octave, note;
+[0, 3, 7].do { |degree|
+	octave = 1;
+	note = (root + degree + (12 * octave)).midicps;
+	Synth(\pulse, [freq: note, pWidth: 0.6, duration: 2, span: 1]);
+};
+)
+
 // scales...
 Scale.aeolian.degrees; // [ 0, 2, 3, 5, 7, 8, 10 ]
 
@@ -75,11 +84,11 @@ Routine({
 	var dur, note, octave;
 	dur = beat / 4;
 	loop {
-		[0, 3, 7, 10, 0, 2, 5, 8].do { |degree|
+		[0, 7, 7, 3, 0, 2, 2, 8].do { |degree|
 			if(degree != \, {
-				octave = 2;
+				octave = 1;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\pulse, [freq: note, pWidth: 0.2, duration: dur, span: 3]); };
+				s.bind { Synth(\pulse, [freq: note, pWidth: 0.15, duration: dur, span: 3]); };
 			});
 			dur.wait;
 		};
@@ -90,13 +99,13 @@ Routine({
 	dur = beat * 4;
 	loop {
 		[
-			[0, 3, 7, 10],
-			[0, 2, 5, 8]
+			[-12, 0, 3, 7, 10],
+			[-12, 0, 2, 5, 8]
 		].do { |chord|
 			chord.do{ | degree|
-				octave = 1;
+				octave = 2;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\pulse, [freq: note, pWidth: 0.6, duration: dur, span: 1]); };
+				s.bind { Synth(\pulse, [freq: note, pWidth: 0.5, duration: dur, span: 0.4]); };
 			};
 			dur.wait;
 		};

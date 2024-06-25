@@ -43,6 +43,18 @@ SynthDef(\bn, {
 }).play;
 )
 
+(
+SynthDef(\kick, { |freq=440|
+	var snd;
+	snd = LFTri.ar(60 * (1 + (5 * Env.perc(0, 0.1, curve: -8).ar)) * XLine.ar(1, 0.9, 0.3));
+	snd = snd + (Pulse.ar(60 * (1 + (5 * Env.perc(0, 0.1, curve: -8).ar)) * XLine.ar(1, 0.9, 0.3)) * -10.dbamp);
+	snd = snd * Env.perc(0, 0.3).ar(Done.freeSelf);
+	snd = LeakDC.ar(snd);
+	snd = snd * -7.dbamp;
+	Out.ar(0, snd ! 2);
+}).play;
+)
+
 Synth(\pulse, [freq: 110, pWidth: 0.8]);
 Synth(\pulse, [freq: 440, pWidth: 0.2]);
 Synth(\bend, [freq: 110, scale: 5]);
@@ -75,6 +87,7 @@ Routine({
 Routine({
 	var dur = beat / 4;
 	loop {
+		s.bind { Synth(\kick); };
 		(dur * 4).wait;
 		s.bind { Synth(\snare); };
 		(dur * 4).wait;

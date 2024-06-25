@@ -94,11 +94,16 @@ Routine({
 	var dur, note, octave;
 	dur = beat / 4;
 	loop {
-		[0, 7, 7, 3, 0, 2, 2, 8].do { |degree|
+		[
+			\, 0, 7, 3, \, 3, 0, 7,
+			\, 0, 7, 3, \, 3, 0, 7,
+			\, 5, 12, 8, \, 5, 12, 8,
+			\, 5, 12, 8, \, 5, 12, 8,
+		].do { |degree|
 			if(degree != \, {
 				octave = 1;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\pulse, [freq: note, pWidth: 0.15, duration: dur, span: 3]); };
+				s.bind { Synth(\pulse, [freq: note, pWidth: 0.1, duration: dur, span: 3]); };
 			});
 			dur.wait;
 		};
@@ -115,7 +120,7 @@ Routine({
 			chord.do{ | degree|
 				octave = 2;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.5, duration: dur, span: 0.5, amp: -5]); };
+				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.6, duration: dur, span: 0.5, amp: -5]); };
 			};
 			dur.wait;
 		};

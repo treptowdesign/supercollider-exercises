@@ -1,12 +1,12 @@
 // Tuesday Project - Chiptune
 
 (
-SynthDef(\pulse, { |freq=440, pWidth=0.5, duration=1, span=1|
+SynthDef(\pulse, { |freq=440, pWidth=0.5, duration=1, span=1, amp=0|
 	var snd;
 	snd = Pulse.ar(freq, pWidth);
 	snd = snd * Env.perc(0.01, duration * span).ar;
 	snd = LeakDC.ar(snd);
-	snd = snd * -18.dbamp;
+	snd = snd * -18.dbamp * amp.dbamp;
 	snd = snd * Env.linen(0.01, duration, 0.2, curve: -4).ar(Done.freeSelf);
 	Out.ar(0, snd ! 2);
 }).add;
@@ -64,10 +64,10 @@ Synth(\kick);
 
 (
 var root = 42, octave, note;
-[0, 3, 7].do { |degree|
-	octave = 1;
+[-12, 3, -5, 10, 14].do { |degree|
+	octave = 2;
 	note = (root + degree + (12 * octave)).midicps;
-	Synth(\pulse, [freq: note, pWidth: 0.6, duration: 2, span: 1]);
+	Synth(\pulse, [freq: note, pWidth: 0.1, duration: 2, span: 1, amp: -5]);
 };
 )
 
@@ -105,7 +105,7 @@ Routine({
 			chord.do{ | degree|
 				octave = 2;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\pulse, [freq: note, pWidth: 0.5, duration: dur, span: 0.4]); };
+				s.bind { Synth(\pulse, [freq: note, pWidth: 0.5, duration: dur, span: 0.5, amp: -5]); };
 			};
 			dur.wait;
 		};

@@ -21,10 +21,10 @@ SynthDef(\bend, { |freq=440, scale=4, duration=1, span=1|
 }).add;
 SynthDef(\snare, { |freq=440|
 	var snd, bend;
-	bend = LFTri.ar(300 * (1 + (5 * Env.perc(0, 0.01, curve: -8).ar)) * XLine.ar(1, 0.8, 0.4));
-	snd = BPF.ar(WhiteNoise.ar, 1800, 0.3) * 18.dbamp;
-	snd = snd.tanh + bend;
-	snd = snd * Env.perc(0, 0.14).ar(Done.freeSelf);
+	bend = LFTri.ar(350 * (1 + (3 * Env.perc(0, 0.01, curve: -8).ar)) * XLine.ar(1, 0.9, 0.3));
+	snd = BPF.ar(WhiteNoise.ar, 2600, 0.3) * 15.dbamp;
+	snd = snd + bend;
+	snd = snd * Env.perc(0, 0.12).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
 	snd = snd * -7.dbamp;
 	Out.ar(0, snd ! 2);
@@ -62,11 +62,11 @@ Routine({
 	var dur, note, octave;
 	dur = beat / 4;
 	loop {
-		[ 0, 3, 7, 10, 0, 2, 5, 8].do { |degree|
+		[0, 3, 7, 10, 0, 2, 5, 8].do { |degree|
 			if(degree != \, {
-				octave = 1;
+				octave = -1;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\pulse, [freq: note, pWidth: 0.3, duration: dur, span: 3]); };
+				s.bind { Synth(\pulse, [freq: note, pWidth: 0.5, duration: dur, span: 3]); };
 			});
 			dur.wait;
 		};

@@ -12,7 +12,7 @@ SynthDef(\pulse, { |freq=440, pWidth=0.5, duration=1, span=1, amp=0|
 }).add;
 SynthDef(\pulseChord, { |freq=440, pWidth=0.5, duration=1, span=1, amp=0|
 	var snd;
-	snd = Pulse.ar(freq * (LFNoise2.ar(8) * 0.1).midiratio * (SinOsc.ar(8) * 0.2).midiratio, pWidth);
+	snd = Pulse.ar(freq * (LFNoise2.ar(16) * 0.1).midiratio * (SinOsc.ar(8) * 0.2).midiratio, pWidth);
 	snd = snd * Env.perc(0.01, duration * span).ar;
 	snd = MoogFF.ar(snd, 7000, 0);
 	snd = LeakDC.ar(snd);
@@ -38,7 +38,7 @@ SynthDef(\snare, { |freq=440|
 	snd = snd + bend;
 	snd = snd * Env.perc(0, 0.12).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
-	snd = snd * -10.dbamp;
+	snd = snd * -12.dbamp;
 	Out.ar(0, snd ! 2);
 }).add;
 SynthDef(\kick, { |freq=440|
@@ -48,7 +48,7 @@ SynthDef(\kick, { |freq=440|
 	snd = snd.tanh;
 	snd = snd * Env.perc(0, 0.2).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
-	snd = snd * -5.dbamp;
+	snd = snd * -2.dbamp;
 	Out.ar(0, snd ! 2);
 }).add;
 SynthDef(\hat, {
@@ -163,7 +163,7 @@ Routine({
 			chord.do{ | degree|
 				octave = 1;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.2, duration: dur, span: 1, amp: 2]); };
+				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.2, duration: dur, span: 1, amp: -2]); };
 			};
 			dur.wait;
 		};

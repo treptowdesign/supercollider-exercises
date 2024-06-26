@@ -44,7 +44,7 @@ SynthDef(\snare, { |freq=440|
 SynthDef(\kick, { |freq=440|
 	var snd;
 	snd = LFTri.ar(60 * (1 + (4 * Env.perc(0, 0.2, curve: -8).ar)));
-	snd = snd + (Pulse.ar(60 * (1 + (4 * Env.perc(0, 0.2, curve: -8).ar))) * -15.dbamp);
+	snd = snd + (Pulse.ar(60 * (1 + (4 * Env.perc(0, 0.2, curve: -8).ar))) * -10.dbamp);
 	snd = snd.tanh;
 	snd = snd * Env.perc(0, 0.2).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
@@ -56,7 +56,16 @@ SynthDef(\hat, {
 	snd = BPF.ar(WhiteNoise.ar.pow(4), 15000, 0.2) * -5.dbamp;
 	snd = snd * Env.perc(0, 0.1).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
-	snd = snd * -10.dbamp;
+	snd = snd * -8.dbamp;
+	Out.ar(0, snd ! 2);
+}).add;
+SynthDef(\triBass, { |freq=110, duration=1, span=1, amp=0|
+	var snd;
+	snd = LFTri.ar(freq);
+	snd = snd * Env.perc(0.01, duration * span).ar;
+	snd = LeakDC.ar(snd);
+	snd = snd * -8.dbamp * amp.dbamp;
+	snd = snd * Env.linen(0.01, duration, 0.2, curve: -4).ar(Done.freeSelf);
 	Out.ar(0, snd ! 2);
 }).add;
 )
@@ -64,7 +73,7 @@ SynthDef(\hat, {
 (
 SynthDef(\bn, {
 	var snd, bend;
-	snd = BPF.ar(BrownNoise.ar.pow(8), 1000, 0.1) * 25.dbamp;
+	snd = BPF.ar(BrownNoise.ar.pow(8), 1000, 0.1) * 20.dbamp;
 	snd = (snd * 5.dbamp).tanh;
 	snd = snd * Env.perc(0, 1).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
@@ -72,6 +81,7 @@ SynthDef(\bn, {
 	Out.ar(0, snd ! 2);
 }).play;
 )
+
 
 
 Synth(\pulse, [freq: 110, pWidth: 0.8]);
@@ -82,23 +92,7 @@ Synth(\bend, [freq: 110, scale: 5]);
 Synth(\snare);
 Synth(\kick);
 
-(
-var root = 42, octave, note;
-[-12, 3, -5, 10, 14].do { |degree|
-	octave = 2;
-	note = (root + degree + (12 * octave)).midicps;
-	Synth(\pulseChord, [freq: note, pWidth: 0.15, duration: 2, span: 1, amp: 0]);
-};
-)
 
-(
-var root = 42, octave, note;
-[-7, 8, 0, 15, 19].do { |degree|
-	octave = 2;
-	note = (root + degree + (12 * octave)).midicps;
-	Synth(\pulseChord, [freq: note, pWidth: 0.1, duration: 2, span: 1, amp: 0]);
-};
-)
 
 // scales...
 Scale.aeolian.degrees;
@@ -112,42 +106,6 @@ Scale.aeolian.degrees;
 //   v: [-5, 7, 10, 2] 7, 10, 14
 //  vi: [-4, 8, 12, 3] 8, 12, 15
 // vii: [-2, 10, 14, 5] 10, 14, 17
-
-(
-var root = 42, octave, note;
-[0, 10, 14, 5].do { |degree|
-	octave = 2;
-	note = (root + degree + (12 * octave)).midicps;
-	Synth(\pulseChord, [freq: note, pWidth: 0.1, duration: 2, span: 1, amp: 0]);
-};
-)
-
-(
-var root = 42, octave, note;
-[2, 5, 9, 12].do { |degree|
-	octave = 2;
-	note = (root + degree + (12 * octave)).midicps;
-	Synth(\pulseChord, [freq: note, pWidth: 0.1, duration: 2, span: 1, amp: 0]);
-};
-)
-
-(
-var root = 42, octave, note;
-[0, 4, 7, 9 ].do { |degree| // Major 6th
-	octave = 2;
-	note = (root + degree + (12 * octave)).midicps;
-	Synth(\pulseChord, [freq: note, pWidth: 0.1, duration: 2, span: 1, amp: 0]);
-};
-)
-
-(
-var root = 42, octave, note;
-[0, 3, 7, 8].do { |degree| // Minor 6th
-	octave = 2;
-	note = (root + degree + (12 * octave)).midicps;
-	Synth(\pulseChord, [freq: note, pWidth: 0.1, duration: 2, span: 1, amp: 0]);
-};
-)
 
 
 /*
@@ -190,7 +148,32 @@ Routine({
 			if(degree != \, {
 				octave = 1;
 				note = (root + degree + (12 * octave)).midicps;
-				// s.bind { Synth(\pulse, [freq: note, pWidth: 0.5, duration: dur, span: 3]); };
+				s.bind { Synth(\pulse, [freq: note, pWidth: 0.5, duration: dur, span: 3]); };
+			});
+			dur.wait;
+		};
+	};
+}).play;
+Routine({
+	var dur, note, octave;
+	dur = beat / 4;
+	loop {
+		[
+			0, \, 0, 0, 0, \, \, \,  0, \, 0, 0, 0, \, \, \,
+			5, \, 5, 5, 5, \, \, \,  5, \, 5, 5, 5, \, \, \,
+			5, \, 5, 5, 5, \, \, \,  5, \, 5, 5, 5, \, \, \,
+			3, \, 3, 3, 3, \, \, \,  3, \, 3, 3, 3, \, \, \,
+
+			0, \, 0, 0, 0, \, \, \,  0, \, 0, 0, 0, \, \, \,
+			5, \, 5, 5, 5, \, \, \,  5, \, 5, 5, 5, \, \, \,
+			5, \, 5, 5, 5, \, \, \,  5, \, 5, 5, 5, \, \, \,
+			7, \, 7, 7, 7, \, \, \,  7, \, 7, 7, 7, \, \, \,
+
+		].do { |degree|
+			if(degree != \, {
+				octave = -1;
+				note = (root + degree + (12 * octave)).midicps;
+				s.bind { Synth(\triBass, [freq: note, pWidth: 0.5, duration: dur, span: 3]); };
 			});
 			dur.wait;
 		};
@@ -213,7 +196,7 @@ Routine({
 			chord.do{ | degree|
 				octave = 1;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.2, duration: dur, span: 1, amp: -2]); };
+				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.3, duration: dur, span: 0.8, amp: -2]); };
 			};
 			dur.wait;
 		};

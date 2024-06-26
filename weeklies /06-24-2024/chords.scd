@@ -156,10 +156,10 @@ Routine({
 	dur = beat * 2;
 	loop {
 		[
-			(0 + [0, 4, 7]), // i: Maj 6th + 9th
-			(5 + [0, 4, 7]), // ii
-			(6 + [0, 4, 7]), // vii / i
-			(2 + [0, 4, 7])
+			(0 + [0, 3, 7]).postln, // i: Maj 6th + 9th
+			(1 + [0, 4, 7]).postln, // ii
+			(5 + [0, 3, 7]).postln, // vii / i
+			(7 + [0, 4, 7]).postln
 		].do { |chord|
 			chord.do{ | degree|
 				octave = 1;

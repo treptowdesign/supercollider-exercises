@@ -43,8 +43,8 @@ SynthDef(\snare, { |freq=440|
 }).add;
 SynthDef(\kick, { |freq=440|
 	var snd;
-	snd = LFTri.ar(60 * (1 + (4 * Env.perc(0, 0.1, curve: -8).ar)));
-	snd = snd + (Pulse.ar(60 * (1 + (4 * Env.perc(0, 0.1, curve: -8).ar))) * -15.dbamp);
+	snd = LFTri.ar(60 * (1 + (4 * Env.perc(0, 0.2, curve: -8).ar)));
+	snd = snd + (Pulse.ar(60 * (1 + (4 * Env.perc(0, 0.2, curve: -8).ar))) * -15.dbamp);
 	snd = snd.tanh;
 	snd = snd * Env.perc(0, 0.2).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
@@ -105,11 +105,28 @@ Scale.aeolian.degrees;
 //    0,    2,  3,  5,  7,  8,  10
 // [ -12, -10, -9, -7, -5, -4, -2 || 0, 2, 3, 5, 7, 8, 10 || 12, 14, 15, 17, 19, 20, 22 ]
 
+//   i: [-12, 0, 3, -5] 0, 3, 7
+//  ii: [-10, 2, 5, -4] 2, 5, 8
+// iii: [-9, 3, 7, -2] 3, 7, 10
+//  iv: [-7, 5, 8, 0 ] 5, 8, 12
+//   v: [-5, 7, 10, 2] 7, 10, 14
+//  vi: [-4, 8, 12, 3] 8, 12, 15
+// vii: [-2, 10, 14, 5] 10, 14, 17
+
+(
+var root = 42, octave, note;
+[-2, 10, 14, 5].do { |degree|
+	octave = 2;
+	note = (root + degree + (12 * octave)).midicps;
+	Synth(\pulseChord, [freq: note, pWidth: 0.1, duration: 2, span: 1, amp: 0]);
+};
+)
+
 
 (
 var s, root, bpm, beat;
 s = Server.default;
-root = 42;
+root = 42; // F#/Gb
 bpm = 130;
 beat = 60 / bpm;
 Routine({
@@ -117,10 +134,8 @@ Routine({
 	dur = beat / 4;
 	loop {
 		[
-			\, \, 0, \, 3, \, 7, \,
-			\, \, 0, \, 3, \, 7, \,
-			\, \, 0, \, 2, \, 8, \,
-			\, \, 0, \, 2, \, 8, \,
+			\, \, 0, \, 3, \, 7, \,  \, \, 0, \, 3, \, 7, \,
+			\, \, 0, \, 2, \, 8, \,  \, \, 0, \, 2, \, 8, \,
 		].do { |degree|
 			if(degree != \, {
 				octave = 1;
@@ -137,12 +152,13 @@ Routine({
 	loop {
 		[
 			[-12, 0, 3, -5], // root, 3rd, 5th inv,
-			[-7, 5, 8, 0 ]
+			[-7, 5, 8, 0],
+
 			/*[-12, 3, -5, 10, 14], // i - iii - v - vii - ix
 			[-7, 8, 0, 15, 19]*/
 		].do { |chord|
 			chord.do{ | degree|
-				octave = 2;
+				octave = 1;
 				note = (root + degree + (12 * octave)).midicps;
 				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.2, duration: dur, span: 1, amp: 2]); };
 			};

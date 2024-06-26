@@ -91,6 +91,24 @@ var root = 42, octave, note;
 )
 
 
+(
+var root = 42, octave, note;
+[-12, 3, -5, 10, 14].do { |degree|
+	octave = 2;
+	note = (root + degree + (12 * octave)).midicps;
+	Synth(\pulseChord, [freq: note, pWidth: 0.15, duration: 2, span: 1, amp: 0]);
+};
+)
+
+(
+var root = 42, octave, note;
+[-7, 8, 0, 15, 19].do { |degree|
+	octave = 2;
+	note = (root + degree + (12 * octave)).midicps;
+	Synth(\pulseChord, [freq: note, pWidth: 0.1, duration: 2, span: 1, amp: 0]);
+};
+)
+
 
 
 (
@@ -105,16 +123,15 @@ Routine({
 	dur = beat * 2;
 	loop {
 		[
-			[0, 4, 7, 9, 14],
-			[2, 5, 9, 12],
-			[0, 10, 14, 5],
+			[0, 4, 7, 9, 14], // i: Maj 6th + 9th
+			[2, 5, 9, 12], // ii
+			[0, 10, 14, 5], // vii / i
 			[0, 10, 14, 5]
-
 		].do { |chord|
 			chord.do{ | degree|
-				octave = 2;
+				octave = 1;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.3, duration: dur, span: 2, amp: -2]); };
+				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.5, duration: dur, span: 2, amp: -2]); };
 			};
 			dur.wait;
 		};
@@ -122,3 +139,45 @@ Routine({
 }).play;
 
 )
+
+
+
+
+
+(
+var s, root, bpm, beat;
+s = Server.default;
+root = 42; // F#/Gb
+bpm = 130;
+beat = 60 / bpm;
+
+Routine({
+	var dur, note, octave;
+	dur = beat * 2;
+	loop {
+		[
+			(0 + [0, 4, 7]), // i: Maj 6th + 9th
+			(5 + [0, 4, 7]), // ii
+			(6 + [0, 4, 7]), // vii / i
+			(2 + [0, 4, 7])
+		].do { |chord|
+			chord.do{ | degree|
+				octave = 1;
+				note = (root + degree + (12 * octave)).midicps;
+				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.5, duration: dur, span: 2, amp: -2]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+
+)
+
+
+
+
+
+
+
+
+// end...

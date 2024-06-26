@@ -53,10 +53,10 @@ SynthDef(\kick, { |freq=440|
 }).add;
 SynthDef(\hat, {
 	var snd, bend;
-	snd = BPF.ar(WhiteNoise.ar.pow(4), 15000, 0.2) * -5.dbamp;
-	snd = snd * Env.perc(0, 0.1).ar(Done.freeSelf);
+	snd = BPF.ar(WhiteNoise.ar.pow(4), 15000, 0.3) * 0.dbamp;
+	snd = snd * Env.perc(0, 0.1, curve: -8).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
-	snd = snd * -8.dbamp;
+	snd = snd * -10.dbamp;
 	Out.ar(0, snd ! 2);
 }).add;
 SynthDef(\triBass, { |freq=110, duration=1, span=1, amp=0|
@@ -91,6 +91,7 @@ Synth(\bend, [freq: 110, scale: 5]);
 
 Synth(\snare);
 Synth(\kick);
+Synth(\hat);
 
 
 
@@ -143,7 +144,9 @@ Routine({
 	loop {
 		[
 			\, \, 0, 12, 3, \, 7, \,  \, \, 0, 7, 3, \, 7, \,
-			\, \, 0, 12, 2, \, 8, \,  \, \, 0, 8, 2, \, 8, 8,
+			\, \, 0, 12, 2, \, 8, \,  \, \, 0, 8, 2, \, 8, \,
+			\, \, 0, 12, 2, \, 8, \,  \, \, 0, 8, 2, \, 8, \,
+			\, \, 0, 7, \, 0, 7, \,  \, \, 0, 7, \, 0, 7, \,
 		].do { |degree|
 			if(degree != \, {
 				octave = 1;
@@ -173,7 +176,7 @@ Routine({
 			if(degree != \, {
 				octave = -1;
 				note = (root + degree + (12 * octave)).midicps;
-				s.bind { Synth(\triBass, [freq: note, pWidth: 0.5, duration: dur, span: 3]); };
+				s.bind { Synth(\triBass, [freq: note, pWidth: 0.1, duration: dur, span: 3]); };
 			});
 			dur.wait;
 		};

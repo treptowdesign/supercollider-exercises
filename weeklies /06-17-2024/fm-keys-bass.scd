@@ -23,6 +23,7 @@ SynthDef(\fmBass, {
 
 Synth(\fmBass);
 Synth(\fmBass, [freq: 40]);
+Synth(\fmBass, [freq: 45]);
 Synth(\fmBass, [freq: 50]);
 Synth(\fmBass, [freq: 100]);
 
@@ -31,8 +32,8 @@ Synth(\fmBass, [freq: 100]);
 (
 SynthDef(\808, {
 	var snd, freq, noise;
-	freq = \freq.kr(50) * (1 + (3.4 * Env.perc(0.001, 0.04).ar));
-	snd = SinOsc.ar(freq) * Line.kr(120, 1, 2.4);
+	freq = \freq.kr(50) * (1 + (4 * Env.perc(0.001, 0.04).ar));
+	snd = SinOsc.ar(freq) * Line.kr(140, 60, 2.4);
 	snd = SinOsc.ar(freq + snd);
 	// snd = snd.clip2;
 	snd = (snd + snd.clip2) * -8.dbamp;

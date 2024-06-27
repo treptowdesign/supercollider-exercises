@@ -4,7 +4,7 @@
 s.plotTree;
 s.scope;
 s.meter;
-FreqScope.new(450);
+FreqScope.new(300);
 ServerOptions.outDevices;
 Server.default.options.outDevice_("External Headphones");
 Server.default.options.outDevice_("MacBook Pro Speakers");

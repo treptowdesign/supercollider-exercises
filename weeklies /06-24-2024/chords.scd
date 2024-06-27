@@ -141,6 +141,33 @@ Routine({
 )
 
 
+(
+var s, root, bpm, beat;
+s = Server.default;
+root = 42; // F#/Gb
+bpm = 130;
+beat = 60 / bpm;
+
+Routine({
+	var dur, note, octave;
+	dur = beat * 2;
+	loop {
+		[
+			(0 + [-12, 0, 3, 7, 10]).postln,
+			(1 + [-12, 0, 4, 7, 11]).postln,
+			(5 + [-12, 0, 3, 7, 10]).postln,
+			(7 + [-12, 0, 4, 7, 10]).postln
+		].do { |chord|
+			chord.do{ | degree|
+				octave = 1;
+				note = (root + degree + (12 * octave)).midicps;
+				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.5, duration: dur, span: 2, amp: -2]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
 
 
 
@@ -156,10 +183,11 @@ Routine({
 	dur = beat * 2;
 	loop {
 		[
-			(0 + [0, 3, 7]).postln, // i: Maj 6th + 9th
-			(1 + [0, 4, 7]).postln, // ii
-			(5 + [0, 3, 7]).postln, // vii / i
-			(7 + [0, 4, 7]).postln
+			// I - bII - bV
+			(0 + [-12, 0, 4, 7]).postln,
+			(0 + [-12, 0, 4, 7]).postln,
+			(1 + [-12, 0, 4, 7]).postln,
+			(6 + [-12, 0, 4, 7]).postln
 		].do { |chord|
 			chord.do{ | degree|
 				octave = 1;
@@ -170,7 +198,37 @@ Routine({
 		};
 	};
 }).play;
+)
 
+
+
+(
+var s, root, bpm, beat;
+s = Server.default;
+root = 42; // F#/Gb
+bpm = 130;
+beat = 60 / bpm;
+
+Routine({
+	var dur, note, octave;
+	dur = beat * 2;
+	loop {
+		[
+			// I - bVI - bVII - I
+			(0 + [-12, 0, 4, 7]).postln,
+			(8 + [-12, 0, 4, 7]).postln,
+			(10 + [-12, 0, 4, 7]).postln,
+			(0 + [-12, 0, 4, 7]).postln,
+		].do { |chord|
+			chord.do{ | degree|
+				octave = 1;
+				note = (root + degree + (12 * octave)).midicps;
+				s.bind { Synth(\pulseChord, [freq: note, pWidth: 0.5, duration: dur, span: 2, amp: -2]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
 )
 
 

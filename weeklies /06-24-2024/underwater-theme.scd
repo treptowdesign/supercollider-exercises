@@ -1,15 +1,17 @@
 (
-SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=8000, duration=1, span=1, amp=0|
+SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=16000, duration=1, span=1, amp=0|
 	var snd;
 	snd = Pulse.ar(freq * (SinOsc.kr(8) * 0.1).midiratio, pWidth);
 	snd = snd * Env.perc(0, 0.3).ar.range(1.2, 0.8);
 	snd = RLPF.ar(snd, cutoff, 1);
 	snd = snd * Env.linen(0.02, duration * span, 0.02).ar(Done.freeSelf);
-	snd = snd * AmpComp.ir(freq);
+	// snd = snd * AmpComp.ir(freq);
 	// snd = LeakDC.ar(snd);
 	Out.ar(0, snd * -15.dbamp * amp.dbamp ! 2);
 }).add;
 )
+
+Synth(\square8);
 
 (
 var s, root, bpm, beat;
@@ -24,6 +26,7 @@ Routine({
         var voices = [
             // treble
 			[
+				/////////////////////////////////////////////////////////
 				// measure 1
                 (notes: [7, 16], length: 1/6),
                 (notes: \, length: 5/6),
@@ -41,13 +44,14 @@ Routine({
 				(notes: [12], length: 1/6),
 				(notes: [14], length: 1/6),
 
+				/////////////////////////////////////////////////////////
 				// measure 5
                 (notes: [7, 16], length: 1/6),
                 (notes: \, length: 5/6),
 				// measure 6
-                (notes: [ 6, 15 ], length: 1/6),
+                (notes: [6, 15], length: 1/6),
 				(notes: \, length: 3/6),
-				(notes: [ 9, 17 ], length: 1/6),
+				(notes: [9, 17], length: 1/6),
                 (notes: \, length: 1/6),
 				// measure 7
                 (notes: [7, 16], length: 1/6),
@@ -56,6 +60,7 @@ Routine({
 				(notes: \, length: 5/6),
 				(notes: [8], length: 1/6),
 
+				/////////////////////////////////////////////////////////
 				// measure 9
 				(notes: [5, 14], length: 1/6),
                 (notes: \, length: 5/6),
@@ -73,11 +78,12 @@ Routine({
 				(notes: [12], length: 1/6),
 				(notes: [13], length: 1/6),
 
+				/////////////////////////////////////////////////////////
 				// measure 13
 				(notes: [5, 14], length: 1/6),
                 (notes: \, length: 5/6),
 				// measure 14
-				(notes: [4, 13], length: 1/6),
+				(notes: [-1, 7], length: 1/6),
                 (notes: \, length: 3/6),
 				(notes: [9, 17], length: 1/6),
                 (notes: \, length: 1/6),
@@ -86,41 +92,42 @@ Routine({
                 (notes: \, length: 5/6),
 				// measure 16
 				(notes: \, length: 5/6),
-				(notes: [8], length: 1/6),
-
+				(notes: [7], length: 1/6),
 
             ],
             // bass
             [
+				/////////////////////////////////////////////////////////
 				// measure 1
-                (notes: [0 -12], length: 1/6),
+                (notes: [-12], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [7 -12], length: 1/6),
+                (notes: [-5], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [12 -12], length: 1/6),
+                (notes: [0], length: 1/6),
 				(notes: \, length: 1/6),
 				// measure 2
-                (notes: [ -13 ], length: 1/6),
+                (notes: [-13], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [ -5 ], length: 1/6),
+                (notes: [-5], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [ -1 ], length: 1/6),
+                (notes: [-1], length: 1/6),
 				(notes: \, length: 1/6),
 				// measure 3
-                (notes: [0 -12], length: 1/6),
+                (notes: [-12], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [7 -12], length: 1/6),
+                (notes: [-5], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [12 -12], length: 1/6),
+                (notes: [0], length: 1/6),
 				(notes: \, length: 1/6),
 				// measure 4
-				(notes: [4 -12], length: 1/6),
+				(notes: [-8], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [7 -12], length: 1/6),
+                (notes: [5], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [12 -12], length: 1/6),
+                (notes: [0], length: 1/6),
 				(notes: \, length: 1/6),
 
+				/////////////////////////////////////////////////////////
 				// measure 5
                 (notes: [-12], length: 1/6),
 				(notes: \, length: 1/6),
@@ -129,11 +136,11 @@ Routine({
                 (notes: [0], length: 1/6),
 				(notes: \, length: 1/6),
 				// measure 6
-                (notes: [ -13 ], length: 1/6),
+                (notes: [-13], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [ -5 ], length: 1/6),
+                (notes: [-5], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [ -1 ], length: 1/6),
+                (notes: [-1], length: 1/6),
 				(notes: \, length: 1/6),
 				// measure 7
                 (notes: [-12], length: 1/6),
@@ -150,6 +157,7 @@ Routine({
                 (notes: [0], length: 1/6),
 				(notes: \, length: 1/6),
 
+				/////////////////////////////////////////////////////////
 				// measure 9
                 (notes: [-10], length: 1/6),
 				(notes: \, length: 1/6),
@@ -172,13 +180,14 @@ Routine({
                 (notes: [-1], length: 1/6),
 				(notes: \, length: 1/6),
 				// measure 12
-				(notes: [-8], length: 1/6),
+				(notes: [-13], length: 1/6),
 				(notes: \, length: 1/6),
                 (notes: [-5], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [0], length: 1/6),
+				(notes: [-1], length: 1/6),
 				(notes: \, length: 1/6),
 
+				/////////////////////////////////////////////////////////
 				// measure 13
                 (notes: [-10], length: 1/6),
 				(notes: \, length: 1/6),
@@ -187,23 +196,23 @@ Routine({
                 (notes: [-1], length: 1/6),
 				(notes: \, length: 1/6),
 				// measure 14
-                (notes: [-11], length: 1/6),
+                (notes: [-13], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [-6], length: 1/6),
+                (notes: [-5], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [-2], length: 1/6),
+                (notes: [-1], length: 1/6),
 				(notes: \, length: 1/6),
 				// measure 15
-				(notes: [-12], length: 1/6),
+				(notes: [-13], length: 1/6),
 				(notes: \, length: 1/6),
                 (notes: [-5], length: 1/6),
 				(notes: \, length: 1/6),
                 (notes: [0], length: 1/6),
 				(notes: \, length: 1/6),
 				// measure 16
-				(notes: [-16], length: 1/6),
+				(notes: [-17], length: 1/6),
 				(notes: \, length: 1/6),
-                (notes: [-4], length: 1/6),
+                (notes: [-5], length: 1/6),
 				(notes: \, length: 1/6),
                 (notes: [0], length: 1/6),
 				(notes: \, length: 1/6),
@@ -228,7 +237,7 @@ Routine({
                     degrees.do { |degree|
                         if (degree != \,) {
                             var note = (root + degree + (12 * 2)).midicps;
-                            s.bind { Synth(\square8, [freq: note, duration: dur * beat, span: 1.7]); };
+                            s.bind { Synth(\square8, [freq: note, duration: dur * beat, span: 0.9]); };
                         };
                     };
                     (dur * beat).wait;

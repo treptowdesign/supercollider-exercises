@@ -89,7 +89,7 @@ Routine({
 
 		var amp, cutoff;
 		amp = -8;
-		cutoff = 4200;
+		cutoff = 2600;
 
 		loop {
 

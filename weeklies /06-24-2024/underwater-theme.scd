@@ -131,7 +131,7 @@ Routine({
 				// measure 4
 				(notes: [-8], length: 1/6, span: 0.8),
 				(notes: \, length: 1/6),
-                (notes: [5], length: 1/6, span: 0.8),
+                (notes: [-5], length: 1/6, span: 0.8),
 				(notes: \, length: 1/6),
                 (notes: [0], length: 1/6, span: 0.8),
 				(notes: \, length: 1/6),
@@ -248,7 +248,7 @@ Routine({
                     degrees.do { |degree|
                         if (degree != \,) {
                             var note = (root + degree + (12 * octave)).midicps;
-                            s.bind { Synth(\square8, [freq: note, duration: dur, span: part[\span]]); };
+							s.bind { Synth(\square8, [freq: note, duration: dur, span: part[\span]]); };
                         };
                     };
                     (dur).wait;

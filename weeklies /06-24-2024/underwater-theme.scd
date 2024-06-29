@@ -170,7 +170,7 @@ Routine({
 
 			]),
             // bass
-            (active: 1, octave: 2, schedule: [
+            (active: 1, octave: 1, schedule: [
 				/////////////////////////////////////////////////////////
 				// measure 1
                 (notes: [-12], length: 1/6, span: 0.8),
@@ -370,7 +370,7 @@ Routine({
                 (notes: [-7], length: 1/6, span: 1.8),
 				(notes: \, length: 3/6),
                 (notes: [-7], length: 1/6, span: 0.8),
-                (notes: [-1], length: 1/6, span: 0.8),
+                (notes: [-13], length: 1/6, span: 0.8),
 				// measure 28
 				(notes: [-12], length: 1/6, span: 0.8),
 				(notes: \, length: 5/6),

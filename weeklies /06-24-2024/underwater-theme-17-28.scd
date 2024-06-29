@@ -43,74 +43,6 @@ Routine({
             // treble
 			(active: 1, octave: 2, schedule: [
 				/////////////////////////////////////////////////////////
-				// measure 1
-                (notes: [7, 16], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 2
-                (notes: [6, 15], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 3
-                (notes: [7, 16], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 4
-				(notes: \, length: 1/6),
-				(notes: [7], length: 1/6, span: 0.8),
-				(notes: [9], length: 1/6, span: 0.8),
-				(notes: [11], length: 1/6, span: 0.8),
-				(notes: [12], length: 1/6, span: 0.8),
-				(notes: [14], length: 1/6, span: 0.8),
-
-				/////////////////////////////////////////////////////////
-				// measure 5
-                (notes: [7, 16], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 6
-                (notes: [6, 15], length: 1/6, span: 2.8),
-				(notes: \, length: 3/6),
-				(notes: [9, 17], length: 1/6, span: 2.8),
-                (notes: \, length: 1/6),
-				// measure 7
-                (notes: [7, 16], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 8
-				(notes: \, length: 5/6),
-				(notes: [7], length: 1/6, span: 1.2),
-
-				/////////////////////////////////////////////////////////
-				// measure 9
-				(notes: [5, 14], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 10
-				(notes: [4, 13], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 11
-				(notes: [5, 14], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 12
-				(notes: \, length: 1/6),
-				(notes: [7], length: 1/6, span: 0.8),
-				(notes: [9], length: 1/6, span: 0.8),
-				(notes: [11], length: 1/6, span: 0.8),
-				(notes: [12], length: 1/6, span: 0.8),
-				(notes: [13], length: 1/6, span: 0.8),
-
-				/////////////////////////////////////////////////////////
-				// measure 13
-				(notes: [5, 14], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 14
-				(notes: [-1, 7], length: 1/6, span: 2.8),
-                (notes: \, length: 3/6),
-				(notes: [9, 17], length: 1/6, span: 2.8),
-                (notes: \, length: 1/6),
-				// measure 15
-				(notes: [7, 16], length: 1/6, span: 2.8),
-                (notes: \, length: 5/6),
-				// measure 16
-				(notes: \, length: 5/6),
-				(notes: [7], length: 1/6, span: 1.2),
-
-				/////////////////////////////////////////////////////////
 				// measure 17
                 (notes: [16, 19], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
@@ -157,6 +89,7 @@ Routine({
                 (notes: \, length: 1/6),
 				(notes: [11, 17], length: 1/6, span: 1),
                 (notes: \, length: 1/6),
+
 				// measure 27
                 (notes: [11, 16], length: 1/6, span: 0.8),
 				(notes: [11, 16], length: 1/6, span: 0.8),
@@ -171,126 +104,6 @@ Routine({
 			]),
             // bass
             (active: 1, octave: 2, schedule: [
-				/////////////////////////////////////////////////////////
-				// measure 1
-                (notes: [-12], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [0], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 2
-                (notes: [-13], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-1], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 3
-                (notes: [-12], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [0], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 4
-				(notes: [-8], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [0], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-
-				/////////////////////////////////////////////////////////
-				// measure 5
-                (notes: [-12], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [0], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 6
-                (notes: [-13], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-1], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 7
-                (notes: [-12], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [0], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 8
-				(notes: [-8], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [0], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-
-				/////////////////////////////////////////////////////////
-				// measure 9
-                (notes: [-10], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-1], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 10
-                (notes: [-11], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-6], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-2], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 11
-                (notes: [-10], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-1], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 12
-				(notes: [-13], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				(notes: [-1], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-
-				/////////////////////////////////////////////////////////
-				// measure 13
-                (notes: [-10], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-1], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 14
-                (notes: [-13], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-1], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 15
-				(notes: [-13], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [0], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-				// measure 16
-				(notes: [-17], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [-5], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-                (notes: [0], length: 1/6, span: 0.8),
-				(notes: \, length: 1/6),
-
 				/////////////////////////////////////////////////////////
 				// measure 17
                 (notes: [-12], length: 1/6, span: 0.8),

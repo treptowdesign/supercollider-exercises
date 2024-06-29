@@ -107,6 +107,37 @@ Routine({
 				(notes: [-12, 7, 16], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
 
+				/////////////////////////////////////////////////////////
+				// measure 17: C
+                (notes: [-12, 16, 19], length: 1/6, span: 2.8),
+                (notes: \, length: 5/6),
+				// measure 18: G/B
+                (notes: [-13, 14, 19], length: 1/6, span: 2.8),
+                (notes: \, length: 5/6),
+				// measure 19: Bb dim7
+                (notes: [-14, 13, 19], length: 1/6, span: 2.8),
+                (notes: \, length: 5/6),
+				// measure 20
+				(notes: [-14, 13, 19], length: 1/6, span: 2.8),
+                (notes: \, length: 5/6),
+
+				/////////////////////////////////////////////////////////
+				// measure 21: Dm
+                (notes: [-10, 14, 17], length: 1/6, span: 2.8),
+                (notes: \, length: 5/6),
+				// measure 22: Db+
+                (notes: [-11, 13, 17], length: 1/6, span: 2.8),
+                (notes: \, length: 5/6),
+				// measure 23: F/C
+                (notes: [-12, 12, 17], length: 1/6, span: 2.8),
+                (notes: \, length: 5/6),
+				// measure 24: G7
+				(notes: [-13, 17], length: 1/6, span: 2.8),
+                (notes: \, length: 5/6),
+
+
+
+
 
 
 

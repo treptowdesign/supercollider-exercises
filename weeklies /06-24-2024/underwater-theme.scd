@@ -1,8 +1,8 @@
 (
-SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=14000, duration=1, span=1, amp=0|
+SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=12000, duration=1, span=1, amp=0|
 	var snd;
-	snd = Pulse.ar(freq * (SinOsc.kr(8) * 0.07).midiratio, pWidth);
-	snd = snd * Env.perc(0, 0.3).ar.range(1.2, 0.8);
+	snd = Pulse.ar(freq * (SinOsc.kr(8) * 0.05).midiratio, pWidth);
+	snd = snd * Env.perc(0, 0.3).ar.range(0.6, 1);
 	snd = RLPF.ar(snd, cutoff, 1);
 	snd = snd * Env.perc(0.01, duration * span, curve: 3).ar(Done.freeSelf);
 	// snd = snd * Env.linen(0.01, duration * span, 0.02).ar(Done.freeSelf);
@@ -11,6 +11,8 @@ SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=14000, duration=1, span=1, am
 	Out.ar(0, snd * -15.dbamp * amp.dbamp ! 2);
 }).add;
 )
+
+// Env.perc(0.01, 3, curve: 3).range(0.8, 1.0).plot;
 
 Synth(\square8, [freq: (36 + 13.neg + (12 * 3)).midicps, duration: 0.3]);
 
@@ -30,6 +32,13 @@ var root = 36;
 )
 
 (
+var root = 36;
+( -1 + [-12, 0, 4, 7, 20]).do { |degree|
+	Synth(\square8, [freq: (root + degree + (12 * 2)).midicps]);
+};
+)
+
+(
 var s, root, bpm, beat;
 s = Server.default;
 root = 36; // C
@@ -43,13 +52,13 @@ Routine({
             // treble
 			(active: 1, octave: 2, schedule: [
 				/////////////////////////////////////////////////////////
-				// measure 1
+				// measure 1: C
                 (notes: [7, 16], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 2
+				// measure 2: B7 (b13)
                 (notes: [6, 15], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 3
+				// measure 3: C
                 (notes: [7, 16], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
 				// measure 4
@@ -61,15 +70,15 @@ Routine({
 				(notes: [14], length: 1/6, span: 0.8),
 
 				/////////////////////////////////////////////////////////
-				// measure 5
+				// measure 5: C
                 (notes: [7, 16], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 6
+				// measure 6: B7 (b13)
                 (notes: [6, 15], length: 1/6, span: 2.8),
 				(notes: \, length: 3/6),
 				(notes: [9, 17], length: 1/6, span: 2.8),
                 (notes: \, length: 1/6),
-				// measure 7
+				// measure 7: C
                 (notes: [7, 16], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
 				// measure 8
@@ -77,13 +86,13 @@ Routine({
 				(notes: [7], length: 1/6, span: 1.2),
 
 				/////////////////////////////////////////////////////////
-				// measure 9
+				// measure 9: G7
 				(notes: [5, 14], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 10
+				// measure 10: F#7
 				(notes: [4, 13], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 11
+				// measure 11: G7
 				(notes: [5, 14], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
 				// measure 12
@@ -95,7 +104,7 @@ Routine({
 				(notes: [13], length: 1/6, span: 0.8),
 
 				/////////////////////////////////////////////////////////
-				// measure 13
+				// measure 13: G7
 				(notes: [5, 14], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
 				// measure 14
@@ -103,7 +112,7 @@ Routine({
                 (notes: \, length: 3/6),
 				(notes: [9, 17], length: 1/6, span: 2.8),
                 (notes: \, length: 1/6),
-				// measure 15
+				// measure 15: C
 				(notes: [7, 16], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
 				// measure 16
@@ -111,13 +120,13 @@ Routine({
 				(notes: [7], length: 1/6, span: 1.2),
 
 				/////////////////////////////////////////////////////////
-				// measure 17
+				// measure 17: C
                 (notes: [16, 19], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 18
+				// measure 18: G/B
                 (notes: [14, 19], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 19
+				// measure 19: Bb dim7
                 (notes: [13, 19], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
 				// measure 20
@@ -129,16 +138,16 @@ Routine({
 				(notes: [19], length: 1/6, span: 0.8),
 
 				/////////////////////////////////////////////////////////
-				// measure 21
+				// measure 21: Dm
                 (notes: [14, 17], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 22
+				// measure 22: Db+
                 (notes: [13, 17], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 23
+				// measure 23: F/C
                 (notes: [12, 17], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 24
+				// measure 24: G7
 				(notes: [17], length: 1/6, span: 0.8),
 				(notes: \, length: 1/6),
 				(notes: [19], length: 1/6, span: 0.8),
@@ -147,30 +156,30 @@ Routine({
 				(notes: [17], length: 1/6, span: 0.8),
 
 				/////////////////////////////////////////////////////////
-				// measure 25
+				// measure 25: C
                 (notes: [12, 16], length: 1/6, span: 2.8),
                 (notes: \, length: 5/6),
-				// measure 26
+				// measure 26: G7
                 (notes: [5, 9], length: 1/6, span: 1),
                 (notes: \, length: 1/6),
 				(notes: [7, 11], length: 1/6, span: 1),
                 (notes: \, length: 1/6),
 				(notes: [11, 17], length: 1/6, span: 1),
                 (notes: \, length: 1/6),
-				// measure 27
+				// measure 27: G13/F
                 (notes: [11, 16], length: 1/6, span: 0.8),
 				(notes: [11, 16], length: 1/6, span: 0.8),
 				(notes: [11, 16], length: 2/6, span: 0.8),
 				(notes: [5, 11], length: 2/6, span: 0.8),
-				// measure 28
-				(notes: [4, 12], length: 1/6, span: 0.8),
+				// measure 28: C
+				(notes: [4, 12], length: 1/6, span: 2.4),
 				(notes: \, length: 5/6),
 
 				// end //////////////////////////////////////////////////
 
 			]),
             // bass
-            (active: 1, octave: 1, schedule: [
+            (active: 1, octave: 2, schedule: [
 				/////////////////////////////////////////////////////////
 				// measure 1
                 (notes: [-12], length: 1/6, span: 0.8),
@@ -277,7 +286,7 @@ Routine({
                 (notes: [-1], length: 1/6, span: 0.8),
 				(notes: \, length: 1/6),
 				// measure 15
-				(notes: [-13], length: 1/6, span: 0.8),
+				(notes: [-12], length: 1/6, span: 0.8),
 				(notes: \, length: 1/6),
                 (notes: [-5], length: 1/6, span: 0.8),
 				(notes: \, length: 1/6),
@@ -413,4 +422,7 @@ Routine({
     };
 }).play
 )
+
+
+s.makeWindow;
 

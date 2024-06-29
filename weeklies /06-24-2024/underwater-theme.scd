@@ -34,7 +34,7 @@ Routine({
         var totalLength = 0;
         var voices = [
             // treble
-			[
+			(octave: 2, schedule: [
 				/////////////////////////////////////////////////////////
 				// measure 1
                 (notes: [7, 16], length: 1/6, span: 2.8),
@@ -103,9 +103,9 @@ Routine({
 				(notes: \, length: 5/6),
 				(notes: [7], length: 1/6, span: 0.8),
 
-            ],
+			]),
             // bass
-            [
+            (octave: 2, schedule: [
 				/////////////////////////////////////////////////////////
 				// measure 1
                 (notes: [-12], length: 1/6, span: 0.8),
@@ -227,25 +227,27 @@ Routine({
 				(notes: \, length: 1/6),
 
 
-            ]
+			])
         ];
 
         // calculate loop length
         voices.do { |voice|
-            voice.do { |part|
+			voice[\schedule].do { |part|
                 totalLength = totalLength + part[\length];
             };
         };
 
         voices.collect { |voice|
             Routine({
-                voice.do { |part|
+				var octave;
+				octave = voice[\octave];
+				voice[\schedule].do { |part|
                     var degrees, dur;
                     degrees = part[\notes];
                     dur = part[\length] * beat;
                     degrees.do { |degree|
                         if (degree != \,) {
-                            var note = (root + degree + (12 * 2)).midicps;
+                            var note = (root + degree + (12 * octave)).midicps;
                             s.bind { Synth(\square8, [freq: note, duration: dur, span: part[\span]]); };
                         };
                     };

@@ -1,7 +1,7 @@
 (
 SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=14000, duration=1, span=1, amp=0|
 	var snd;
-	snd = Pulse.ar(freq * (SinOsc.kr(8) * 0.1).midiratio, pWidth);
+	snd = Pulse.ar(freq * (SinOsc.kr(8) * 0.05).midiratio, pWidth);
 	snd = snd * Env.perc(0, 0.3).ar.range(1.2, 0.8);
 	snd = RLPF.ar(snd, cutoff, 1);
 	snd = snd * Env.perc(0.01, duration * span, curve: 3).ar(Done.freeSelf);
@@ -12,7 +12,15 @@ SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=14000, duration=1, span=1, am
 }).add;
 )
 
-Synth(\square8, [freq: (36 + 13.neg + (12 * 2)).midicps]);
+Synth(\square8, [freq: (36 + 13.neg + (12 * 3)).midicps, duration: 0.3]);
+
+
+(
+var root = 36;
+( 0 + [-12, -5, 0, 7, 16]).do { |degree|
+	Synth(\square8, [freq: (root + degree + (12 * 2)).midicps]);
+};
+)
 
 (
 var root = 36;
@@ -34,7 +42,7 @@ Routine({
         var totalLength = 0;
         var voices = [
             // treble
-			(octave: 2, schedule: [
+			(active: 1, octave: 2, schedule: [
 				/////////////////////////////////////////////////////////
 				// measure 1
                 (notes: [7, 16], length: 1/6, span: 2.8),
@@ -67,7 +75,7 @@ Routine({
                 (notes: \, length: 5/6),
 				// measure 8
 				(notes: \, length: 5/6),
-				(notes: [8], length: 1/6, span: 0.8),
+				(notes: [7], length: 1/6, span: 1.2),
 
 				/////////////////////////////////////////////////////////
 				// measure 9
@@ -101,11 +109,11 @@ Routine({
                 (notes: \, length: 5/6),
 				// measure 16
 				(notes: \, length: 5/6),
-				(notes: [7], length: 1/6, span: 0.8),
+				(notes: [7], length: 1/6, span: 1.2),
 
 			]),
             // bass
-            (octave: 2, schedule: [
+            (active: 1, octave: 2, schedule: [
 				/////////////////////////////////////////////////////////
 				// measure 1
                 (notes: [-12], length: 1/6, span: 0.8),
@@ -246,7 +254,7 @@ Routine({
                     degrees = part[\notes];
                     dur = part[\length] * beat;
                     degrees.do { |degree|
-                        if (degree != \,) {
+                        if (degree != \ && voice[\active] == 1) {
                             var note = (root + degree + (12 * octave)).midicps;
 							s.bind { Synth(\square8, [freq: note, duration: dur, span: part[\span]]); };
                         };

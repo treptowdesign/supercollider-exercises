@@ -13,25 +13,27 @@ SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=12000, duration=1, span=1, am
 Synth(\square8, [freq: 36.midicps, duration: 0.3]);
 
 (
-var root, pianoIntervals, n;
+var root, bpm, beat, pianoIntervals, n;
 root = 36;
+bpm = 72;
+beat = 60 / bpm;
 
 pianoIntervals = Dictionary[
-	\C -> 0,
-	\Cs -> 1, \Db -> 1,
-	\D -> 2,
-	\Ds -> 3, \Eb -> 3,
-	\E -> 4,
-	\F ->5,
-	\Fs -> 6, \Gb -> 6,
-	\G ->7,
-	\Gs -> 8, \Ab -> 8,
-	\A -> 9,
-	\As -> 10, \Bb -> 10,
-	\B -> 11
+	"C" -> 0,
+    "C#" -> 1, "Db" -> 1,
+    "D" -> 2,
+    "D#" -> 3, "Eb" -> 3,
+    "E" -> 4,
+    "F" -> 5,
+    "F#" -> 6, "Gb" -> 6,
+    "G" -> 7,
+    "G#" -> 8, "Ab" -> 8,
+    "A" -> 9,
+    "A#" -> 10, "Bb" -> 10,
+    "B" -> 11
 ];
 
-n = { |note=\C, octave=2|
+n = { |note="C", octave=2|
 	(root + pianoIntervals[note] + (12 * octave));
 };
 
@@ -39,9 +41,23 @@ n = { |note=\C, octave=2|
 
 // [n.(\C, 1), n.(\E, 3), n.(\G, 2)]
 
-[[\C, 1], [\G, 2], [\E, 3]].do { |midi|
-	Synth(\square8, [freq: n.(midi[0], midi[1] ).midicps, duration: 0.3]);
-};
+/*[[\C, 1], [\G, 2], [\E, 3]].do { |midi|
+	Synth(\square8, [freq: n.(midi[0], midi[1]).midicps, duration: 0.3]);
+};*/
+
+Routine({
+	loop {
+		[
+			[["C", 1], ["G", 2], ["E", 3]],
+			[["B", 0], ["F#", 2], ["D#", 3], ]
+		].do { |chord|
+			chord.do { |midi|
+				Synth(\square8, [freq: n.(midi[0], midi[1]).midicps, duration: 0.3]);
+			};
+			beat.wait;
+		};
+	};
+}).play;
 
 )
 

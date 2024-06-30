@@ -50,7 +50,7 @@ Routine({
         var totalLength = 0;
         var voices = [
             // treble
-			(active: 1, octave: 2, schedule: [
+			(active: 1, octave: 2, args: [pWidth: 0.5], schedule: [
 				/////////////////////////////////////////////////////////
 				// measure 1: C
                 (notes: [7, 16], length: 1/6, span: 2.8),
@@ -179,7 +179,7 @@ Routine({
 
 			]),
             // bass
-            (active: 1, octave: 2, schedule: [
+			(active: 1, octave: 2, args: [pWidth: 0.2], schedule: [
 				/////////////////////////////////////////////////////////
 				// measure 1
                 (notes: [-12], length: 1/6, span: 0.8),
@@ -408,7 +408,7 @@ Routine({
                     degrees.do { |degree|
                         if (degree != \ && voice[\active] == 1) {
                             var note = (root + degree + (12 * octave)).midicps;
-							s.bind { Synth(\square8, [freq: note, duration: dur, span: part[\span]]); };
+							s.bind { Synth(\square8, [freq: note, duration: dur, span: part[\span]] ++ voice[\args]); };
                         };
                     };
                     (dur).wait;

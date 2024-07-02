@@ -376,9 +376,7 @@ Routine({
                 (notes: [-5], length: 1/6, span: 0.8),
 				(notes: \, length: 1/6),
 				// measure 27
-                (notes: [-7], length: 1/6, span: 1.8),
-				(notes: \, length: 3/6),
-                (notes: [-7], length: 1/6, span: 0.8),
+                (notes: [-7], length: 5/6, span: 1.1), // 1.8
                 (notes: [-13], length: 1/6, span: 0.8),
 				// measure 28
 				(notes: [-12], length: 1/6, span: 0.8),

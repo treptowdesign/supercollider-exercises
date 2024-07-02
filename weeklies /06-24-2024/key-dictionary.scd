@@ -13,12 +13,12 @@ SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=12000, duration=1, span=1, am
 Synth(\square8, [freq: 36.midicps, duration: 0.3]);
 
 (
-var root, bpm, beat, pianoIntervals, n;
+var root, bpm, beat, noteToMidi, intervalToMidi, n;
 root = 36;
 bpm = 72;
 beat = 60 / bpm;
 
-pianoIntervals = Dictionary[
+noteToMidi = Dictionary[
 	"C" -> 0,
     "C#" -> 1, "Db" -> 1,
     "D" -> 2,
@@ -33,8 +33,23 @@ pianoIntervals = Dictionary[
     "B" -> 11
 ];
 
+intervalToMidi = Dictionary[
+	"1" -> 0,
+	"b2" -> 1, // b9th
+	"2" -> 2, // 9th
+	"b3" -> 3,
+	"3" -> 4,
+	"4" -> 5, // 11th
+	"#4" -> 6, "b5" -> 6, // #11th
+	"5" -> 7,
+	"b6" -> 8, // b13th
+	"6" -> 9,  // 13th
+	"b7" -> 10,
+	"7" -> 11
+];
+
 n = { |note="C", octave=2|
-	(root + pianoIntervals[note] + (12 * octave));
+	(root + noteToMidi[note] + (12 * octave));
 };
 
 // n.(\Bb, 2)
@@ -103,7 +118,7 @@ Routine({
 			[["G", 1]], // root
 			[["B", 1]], // 3rd
 			// beat 14: G7
-			[["B", 0], ["C", 2], ["G", 2]], // 3rd, 4th, root/octave
+			[["B", 0], ["B", 1], ["G", 2]], // 3rd, 3rd, root/octave
 			[["G", 1]], // root
 			[["B", 1], ["A", 2], ["F", 3]], // 3rd, 2nd/9th, b7th
 			// beat 15: C

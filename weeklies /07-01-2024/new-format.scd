@@ -71,46 +71,43 @@ n = { |note="C", octave=2|
 Routine({
 	loop {
 		[
-			// beat 1: C
-			[["C", 1], ["G", 2], ["E", 3]], // root, 5th, 3rd
-			[["G", 1]], // 5th
-			[["C", 2]], // octave
-			// beat 2: B7 (b13)
-			[["B", 0], ["F#", 2], ["D#", 3]], // root, 5th, 3rd
-			[["G", 1]], // b13th (b6th)
-			[["B", 1]], // octave
-			// beat 3:  C
-			[["C", 1], ["G", 2], ["E", 3]], // root, 5th, 3rd
-			[["G", 1]], // 5th
-			[["C", 2]], // octave
-			// beat 4: C
-			[["E", 1]], // 3rd
-			[["G", 1]], // 5th
-			[["C", 2]], // octave
-			// beat 5: C
-			[["C", 1], ["G", 2], ["E", 3]], // root, 5th, 3rd
-			[["G", 1]], // 5th
-			[["C", 2]], // octave
-			// beat 6: B7 (b13)
-			[["B", 0], ["F#", 2], ["D#", 3]], // root, 5th, 3rd
-			[["G", 1]], // b13th (b6th)
-			[["B", 1], ["A", 2], ["F", 3]], // octave, b7th , b5th/#4th
-			// beat 7: C
-			[["C", 1], ["G", 2], ["E", 3]], // root, 5th, 3rd
-			[["G", 1]], // 5th
-			[["C", 2]], // octave
-			// beat 8: C
-			[["E", 1]], // 3rd
-			[["G", 1]], // 5th
-			[["C", 2]], // octave
-
-
-
-		].do { |chord|
-			chord.do { |midi|
-				Synth(\square8, [freq: n.(midi[0], midi[1]).midicps, duration: 0.32]);
-			};
-			(beat/3).wait;
+			( // measure,////////////////////////////////////////////////////
+				root: "C",
+				treble: [
+					(notes: [["G", 2], ["E", 3]], length: 1/6, span: 2.8),
+					(notes: \, length: 5/6),
+				],
+				bass: [
+					(notes: [["C", 1]], length: 1/6, span: 0.8),
+					(notes: \, length: 1/6),
+					(notes: [["G", 1]], length: 1/6, span: 0.8),
+					(notes: \, length: 1/6),
+					(notes: [["C", 2]], length: 1/6, span: 0.8),
+					(notes: \, length: 1/6),
+				]
+			),
+		].do { |measure|
+			Routine({ // play treble part...
+				measure[\treble].do{ |part|
+					part[\notes].do { |midi|
+						if(midi != \, {
+							Synth(\square8, [freq: n.(midi[0], midi[1]).midicps, duration: 0.32]);
+						});
+					};
+					(part[\length] * beat).wait;
+				};
+			}).play;
+			Routine({ // play bass part...
+				measure[\bass].do{ |part|
+					part[\notes].do { |midi|
+						if(midi != \, {
+							Synth(\square8, [freq: n.(midi[0], midi[1]).midicps, duration: 0.32]);
+						});
+					};
+					(part[\length] * beat).wait;
+				};
+			}).play;
+			beat.wait;
 		};
 	};
 }).play;

@@ -13,7 +13,7 @@ SynthDef(\square8, { |freq=440, pWidth=0.5, cutoff=12000, duration=1, span=1, am
 Synth(\square8, [freq: 36.midicps, duration: 0.3]);
 
 (
-var root, bpm, beat, noteToMidi, intervalToMidi, n;
+var root, bpm, beat, noteToMidi, intervalToMidi, n, getIntervalOfNote;
 root = 36;
 bpm = 72;
 beat = 60 / bpm;
@@ -47,6 +47,14 @@ intervalToMidi = Dictionary[
 	"b7" -> 10,
 	"7" -> 11
 ];
+
+getIntervalOfNote = { |note="C", interval="1"|
+	var result;
+	result = ((noteToMidi[note] + intervalToMidi[interval]) % 12);
+	noteToMidi.findKeyForValue(result).postln;
+};
+
+getIntervalOfNote.("Eb", "7");
 
 n = { |note="C", octave=2|
 	(root + noteToMidi[note] + (12 * octave));

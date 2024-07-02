@@ -71,7 +71,7 @@ n = { |note="C", octave=2|
 Routine({
 	loop {
 		[
-			( // measure,////////////////////////////////////////////////////
+			( // measure 1 ////////////////////////////////////////////////////
 				root: "C",
 				treble: [
 					(notes: [["G", 2], ["E", 3]], length: 1/6, span: 2.8),
@@ -86,12 +86,28 @@ Routine({
 					(notes: \, length: 1/6),
 				]
 			),
+			( // measure 2 ////////////////////////////////////////////////////
+				root: "B",
+				treble: [
+					(notes: [["F#", 2], ["D#", 3]], length: 1/6, span: 2.8),
+					(notes: \, length: 5/6),
+				],
+				bass: [
+					(notes: [["B", 0]], length: 1/6, span: 0.8),
+					(notes: \, length: 1/6),
+					(notes: [["G", 1]], length: 1/6, span: 0.8),
+					(notes: \, length: 1/6),
+					(notes: [["B", 1]], length: 1/6, span: 0.8),
+					(notes: \, length: 1/6),
+				]
+			),
 		].do { |measure|
 			Routine({ // play treble part...
 				measure[\treble].do{ |part|
 					part[\notes].do { |midi|
 						if(midi != \, {
-							Synth(\square8, [freq: n.(midi[0], midi[1]).midicps, duration: 0.32]);
+							var dur = part[\length] * part[\span] * beat;
+							Synth(\square8, [freq: n.(midi[0], midi[1]).midicps, duration: dur]);
 						});
 					};
 					(part[\length] * beat).wait;
@@ -101,7 +117,8 @@ Routine({
 				measure[\bass].do{ |part|
 					part[\notes].do { |midi|
 						if(midi != \, {
-							Synth(\square8, [freq: n.(midi[0], midi[1]).midicps, duration: 0.32]);
+							var dur = part[\length] * part[\span] * beat;
+							Synth(\square8, [freq: n.(midi[0], midi[1]).midicps, duration: dur]);
 						});
 					};
 					(part[\length] * beat).wait;

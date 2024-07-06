@@ -227,12 +227,14 @@ Routine({
 				bass: [
 					(notes: [["D", 0]], length: 2/6, span: 1), // root
 					(notes: \, length: 4/6),
+
 					/*(notes: [["D", 0]], length: 1/6, span: 0.8), // root
 					(notes: \, length: 1/6),
 					(notes: [["D", 1]], length: 1/6, span: 0.8), // octave
 					(notes: \, length: 1/6),
 					(notes: [["A", 0]], length: 1/6, span: 0.8), // 5th
 					(notes: \, length: 1/6),*/
+
 					/*(notes: [["D", 0]], length: 2/6, span: 0.6), // root
 					(notes: [["D", 1]], length: 2/6, span: 0.6), // octave
 					(notes: [["A", 0]], length: 2/6, span: 0.6), // 5th*/

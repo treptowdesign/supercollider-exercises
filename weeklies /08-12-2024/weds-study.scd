@@ -128,7 +128,35 @@ SynthDef(\analog3, {
 )
 
 
+(
+SynthDef(\analogAeolian, {
+	var snd, freq, duration;
+	freq = \freq.kr(440) * Demand.ar(Impulse.ar(1 / \noteDuration.kr(0.1)), 0, Dseq([0, 2, 3, 5, 7, 8, 10], inf)).lag(0.01).midiratio;
+	snd = LFTri.ar(freq * (SinOsc.ar(3) * 0.2).midiratio, SinOsc.ar(0.23).linlin(-1, 1, 0.5, 0.6));
+	snd = MoogFF.ar(snd, SinOsc.ar(0.15).linexp(-1, 1, 200, 3000), 2);
+	snd = snd.tanh;
+	snd = Pan2.ar(snd, 0.5);
+	snd = snd * -17.dbamp;
+	snd = snd * Env.linen(0.01, \duration.kr(10.0), 3.0, curve: -4).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
 
+Scale.ionian.degrees;
+
+(
+SynthDef(\analogIonian, {
+	var snd, freq, duration;
+	freq = \freq.kr(440) * Demand.ar(Impulse.ar(1 / \noteDuration.kr(0.1)), 0, Dseq([0, 2, 4, 5, 7, 9, 11 ], inf)).lag(0.01).midiratio;
+	snd = LFTri.ar(freq * (SinOsc.ar(3) * 0.2).midiratio, SinOsc.ar(0.23).linlin(-1, 1, 0.5, 0.6));
+	snd = MoogFF.ar(snd, SinOsc.ar(0.15).linexp(-1, 1, 200, 3000), 2);
+	snd = snd.tanh;
+	snd = Pan2.ar(snd, 0.5);
+	snd = snd * -17.dbamp;
+	snd = snd * Env.linen(0.01, \duration.kr(10.0), 3.0, curve: -4).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
 
 
 

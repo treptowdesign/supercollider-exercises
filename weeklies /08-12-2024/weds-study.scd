@@ -142,12 +142,12 @@ SynthDef(\analogAeolian, {
 }).play;
 )
 
-Scale.ionian.degrees;
+Scale.locrian.degrees;
 
 (
 SynthDef(\analogIonian, {
 	var snd, freq, duration;
-	freq = \freq.kr(440) * Demand.ar(Impulse.ar(1 / \noteDuration.kr(0.1)), 0, Dseq([0, 2, 4, 5, 7, 9, 11 ], inf)).lag(0.01).midiratio;
+	freq = \freq.kr(440) * Demand.ar(Impulse.ar(1 / \noteDuration.kr(0.1)), 0, Dseq([0, 2, 4, 5, 7, 9, 11], inf)).lag(0.01).midiratio;
 	snd = LFTri.ar(freq * (SinOsc.ar(3) * 0.2).midiratio, SinOsc.ar(0.23).linlin(-1, 1, 0.5, 0.6));
 	snd = MoogFF.ar(snd, SinOsc.ar(0.15).linexp(-1, 1, 200, 3000), 2);
 	snd = snd.tanh;
@@ -158,6 +158,54 @@ SynthDef(\analogIonian, {
 }).play;
 )
 
+(
+SynthDef(\analogLocrian, {
+	var snd, freq, duration;
+	freq = \freq.kr(440) * Demand.ar(Impulse.ar(1 / \noteDuration.kr(0.1)), 0, Dseq([0, 1, 3, 5, 6, 8, 10], inf)).lag(0.01).midiratio;
+	snd = LFTri.ar(freq * (SinOsc.ar(3) * 0.2).midiratio, SinOsc.ar(0.23).linlin(-1, 1, 0.5, 0.6));
+	snd = MoogFF.ar(snd, SinOsc.ar(0.15).linexp(-1, 1, 200, 3000), 2);
+	snd = snd.tanh;
+	snd = Pan2.ar(snd, 0.5);
+	snd = snd * -17.dbamp;
+	snd = snd * Env.linen(0.01, \duration.kr(10.0), 3.0, curve: -4).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\pad2, {
+	var snd, freq, freqs;
+	freq = \freq.kr(440);
+	freqs = freq * (LFNoise2.kr(10 ! 10) * 0.3).midiratio;
+	snd = Saw.ar(freqs * [1, 2, 0.5, 2, 1, 1, 2, 0.5, 2, 1]);
+	snd = Splay.ar(snd);
+	snd = BRF.ar(snd, SinOsc.ar(0.3).linexp(0, 1, 1000, 4000), 0.1);
+	snd = snd + DelayC.ar(snd, 0.2, SinOsc.ar(0.3, [0, pi] + Rand(0, 2pi)).linlin(-1, 1, 1, 2) * 0.01e-3);
+	snd = snd + DelayC.ar(snd, 0.2, SinOsc.ar(0.25, [0, pi] + Rand(0, 2pi)).linlin(-1, 1, 1, 3) * 0.1e-3);
+	snd = snd + DelayC.ar(snd, 0.2, SinOsc.ar(0.14, [0, pi] + Rand(0, 2pi)).linlin(-1, 1, 1, 3) * 0.5e-3);
+	snd = BHiShelf.ar(snd, 3120, 0.3, -3);
+	snd = snd * -30.dbamp;
+	snd = snd * Env.perc(\duration.kr(10.0) / 2, \duration.kr(10.0) / 2, curve: \sin).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\pad1, {
+	var snd, freq, freqs;
+	freq = \freq.kr(440);
+	freqs = freq * (LFNoise2.kr(0.3 ! 10) * 0.2).midiratio;
+	snd = SinOsc.ar(freqs) * 200 * LFNoise2.kr(3).linlin(-1, 1, 1, 2);
+	snd = SinOsc.ar(freqs + snd);
+	snd = snd.tanh;
+	snd = RLPF.ar(snd, LFNoise2.kr(1 ! snd.size).linexp(-1, 1, 100, 3000), 0.1);
+	snd = Splay.ar(snd);
+	snd = snd * -30.dbamp;
+	snd = snd * freq.explin(200, 400, 0, -10).dbamp;
+	snd = snd * Env.linen(0.5, \duration.kr(1.0), 0.5, curve: \sin).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
 
 
 

@@ -106,7 +106,7 @@ SynthDef(\analog2, {
 	snd = Pulse.ar(freq, SinOsc.ar(0.23).linlin(-1, 1, 0.5, 0.6));
 	snd = MoogFF.ar(snd, SinOsc.ar(0.1).linexp(-1, 1, 200, 3000), 3.4) * 5.dbamp;
 	snd = snd.tanh;
-	snd = Pan2.ar(snd, -0.5);
+	snd = Pan2.ar(snd, 0);
 	snd = snd * -15.dbamp;
 	snd = snd * Env.linen(0.01, \duration.kr(10.0), 3.0, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);

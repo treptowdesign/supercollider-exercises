@@ -79,8 +79,12 @@ Routine({
 
 Routine({
 	loop {
-		s.bind { Synth(\snare); };
-		(beat * 2).wait;
+		[\, \, 1, \, \, \, \, 1].do { |hit|
+			if(hit != \, {
+				s.bind { Synth(\snare); };
+			});
+			(beat / 2).wait;
+		};
 	};
 }).play;
 

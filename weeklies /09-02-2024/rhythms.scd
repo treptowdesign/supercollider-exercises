@@ -49,6 +49,17 @@ SynthDef(\snare, {
 	snd = snd * -19.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\hat, {
+	var snd;
+	snd = Hasher.ar(Sweep.ar);
+	snd = snd + CombC.ar(snd, 0.23, 1 / 90);
+	snd = BPF.ar(snd, [12240, 6230, 10832, 9830, 8320], 0.1).sum;
+	snd = snd + BPF.ar(Hasher.ar(Sweep.ar) * Env.perc(0.02, 0.03).ar * -15.dbamp, 8320, 0.3);
+	snd = snd * Env.perc(0.01, 0.1, curve: -8).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0)) * 3.dbamp;
+	snd = snd * -26.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 
@@ -70,6 +81,13 @@ Routine({
 	loop {
 		s.bind { Synth(\snare); };
 		(beat * 2).wait;
+	};
+}).play;
+
+Routine({
+	loop {
+		s.bind { Synth(\hat); };
+		(beat / 4).wait;
 	};
 }).play;
 

@@ -105,7 +105,13 @@ Routine({
 
 Routine({
 	loop {
-		[\, \, 1, \, \, \, \, 1].do { |hit|
+		[
+			\, \, 1, \, \, \, 1, \,
+			\, \, 1, \, \, \, \, 1,
+			\, \, 1, \, \, \, 1, \,
+			\, \, 1, \, \, \, 1, 1,
+
+		].do { |hit|
 			if(hit != \, {
 				s.bind { Synth(\snare); };
 			});
@@ -123,9 +129,9 @@ Routine({
 
 Routine({
 	loop {
-		s.bind { Synth(\perc); };
-		(third).wait;
 		s.bind { Synth(\perc2); };
+		(third).wait;
+		s.bind { Synth(\perc); };
 		(third).wait;
 	};
 }).play;

@@ -84,6 +84,17 @@ SynthDef(\perc2, {
 	snd = snd * -20.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
+SynthDef(\analog, {
+	var snd, freq, duration;
+	freq = \freq.kr(440) * Demand.ar(Impulse.ar(1 / \noteDuration.kr(0.1)), 0, Dseq([3, 5, 2, 3, 0, -5], inf)).lag(0.01).midiratio;
+	snd = Pulse.ar(freq, SinOsc.ar(0.23).linlin(-1, 1, 0.5, 0.6));
+	snd = MoogFF.ar(snd, SinOsc.ar(0.1).linexp(-1, 1, 200, 3000), 3.4) * 5.dbamp;
+	snd = snd.tanh;
+	snd = Pan2.ar(snd, 0);
+	snd = snd * -15.dbamp;
+	snd = snd * Env.linen(0.01, \duration.kr(10.0), 0.2, curve: -4).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 
@@ -96,6 +107,13 @@ beat = 60 / bpm;
 bar = beat * 4;
 third = bar / 3;
 fifth = bar / 5;
+
+Routine({
+	loop {
+		s.bind { Synth(\analog, [noteDuration: beat / 4, duration: beat * 4]); };
+		(beat * 4).wait;
+	};
+}).play;
 
 Routine({
 	loop {
@@ -128,15 +146,15 @@ Routine({
 Routine({
 	loop {
 		[
-			\, 1, 1,  \, 1, 1,
+			1, 1, 1,  1, 1, 1,
 		].do { |hit|
-			if(hit != \, { s.bind { s.bind { Synth(\perc); }; }; });
+			if(hit != \, { s.bind { s.bind { Synth(\perc2); }; }; });
 			(third).wait;
 		};
 	};
 }).play;
 
-Routine({
+/*Routine({
 	loop {
 		[
 			1, \, 1, \, 1,   1, \, 1, \, 1,
@@ -145,6 +163,6 @@ Routine({
 			(fifth).wait;
 		};
 	};
-}).play;
+}).play;*/
 
 )

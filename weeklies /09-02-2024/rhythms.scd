@@ -113,9 +113,7 @@ Routine({
 			\, \, 1, \, \, \, 1, 1,
 
 		].do { |hit|
-			if(hit != \, {
-				s.bind { Synth(\snare); };
-			});
+			if(hit != \, { s.bind { Synth(\snare); }; });
 			(beat / 2).wait;
 		};
 	};
@@ -130,14 +128,14 @@ Routine({
 
 Routine({
 	loop {
-		s.bind { Synth(\perc2); };
+		s.bind { Synth(\perc); };
 		(third).wait;
 	};
 }).play;
 
 Routine({
 	loop {
-		s.bind { Synth(\perc); };
+		s.bind { Synth(\perc2); };
 		(fifth).wait;
 	};
 }).play;

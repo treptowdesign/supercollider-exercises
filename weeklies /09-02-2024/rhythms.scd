@@ -72,6 +72,18 @@ SynthDef(\perc, {
 	snd = snd * -16.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
+SynthDef(\perc2, {
+	var snd;
+	snd = SinOsc.ar(420 * (1.5 ** [0, 1, 2])).sum;
+	snd = snd * (1 + (4 * Env.perc(0, 0.01).ar));
+	snd = snd * Env.perc(0.001, 0.05).ar;
+	snd = snd + Latch.ar(GVerb.ar(snd * -15.dbamp, 3), Impulse.ar(8320));
+	snd = snd * Env.perc(0.0, 0.5).ar(Done.freeSelf);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * \amp.kr(1);
+	snd = snd * -16.dbamp;
+	Out.ar(\out.kr, snd);
+}).add;
 )
 
 
@@ -112,6 +124,8 @@ Routine({
 Routine({
 	loop {
 		s.bind { Synth(\perc); };
+		(third).wait;
+		s.bind { Synth(\perc2); };
 		(third).wait;
 	};
 }).play;

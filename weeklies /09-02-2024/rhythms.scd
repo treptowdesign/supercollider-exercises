@@ -89,12 +89,13 @@ SynthDef(\perc2, {
 
 
 (
-var s, bpm, beat, bar, third;
+var s, bpm, beat, bar, third, fifth;
 s = Server.default;
 bpm = 140;
 beat = 60 / bpm;
 bar = beat * 4;
 third = bar / 3;
+fifth = bar / 5;
 
 Routine({
 	loop {
@@ -131,8 +132,13 @@ Routine({
 	loop {
 		s.bind { Synth(\perc2); };
 		(third).wait;
+	};
+}).play;
+
+Routine({
+	loop {
 		s.bind { Synth(\perc); };
-		(third).wait;
+		(fifth).wait;
 	};
 }).play;
 

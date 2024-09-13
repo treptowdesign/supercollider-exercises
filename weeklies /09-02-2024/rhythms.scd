@@ -128,7 +128,7 @@ Routine({
 Routine({
 	loop {
 		[
-			\, 1, 1,  1, \, 1,
+			\, 1, 1,  \, 1, 1,
 		].do { |hit|
 			if(hit != \, { s.bind { s.bind { Synth(\perc); }; }; });
 			(third).wait;
@@ -139,7 +139,7 @@ Routine({
 Routine({
 	loop {
 		[
-			1, \, 1, \, 1,   \, 1, \, 1, 1,
+			1, \, 1, \, 1,   1, \, 1, \, 1,
 		].do { |hit|
 			if(hit != \, { s.bind { s.bind { Synth(\perc2); }; }; });
 			(fifth).wait;

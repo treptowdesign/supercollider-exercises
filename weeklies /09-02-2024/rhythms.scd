@@ -111,7 +111,6 @@ Routine({
 			\, \, 1, \,   \, \, \, 1,
 			\, \, 1, \,   \, \, 1, \,
 			\, \, 1, \,   \, \, 1, 1,
-
 		].do { |hit|
 			if(hit != \, { s.bind { Synth(\snare); }; });
 			(beat / 2).wait;
@@ -130,7 +129,6 @@ Routine({
 	loop {
 		[
 			\, 1, 1,  1, \, 1,
-
 		].do { |hit|
 			if(hit != \, { s.bind { s.bind { Synth(\perc); }; }; });
 			(third).wait;
@@ -142,7 +140,6 @@ Routine({
 	loop {
 		[
 			1, \, 1, \, 1,   \, 1, \, 1, 1,
-
 		].do { |hit|
 			if(hit != \, { s.bind { s.bind { Synth(\perc2); }; }; });
 			(fifth).wait;

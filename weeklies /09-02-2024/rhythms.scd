@@ -60,15 +60,29 @@ SynthDef(\hat, {
 	snd = snd * -26.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\perc, {
+	var snd;
+	snd = SinOsc.ar(920 * (1.5 ** [0, 1, 2])).sum;
+	snd = snd * (1 + (4 * Env.perc(0, 0.01).ar));
+	snd = snd * Env.perc(0.001, 0.1).ar;
+	snd = snd + GVerb.ar(snd * -15.dbamp, 10);
+	snd = snd * Env.perc(0.0, 1).ar(Done.freeSelf);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * \amp.kr(1);
+	snd = snd * -16.dbamp;
+	Out.ar(\out.kr, snd);
+}).add;
 )
 
 
 
 (
-var s, bpm, beat;
+var s, bpm, beat, bar, third;
 s = Server.default;
 bpm = 140;
 beat = 60 / bpm;
+bar = beat * 4;
+third = bar / 3;
 
 Routine({
 	loop {
@@ -92,6 +106,13 @@ Routine({
 	loop {
 		s.bind { Synth(\hat); };
 		(beat / 4).wait;
+	};
+}).play;
+
+Routine({
+	loop {
+		s.bind { Synth(\perc); };
+		(third).wait;
 	};
 }).play;
 

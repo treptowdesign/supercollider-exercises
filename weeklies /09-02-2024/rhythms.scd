@@ -69,7 +69,7 @@ SynthDef(\perc, {
 	snd = snd * Env.perc(0.0, 1).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -16.dbamp;
+	snd = snd * -20.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
 SynthDef(\perc2, {
@@ -81,7 +81,7 @@ SynthDef(\perc2, {
 	snd = snd * Env.perc(0.0, 0.5).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -16.dbamp;
+	snd = snd * -20.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
 )
@@ -107,10 +107,10 @@ Routine({
 Routine({
 	loop {
 		[
-			\, \, 1, \, \, \, 1, \,
-			\, \, 1, \, \, \, \, 1,
-			\, \, 1, \, \, \, 1, \,
-			\, \, 1, \, \, \, 1, 1,
+			\, \, 1, \,   \, \, 1, \,
+			\, \, 1, \,   \, \, \, 1,
+			\, \, 1, \,   \, \, 1, \,
+			\, \, 1, \,   \, \, 1, 1,
 
 		].do { |hit|
 			if(hit != \, { s.bind { Synth(\snare); }; });
@@ -128,15 +128,25 @@ Routine({
 
 Routine({
 	loop {
-		s.bind { Synth(\perc); };
-		(third).wait;
+		[
+			\, 1, 1,  1, \, 1,
+
+		].do { |hit|
+			if(hit != \, { s.bind { s.bind { Synth(\perc); }; }; });
+			(third).wait;
+		};
 	};
 }).play;
 
 Routine({
 	loop {
-		s.bind { Synth(\perc2); };
-		(fifth).wait;
+		[
+			1, \, 1, \, 1,   \, 1, \, 1, 1,
+
+		].do { |hit|
+			if(hit != \, { s.bind { s.bind { Synth(\perc2); }; }; });
+			(fifth).wait;
+		};
 	};
 }).play;
 

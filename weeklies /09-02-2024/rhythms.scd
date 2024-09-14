@@ -108,12 +108,12 @@ bar = beat * 4;
 third = bar / 3;
 fifth = bar / 5;
 
-Routine({
+/*Routine({
 	loop {
-		s.bind { Synth(\analog, [noteDuration: beat / 2, duration: beat * 8, freq: (440 / 4)]); };
+		s.bind { Synth(\analog, [noteDuration: beat, duration: beat * 8, freq: (440 / 4)]); };
 		(beat * 8).wait;
 	};
-}).play;
+}).play;*/
 
 Routine({
 	loop {
@@ -150,18 +150,18 @@ Routine({
 	};
 }).play;
 
-/*Routine({
+Routine({
 	loop {
 		[
 			1, 1, 1,  1, 1, 1,
 		].do { |hit|
-			if(hit != \, { s.bind { s.bind { Synth(\perc2); }; }; });
+			if(hit != \, { s.bind { s.bind { Synth(\perc); }; }; });
 			(third).wait;
 		};
 	};
-}).play;*/
+}).play;
 
-/*Routine({
+Routine({
 	loop {
 		[
 			1, \, 1, \, 1,   1, \, 1, \, 1,
@@ -170,6 +170,6 @@ Routine({
 			(fifth).wait;
 		};
 	};
-}).play;*/
+}).play;
 
 )

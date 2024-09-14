@@ -150,7 +150,7 @@ Routine({
 	};
 }).play;
 
-Routine({
+/*Routine({
 	loop {
 		[
 			1, 1, 1,  1, 1, 1,
@@ -170,6 +170,6 @@ Routine({
 			(fifth).wait;
 		};
 	};
-}).play;
+}).play;*/
 
 )

@@ -110,7 +110,7 @@ fifth = bar / 5;
 
 /*Routine({
 	loop {
-		s.bind { Synth(\analog, [noteDuration: beat, duration: beat * 8, freq: (440 / 4)]); };
+		s.bind { Synth(\analog, [noteDuration: beat * 2, duration: beat * 8, freq: (440 / 4)]); };
 		(beat * 8).wait;
 	};
 }).play;*/

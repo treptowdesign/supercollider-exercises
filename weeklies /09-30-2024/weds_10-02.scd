@@ -24,3 +24,13 @@ SynthDef(\test, {
 	Out.ar(0, snd);
 }).play;
 )
+
+(
+SynthDef(\pls, {
+	var snd;
+	snd = Pulse.ar(\freq.kr(440), 0.4);
+	snd = BPF.ar(snd, Env.perc(0, 0.6).ar.linlin(0, 1, 6000, 100), 0.3);
+	snd = snd * Env.perc(0.1, 0.4).ar(Done.freeSelf);
+	Out.ar(0, Pan2.ar(snd, 0, 0.6));
+}).play;
+)

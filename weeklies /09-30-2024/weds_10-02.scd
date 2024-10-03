@@ -34,3 +34,18 @@ SynthDef(\pls, {
 	Out.ar(0, Pan2.ar(snd, 0, 0.6));
 }).play;
 )
+
+(
+
+SynthDef(\snapClap, {
+	var snd;
+	snd = Hasher.ar(Sweep.ar);
+	snd = BPF.ar(snd, 1420, 0.4) * 25.dbamp;
+	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.01, 0.001, 0.01, 0.001, 0.3], curve: -12).ar;
+	// snd = snd + CombN.ar(snd, 0.08, 0.08, 0.3, 0.1);
+	snd = snd * -10.dbamp;
+	snd = snd ! 2;
+	snd = snd * Env.perc(0.0, 1.0).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)

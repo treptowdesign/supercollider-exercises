@@ -120,7 +120,7 @@ SynthDef(\bass2, {
 	snd = snd ! 2;
 	snd = snd * Env([0, 1, 1, 0], [1, 9, 1].normalizeSum * duration, curve: \sin).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 )
 
 

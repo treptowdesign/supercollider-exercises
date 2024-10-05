@@ -8,8 +8,7 @@ SynthDef("fm1", { arg bus = 0, freq = 440, carPartial = 1, modPartial = 1, index
     // index values usually are between 0 and 24
     // carPartial :: modPartial => car/mod ratio
 
-    var mod;
-    var car;
+    var mod, car;
 
     mod = SinOsc.ar(
         freq * modPartial,
@@ -36,12 +35,35 @@ Synth("fm1", [\bus, 1, \freq, 442, \carPartial, 1, \modPartial, 2.401]);
 )
 
 (
-Synth("fm1", [\bus, 0, \freq, 440, \carPartial, 1, \modPartial, 2.4]);
+SynthDef("fm2", { arg bus = 0, freq = 440, carPartial = 1, modPartial = 1, index = 3, mul = 0.05;
+
+    var mod, car;
+
+    mod = SinOsc.ar(
+        freq: freq * modPartial,
+        phase: 0,
+        mul: freq * index * LFNoise1.kr(1/5).abs
+    );
+
+    car = SinOsc.ar(
+        freq: (freq * carPartial) + mod,
+        phase: 0,
+        mul: mul
+    );
+
+    Out.ar(0, car ! 2);
+}).add;
 )
 
 (
-Synth("fm1", [\bus, 1, \freq, 442, \carPartial, 1, \modPartial, 2.401]);
+Synth("fm2", [freq: 440, carPartial: 1, modPartial: 2.4, index: 3]);
 )
+
+
+
+
+
+
 
 
 

@@ -55,6 +55,7 @@ SynthDef(\kick, {
 SynthDef(\snapClap, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar); // noise equivalent
+	// snd = WhiteNoise.ar;
 	snd = BPF.ar(snd, 1420, 0.4) * 25.dbamp; // band pass
 	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.01, 0.001, 0.01, 0.001, 0.3], curve: -12).ar; // volume shape
 	snd = Pan2.ar(snd, 0) * -10.dbamp; // 2 channel & global volume adjust

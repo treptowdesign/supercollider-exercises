@@ -109,7 +109,7 @@ Synth("fm1", [\bus, 2, \freq, 442, \carPartial, 1, \modPartial, 2.401, \mul, 0.0
 Synth.tail(s, "preDelay");
 Synth.tail(s, "combs");
 Synth.tail(s, "allpass");
-Synth.tail(s, "theMixer", [\gain, 0.64]);
+Synth.tail(s, "theMixer", [\gain, 0.3]);
 )
 
 (

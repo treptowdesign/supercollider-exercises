@@ -3,9 +3,11 @@ SynthDef(\bass, {
 	var freq, dur, snd;
 	freq = \freq.kr(90);
 	dur = \dur.kr(1);
-	snd = SinOsc.ar(freq, 0);
+	snd = SinOsc.ar(freq, 0).cubed.cubed;
+	snd = snd + (SinOsc.ar(freq, Line.kr(pi/4, pi, dur)).cubed.cubed);
+	snd = BLowShelf.ar(snd, 200, 0.4, 4);
 	snd = snd * Env.linen(0.1, dur, 0.1).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, 0) * -2.dbamp;
+	snd = Pan2.ar(snd, 0) * -6.dbamp;
 	Out.ar(0, snd);
 }).play;
 )

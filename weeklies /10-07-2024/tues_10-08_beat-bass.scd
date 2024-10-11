@@ -3,7 +3,7 @@
 (
 SynthDef(\bass, {
 	var freq, dur, snd;
-	freq = \freq.kr(60) + SinOsc.ar(12).range(-0.75, 0.75);
+	freq = \freq.kr(60) + SinOsc.ar(16).range(-0.5, 0.5);
 	dur = \dur.kr(1);
 	snd = SinOsc.ar(freq, 0).cubed.cubed;
 	snd = snd + (SinOsc.ar(freq, pi/2).cubed * -10.dbamp);
@@ -13,7 +13,7 @@ SynthDef(\bass, {
 	snd = snd * Env.linen(0.1, dur, 0.2).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
 	Out.ar(0, snd * -10.dbamp ! 2);
-}).add;
+}).play;
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1);

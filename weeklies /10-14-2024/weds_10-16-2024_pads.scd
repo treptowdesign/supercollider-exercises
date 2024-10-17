@@ -7,7 +7,7 @@ SynthDef(\kick, {
 	snd = snd + 0.01;
 	snd = snd * Env.perc(0.001, 0.7).ar;
 	snd = snd.tanh;
-	snd = snd * -14.dbamp;
+	snd = snd * -16.dbamp * \amp.kr(1);
 	snd = BLowShelf.ar(snd, 300, 0.4, 5);
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -25.dbamp, 0.1, [34e-3, 63e-3]), 200), 3000);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
@@ -103,62 +103,60 @@ padFx = Synth.tail(nil, \padFx, [in: ~padBus, out: 0]);
 Routine({
 	var dur, note;
 	dur = beat;
+	// KICK+SIDECHAIN FORK //////////////////////////////////////////////////////
 	fork {
 		loop {
 			// bar //////////////////////
 			4.do {
-				s.bind { padFx.set(\trigger, 1); }; // sidechain...
 				s.bind { Synth(\kick); };
 				dur.wait;
 			};
 			// bar //////////////////////
-			s.bind { padFx.set(\trigger, 1); }; // sidechain...
 			s.bind { Synth(\kick); };
-			(dur/2).wait;
-			s.bind { Synth(\kick); };
-			(dur/2).wait;
+			(dur/2 - 0.02).wait;
+			s.bind { Synth(\kick, [amp: 0.8]); };
+			(dur/2 + 0.02).wait;
 
 			3.do {
-				s.bind { padFx.set(\trigger, 1); }; // sidechain...
 				s.bind { Synth(\kick); };
 				dur.wait;
 			};
 			// bar //////////////////////
 			4.do {
-				s.bind { padFx.set(\trigger, 1); }; // sidechain...
 				s.bind { Synth(\kick); };
 				dur.wait;
 			};
 			// bar //////////////////////
-			s.bind { padFx.set(\trigger, 1); }; // sidechain...
 			s.bind { Synth(\kick); };
 			(dur/3).wait;
-			s.bind { Synth(\kick); };
-			(dur/3).wait;
-			s.bind { Synth(\kick); };
-			(dur/3).wait;
+			s.bind { Synth(\kick, [amp: 0.6]); };
+			(dur/3 - 0.025).wait;
+			s.bind { Synth(\kick, [amp: 0.9]); };
+			(dur/3 + 0.025).wait;
 
 			3.do {
-				s.bind { padFx.set(\trigger, 1); }; // sidechain...
 				s.bind { Synth(\kick); };
 				dur.wait;
 			};
 
 		};
 	};
+	// PAD FORK //////////////////////////////////////////////////////
 	fork {
 		loop {
+			s.bind { padFx.set(\trigger, 1); }; // sidechain
 			[-12, 0, 3, 7, 10].do { |interval|
 				note = (42 + interval + (12 * 1)).midicps;
-				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.6, out: ~padBus]); };
+				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.5, out: ~padBus]); };
 				note = (42 + interval + (12 * 2)).midicps;
-				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.1, out: ~padBus]); };
+				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.07, out: ~padBus]); };
 				note = (42 + interval + (12 * 3)).midicps;
-				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.1, out: ~padBus]); };
+				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.05, out: ~padBus]); };
 			};
 			dur.wait;
 		};
 	};
+	// CLAP+HAT FORK //////////////////////////////////////////////////////
 	fork {
 		loop {
 			// bar //////////////////////

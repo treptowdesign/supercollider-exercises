@@ -107,6 +107,11 @@ Routine({
 		loop {
 			s.bind { padFx.set(\trigger, 1); }; // sidechain...
 			s.bind { Synth(\kick); };
+			dur.wait;
+		};
+	};
+	fork {
+		loop {
 			[-12, 0, 3, 7, 10].do { |interval|
 				note = (42 + interval + (12 * 1)).midicps;
 				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.6, out: ~padBus]); };
@@ -138,6 +143,27 @@ Routine({
 			(dur/2).wait;
 			s.bind { Synth(\hat); };
 			(dur/2).wait;
+			// bar //////////////////////
+			(dur/2).wait;
+			s.bind { Synth(\hat); };
+			(dur/2).wait;
+			s.bind { Synth(\clap); };
+			(dur/2).wait;
+			s.bind { Synth(\hat); };
+			(dur/2).wait;
+			// bar //////////////////////
+			(dur/4).wait;
+			s.bind { Synth(\hat); };
+			(dur/4).wait;
+			s.bind { Synth(\hat2); };
+			(dur/2).wait;
+			s.bind { Synth(\clap); };
+			(dur/4).wait;
+			s.bind { Synth(\hat); };
+			(dur/4).wait;
+			s.bind { Synth(\hat2); };
+			(dur/2).wait;
+
 		};
 	};
 }).play;

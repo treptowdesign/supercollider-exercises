@@ -16,11 +16,10 @@ SynthDef(\kick, {
 SynthDef(\clap, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = BPF.ar(snd, 1420, 0.4) * 25.dbamp;
-	snd = snd + snd.tanh;
-	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.01, 0.001, 0.01, 0.001, 0.2], curve: -12).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, 0) * -28.dbamp;
-	Out.ar(\out.kr(0), snd);
+	snd = BPF.ar(snd, 1440, 0.3) * 30.dbamp;
+	snd = snd + (snd * 2.dbamp).tanh;
+	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.01, 0.001, 0.01, 0.001, 0.18], curve: -12).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * -28.dbamp);
 }).add;
 SynthDef(\hat, {
 	var snd, freq, duration;
@@ -78,12 +77,12 @@ SynthDef(\padFx, {
 	fb = AllpassC.ar(fb, 1.0, 0.056 * [1, 1.2], 0.6);
 	fb = fb + LPF.ar(PitchShift.ar(fb * -16.dbamp, [0.2, 0.3], 2, 0.001), 1000);
 	fb = fb + PitchShift.ar(fb * -16.dbamp, [0.34, 0.13], 0.5, 0.001);
-	fb = LPF.ar(fb, 6000);
-	fb = HPF.ar(fb, 50);
+	fb = LPF.ar(fb, 8000);
+	fb = HPF.ar(fb, 60);
 	fb = fb * -1.dbamp;
 	LocalOut.ar(fb.reverse);
 	snd = snd + fb;
-	snd = snd * (1 - (0.8 * Env.perc(0.001, 0.28, curve: 8).ar(gate: scTrig)));
+	snd = snd * (1 - (0.8 * Env.perc(0.01, 0.3, curve: 8).ar(gate: scTrig)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -110,9 +109,11 @@ Routine({
 			s.bind { Synth(\kick); };
 			[-12, 0, 3, 7, 10].do { |interval|
 				note = (42 + interval + (12 * 1)).midicps;
-				s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.7, out: ~padBus]); };
+				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.6, out: ~padBus]); };
 				note = (42 + interval + (12 * 2)).midicps;
-				s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.4, out: ~padBus]); };
+				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.1, out: ~padBus]); };
+				note = (42 + interval + (12 * 3)).midicps;
+				s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.1, out: ~padBus]); };
 			};
 			dur.wait;
 		};

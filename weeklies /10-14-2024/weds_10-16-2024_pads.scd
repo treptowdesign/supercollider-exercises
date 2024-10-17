@@ -105,9 +105,45 @@ Routine({
 	dur = beat;
 	fork {
 		loop {
+			// bar //////////////////////
+			4.do {
+				s.bind { padFx.set(\trigger, 1); }; // sidechain...
+				s.bind { Synth(\kick); };
+				dur.wait;
+			};
+			// bar //////////////////////
 			s.bind { padFx.set(\trigger, 1); }; // sidechain...
 			s.bind { Synth(\kick); };
-			dur.wait;
+			(dur/2).wait;
+			s.bind { Synth(\kick); };
+			(dur/2).wait;
+
+			3.do {
+				s.bind { padFx.set(\trigger, 1); }; // sidechain...
+				s.bind { Synth(\kick); };
+				dur.wait;
+			};
+			// bar //////////////////////
+			4.do {
+				s.bind { padFx.set(\trigger, 1); }; // sidechain...
+				s.bind { Synth(\kick); };
+				dur.wait;
+			};
+			// bar //////////////////////
+			s.bind { padFx.set(\trigger, 1); }; // sidechain...
+			s.bind { Synth(\kick); };
+			(dur/3).wait;
+			s.bind { Synth(\kick); };
+			(dur/3).wait;
+			s.bind { Synth(\kick); };
+			(dur/3).wait;
+
+			3.do {
+				s.bind { padFx.set(\trigger, 1); }; // sidechain...
+				s.bind { Synth(\kick); };
+				dur.wait;
+			};
+
 		};
 	};
 	fork {

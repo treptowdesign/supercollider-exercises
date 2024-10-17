@@ -115,7 +115,7 @@ Routine({
 	loop {
 		[0, 0, 1, 0, 0, 0, 12, 0].do { |interval|
 			note = (root + interval + (12 * -1)).midicps;
-			// s.bind{ Synth(\bass, [dur: dur - 0.2, freq: note]); };
+			s.bind{ Synth(\bass, [dur: dur - 0.2, freq: note]); };
 			s.bind{ Synth(\kick); };
 			(dur/2).wait;
 			s.bind{ Synth(\snare); };

@@ -13,7 +13,7 @@ SynthDef(\bass, {
 	snd = snd * Env.linen(0.1, dur, 0.2).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
 	Out.ar(0, snd * -10.dbamp ! 2);
-}).play;
+}).add;
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1);

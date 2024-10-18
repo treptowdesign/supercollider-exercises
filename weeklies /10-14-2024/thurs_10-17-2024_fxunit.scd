@@ -54,7 +54,7 @@ fx = Synth.tail(nil, \fxUnit, [in: ~fxBus, out: 0]);
 
 Routine({
 	var dur, note;
-	dur = beat;
+	dur = beat/2;
 	fork {
 		loop {
 			[0, 7, 8, 2, 0, 2, 7, 3].do { |interval|

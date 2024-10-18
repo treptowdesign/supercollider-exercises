@@ -112,7 +112,7 @@ Routine({
 				dur.wait;
 			};
 			// bar //////////////////////
-			s.bind { Synth(\kick); };
+			/*s.bind { Synth(\kick); };
 			(dur/2 - 0.02).wait;
 			s.bind { Synth(\kick, [amp: 0.8]); };
 			(dur/2 + 0.02).wait;
@@ -137,7 +137,7 @@ Routine({
 			3.do {
 				s.bind { Synth(\kick); };
 				dur.wait;
-			};
+			};*/
 
 		};
 	};

@@ -72,7 +72,7 @@ SynthDef(\padFx, {
 	fb = LocalIn.ar(2);
 	fb = fb + snd;
 	fb = DelayC.ar(fb, 1.0, [0.1, 0.14] + (SinOsc.ar(0.3, [0, pi]) * 0.3e-3), 0.7);
-	fb = AllpassC.ar(fb, 0.034, 0.034 * [1, 1.2], 0.2);
+	fb = AllpassC.ar(fb, 0.054, 0.054 * [1, 1.3], 0.3);
 	fb = AllpassC.ar(fb, 0.026, 0.026 * [1.3, 1.2], 0.4);
 	fb = fb + snd;
 	fb = DelayC.ar(fb, 1.0, [0.13, 0.06] + (SinOsc.ar(0.43, [0.3, 0.3pi]) * 0.2e-4), 0.7);
@@ -87,7 +87,7 @@ SynthDef(\padFx, {
 	snd = snd + fb;
 	// snd = FreeVerb.ar(snd, 0.6, 0.8, 0.2);
 	// snd = BLowShelf.ar(snd, 120, 0.3, -2);
-	snd = snd * (1 - (0.9 * Env.perc(0.005, 0.3, curve: 8).ar(gate: scTrig)));
+	snd = snd * (1 - (0.9 * Env.perc(0.005, 0.28, curve: 6).ar(gate: scTrig)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\drumFx, {
@@ -153,27 +153,27 @@ Routine({
 			4.do {
 				(0 + [-12, 3, 7, 10]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.4, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.6, out: ~padBus]); };
 					note = (root + interval + (12 * 2)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.2, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.25, out: ~padBus]); };
 				};
 				dur.wait;
 			};
 			2.do {
 				(8 + [0, 3, -5, 10 - 24]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.4, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.6, out: ~padBus]); };
 					note = (root + interval + (12 * 2)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.3, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.25, out: ~padBus]); };
 				};
 				dur.wait;
 			};
 			2.do {
 				(7 + [0, 3, -5, 10 - 24]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.4, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.6, out: ~padBus]); };
 					note = (root + interval + (12 * 2)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.3, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.25, out: ~padBus]); };
 				};
 				dur.wait;
 			};

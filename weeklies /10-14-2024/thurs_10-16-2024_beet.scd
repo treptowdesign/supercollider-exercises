@@ -55,13 +55,14 @@ SynthDef(\pad, {
 	var snd, freq, duration;
 	duration = \duration.kr(5.0);
 	freq = \freq.kr(440);
-	snd = SinOsc.ar(freq * [4, 3, 2]) * Env.perc(0, 3.0).ar * (1 + (3 * Env.perc(0, 0.5).ar));
-	snd = SinOsc.ar((freq * [1, 1, 2]) + (30 * snd));
-	snd = snd * [0, -15, -20].dbamp * (1 + (LFNoise2.ar(16) * 0.8));
+	snd = SinOsc.ar(freq * [3, 1]) * Env.perc(0, 3.0).ar * (1 + (3 * Env.perc(0, 0.1).ar));
+	snd = SinOsc.ar((freq * [1, 2]) + (200 * snd));
+	snd = snd * [0, -8].dbamp * (1 + (LFNoise2.ar(16) * 0.6));
 	snd = snd.sum * -5.dbamp;
 	snd = snd * Env.perc(0, 10.0).ar;
 	snd = snd * -26.dbamp * \amp.kr(1);
-	snd = snd * Env.linen(0.05, duration, 0.1, curve: -4).ar(Done.freeSelf);
+	snd = HPF.ar(snd, 200);
+	snd = snd * Env.linen(0.05, duration, 0.4, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd ! 2);
 }).add;
 SynthDef(\padFx, {
@@ -70,14 +71,14 @@ SynthDef(\padFx, {
 	snd = In.ar(\in.kr(0), 2);
 	fb = LocalIn.ar(2);
 	fb = fb + snd;
-	fb = DelayC.ar(fb, 1.0, [0.1, 0.14] + (SinOsc.ar(0.3, [0, pi]) * 0.3e-3), 0.3);
-	fb = AllpassC.ar(fb, 0.034, 0.034 * [1, 1.2], 0.3);
-	fb = AllpassC.ar(fb, 0.026, 0.026 * [1.3, 1.2], 0.1);
+	fb = DelayC.ar(fb, 1.0, [0.1, 0.14] + (SinOsc.ar(0.3, [0, pi]) * 0.3e-3), 0.6);
+	fb = AllpassC.ar(fb, 0.034, 0.034 * [1, 1.2], 0.2);
+	fb = AllpassC.ar(fb, 0.026, 0.026 * [1.3, 1.2], 0.4);
 	fb = fb + snd;
-	fb = DelayC.ar(fb, 1.0, [0.13, 0.06] + (SinOsc.ar(0.43, [0.3, 0.3pi]) * 0.2e-4), 0.3);
-	fb = AllpassC.ar(fb, 0.084, 0.084 * [1, 1.4], 0.5);
-	fb = AllpassC.ar(fb, 0.056, 0.056 * [1, 1.2], 0.6);
-	fb = fb + LPF.ar(PitchShift.ar(fb * -10.dbamp, [0.2, 0.3], 2, 0.001), 1000);
+	fb = DelayC.ar(fb, 1.0, [0.13, 0.06] + (SinOsc.ar(0.43, [0.3, 0.3pi]) * 0.2e-4), 0.6);
+	fb = AllpassC.ar(fb, 0.084, 0.084 * [1, 1.4], 0.4);
+	fb = AllpassC.ar(fb, 0.056, 0.056 * [1, 1.2], 0.5);
+	fb = fb + LPF.ar(PitchShift.ar(fb * -10.dbamp, [0.2, 0.3], 2, 0.001), 1600);
 	fb = fb + PitchShift.ar(fb * -15.dbamp, [0.34, 0.13], 0.5, 0.001);
 	fb = LPF.ar(fb, 4000);
 	fb = HPF.ar(fb, 60);
@@ -85,7 +86,7 @@ SynthDef(\padFx, {
 	LocalOut.ar(fb.reverse);
 	snd = snd + fb;
 	// snd = BLowShelf.ar(snd, 120, 0.3, -2);
-	snd = snd * (1 - (0.8 * Env.perc(0.005, 0.32, curve: 4).ar(gate: scTrig)));
+	snd = snd * (1 - (0.8 * Env.perc(0.005, 0.34, curve: 8).ar(gate: scTrig)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\drumFx, {
@@ -149,23 +150,23 @@ Routine({
 	fork {
 		loop {
 			4.do {
-				(0 + [-12, 3, 7, 10]).do { |interval|
+				(0 + [-12, 3, 7, 10, 0]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.8, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.7, out: ~padBus]); };
 				};
 				dur.wait;
 			};
 			2.do {
-				(8 + [0, 3, -5, 10 - 24]).do { |interval|
+				(8 + [0, 3, -5, 10 - 24, 0]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.8, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.7, out: ~padBus]); };
 				};
 				dur.wait;
 			};
 			2.do {
-				(7 + [0, 3, -5, 10 - 24]).do { |interval|
+				(7 + [0, 3, -5, 10 - 24, 0]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.8, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.7, out: ~padBus]); };
 				};
 				dur.wait;
 			};

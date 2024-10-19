@@ -153,38 +153,30 @@ Routine({
 			4.do {
 				(0 + [-12, 3, 7, 10]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.6, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.6, out: ~padBus]); };
 					note = (root + interval + (12 * 2)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.25, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.25, out: ~padBus]); };
 				};
 				dur.wait;
 			};
 			2.do {
 				(8 + [0, 3, -5, 10 - 24]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.6, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.5, out: ~padBus]); };
 					note = (root + interval + (12 * 2)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.25, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.25, out: ~padBus]); };
 				};
 				dur.wait;
 			};
 			2.do {
 				(7 + [0, 3, -5, 10 - 24]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.6, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.5, out: ~padBus]); };
 					note = (root + interval + (12 * 2)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur/2, amp: 0.25, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.25, out: ~padBus]); };
 				};
 				dur.wait;
 			};
-			//
-			/*[0, 0, 0, 0, 8, 8, 7, 7]. do { |bassnote|
-				[-12, 3, 7, 10].do { |interval|
-					note = (root + bassnote + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur, amp: 0.8, out: ~padBus]); };
-				};
-				dur.wait;
-			};*/
 		};
 	};
 	fork {

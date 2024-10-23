@@ -105,7 +105,7 @@ SynthDef(\drumFx, {
 SynthDef(\masterFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * 22.dbamp;
+	snd = snd * 12.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 )

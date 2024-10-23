@@ -105,7 +105,7 @@ SynthDef(\drumFx, {
 SynthDef(\masterFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * 18.dbamp;
+	snd = snd * 22.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -162,7 +162,7 @@ Routine({
 			2.do {
 				(8 + [0, 3, -5, 10 - 24]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.5, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.6, out: ~padBus]); };
 					note = (root + interval + (12 * 2)).midicps;
 					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.25, out: ~padBus]); };
 				};
@@ -171,7 +171,7 @@ Routine({
 			2.do {
 				(7 + [0, 3, -5, 10 - 24]).do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.5, out: ~padBus]); };
+					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.6, out: ~padBus]); };
 					note = (root + interval + (12 * 2)).midicps;
 					s.bind { Synth(\pad, [freq: note, duration: dur * 0.75, amp: 0.25, out: ~padBus]); };
 				};

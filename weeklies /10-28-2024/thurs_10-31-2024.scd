@@ -14,7 +14,7 @@ SynthDef(\partials, {
 SynthDef(\fx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = GVerb.ar(snd.sum * -10.dbamp, 10, 3, 0.5);
+	snd = GVerb.ar(snd.sum * -12.dbamp, 10, 1, 0.1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )

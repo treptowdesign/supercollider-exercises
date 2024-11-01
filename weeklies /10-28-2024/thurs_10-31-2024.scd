@@ -3,9 +3,9 @@ SynthDef(\partials, {
 	var snd, freq;
 	freq = \freq.kr(440);
 	snd = SinOsc.ar(
-		freq * [1, 1.5, 2, 3, 4, 5],
-		[0, 0.2pi, 0.5pi, 0.1pi, 0, 0],
-		[1, 0.2, 0.8, 0.6, 0.2, 0.01]
+		freq * [1, 2, 3, 4, 5, 6, 7],
+		[0, 0.5pi, 0.1pi, 0, 0.3pi, 0, 0],
+		[1, 0.8, 0.6, 0.2, 0.1, 0.02, 0.01]
 	);
 	snd = snd.sum;
 	snd = snd * Env.perc(0.01, 2).ar(Done.freeSelf);
@@ -28,7 +28,7 @@ root = 62;
 beat = 60 / 110;
 Routine({
 	loop {
-		[0, 0, 1, 3].do { |bassNote|
+		[0, 0, 3, 1].do { |bassNote|
 			[0, 3, 7, 10].do { |interval|
 				Synth(\partials, [freq: (root + bassNote + interval).midicps]);
 			};

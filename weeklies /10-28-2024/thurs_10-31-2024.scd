@@ -21,4 +21,22 @@ root = 62;
 };
 )
 
+(
+var s, root, beat;
+s = Server.default;
+root = 62;
+beat = 60 / 110;
+Routine({
+	loop {
+		[0, 0, 1, 3].do { |bassNote|
+			[0, 3, 7, 10].do { |interval|
+				Synth(\partials, [freq: (root + bassNote + interval).midicps]);
+			};
+			beat.wait;
+		};
+
+	}
+}).play;
+)
+
 

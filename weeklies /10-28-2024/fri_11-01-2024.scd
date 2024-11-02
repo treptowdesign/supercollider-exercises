@@ -20,8 +20,10 @@ SynthDef(\clap, {
 	snd = Hasher.ar(Sweep.ar);
 	snd = BPF.ar(snd, 1540, 0.3) * 30.dbamp;
 	snd = snd + (snd * 2.dbamp).tanh;
+	snd = snd + DelayC.ar(snd * -35.dbamp, 0.1, [34e-3, 63e-3]);
+	snd = Splay.ar(snd);
 	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.01, 0.001, 0.01, 0.001, 0.13], curve: -12).ar(Done.freeSelf);
-	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * -18.dbamp);
+	Out.ar(\out.kr(0), snd * -20.dbamp);
 }).add;
 SynthDef(\hat, {
 	var snd, freq, duration;
@@ -53,7 +55,7 @@ SynthDef(\partials, {
 	snd = snd * Env.perc(0.1, 3).ar;
 	snd = snd * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
 	snd = snd * amp.dbamp;
-	Out.ar(0, snd);
+	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\bass, {
 	var snd, freq, span;
@@ -62,10 +64,10 @@ SynthDef(\bass, {
 	snd = Pulse.ar(freq * [0.1, -0.1].midiratio, 0.4).sum;
 	snd = RLPF.ar(snd, 500, 0.8) * 10.dbamp;
 	snd = BLowShelf.ar(snd, 400, 0.4, 2);
-	snd = Pan2.ar(snd, 0) * -20.dbamp;
+	snd = Pan2.ar(snd, 0) * -16.dbamp;
 	snd = snd * Env.perc(0.01, 1.4).ar;
 	snd = snd * Env.linen(0, span, 0.1).ar(Done.freeSelf);
-	Out.ar(0, snd);
+	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\drumFx, {
 	var snd;
@@ -79,19 +81,30 @@ SynthDef(\drumFx, {
 	snd = snd + GVerb.ar(snd.sum * -30.dbamp, 15, 0.8);
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\sidechain, {
+	var snd, fb, scTrig;
+	scTrig = T2A.ar(\trigger.tr(0));
+	snd = In.ar(\in.kr(0), 2);
+	snd = snd * (1 - (0.8 * Env.perc(0.005, 0.2, curve: 4).ar(gate: scTrig)));
+	Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 (
 ~drumsBus = Bus.audio(nil, 2);
+~sidechainBus = Bus.audio(nil, 2);
 )
 
+
+
 (
-var s, root, beat, drumFX;
+var s, root, beat, drumFX, sidechainFX;
 s = Server.default;
 root = 42;
 beat = 60 / 128;
 
 drumFX = Synth(\drumFx, [in: ~drumsBus]);
+sidechainFX = Synth(\sidechain, [in: ~sidechainBus]);
 
 Routine({
 	var dur, note, chordBass, chordIntervals;
@@ -105,9 +118,9 @@ Routine({
 				chordIntervals = chord[\intervals];
 				chordIntervals.do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length]]); };
+					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], out: ~sidechainBus]); };
 					note = (root + interval + (12 * 2)).midicps;
-					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], amp: -35]); };
+					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], out: ~sidechainBus]); };
 				};
 				(beat * chord[\length]).wait;
 			};
@@ -116,19 +129,19 @@ Routine({
 	fork {
 		loop {
 			2.do {
-				[\, 0, 12, 7].do { |interval|
+				[0, 0, 12, 7].do { |interval|
 					if(interval != \, {
 						note = (root + interval + (12 * -1)).midicps;
-						s.bind { Synth(\bass, [freq: note, span: beat/2]); };
+						s.bind { Synth(\bass, [freq: note, span: beat/2, out: ~sidechainBus]); };
 					});
 					(beat/2).wait;
 				};
 			};
 			2.do {
-				[\, -2, 10, 5].do { |interval|
+				[-2, -2, 10, 5].do { |interval|
 					if(interval != \, {
 						note = (root + interval + (12 * -1)).midicps;
-						s.bind { Synth(\bass, [freq: note, span: beat/2]); };
+						s.bind { Synth(\bass, [freq: note, span: beat/2, out: ~sidechainBus]); };
 					});
 					(beat/2).wait;
 				};
@@ -137,8 +150,12 @@ Routine({
 	};
 	fork {
 		loop {
+			s.bind { sidechainFX.set(\trigger, 1); }; // sidechain...
 			s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(beat * 2).wait;
+			(beat * 3.5).wait;
+			s.bind { sidechainFX.set(\trigger, 1); }; // sidechain...
+			s.bind { Synth(\kick, [out: ~drumsBus, amp: 0.8]); };
+			(beat * 0.5).wait;
 		};
 	};
 	fork {

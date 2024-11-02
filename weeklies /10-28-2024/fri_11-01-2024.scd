@@ -38,9 +38,10 @@ SynthDef(\hat, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\partials, {
-	var snd, freq, duration;
+	var snd, freq, duration, amp;
 	freq = \freq.kr(440);
 	duration = \duration.kr(1);
+	amp = \amp.kr(-32);
 	snd = SinOsc.ar(
 		freq * [1, 2, 3, 4, 5] * (LFNoise2.ar(10) ! 5 * 0.2).midiratio,
 		[0, 0.4pi, pi, 0.3pi, 0],
@@ -51,19 +52,19 @@ SynthDef(\partials, {
 	snd = Splay.ar(snd);
 	snd = snd * Env.perc(0.1, 3).ar;
 	snd = snd * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
-	// snd = Pan2.ar(snd) * -18.dbamp;
-	snd = snd * -32.dbamp;
+	snd = snd * amp.dbamp;
 	Out.ar(0, snd);
 }).add;
 SynthDef(\bass, {
-	var snd, freq;
+	var snd, freq, span;
+	span = \span.kr(1);
 	freq = \freq.kr(60);
 	snd = Pulse.ar(freq * [0.1, -0.1].midiratio, 0.4).sum;
 	snd = RLPF.ar(snd, 500, 0.8) * 10.dbamp;
 	snd = BLowShelf.ar(snd, 400, 0.4, 2);
-	snd = Pan2.ar(snd, 0) * -18.dbamp;
-	snd = snd * Env.perc(0.01, 1).ar;
-	snd = snd * Env.linen(0, 1, 0.1).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, 0) * -20.dbamp;
+	snd = snd * Env.perc(0.01, 1.4).ar;
+	snd = snd * Env.linen(0, span, 0.1).ar(Done.freeSelf);
 	Out.ar(0, snd);
 }).add;
 SynthDef(\drumFx, {
@@ -98,15 +99,15 @@ Routine({
 	fork {
 		loop {
 			[
-				(intervals: 0 + [0, 2, 7, 10], length: 2), // sus2 min7
-				(intervals: -2 + [0, 16, 9, 5], length: 2), // maj 3rd + maj 6th + 11th
+				(intervals: 0 + [0, 2, 7, 10], length: 4), // sus2 min7
+				(intervals: -2 + [0, 16, 9, 5], length: 4), // maj 3rd + maj 6th + 11th
 			].do { |chord|
 				chordIntervals = chord[\intervals];
 				chordIntervals.do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
 					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length]]); };
 					note = (root + interval + (12 * 2)).midicps;
-					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length]]); };
+					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], amp: -35]); };
 				};
 				(beat * chord[\length]).wait;
 			};
@@ -114,20 +115,23 @@ Routine({
 	};
 	fork {
 		loop {
-			[\, 0, 12, 7].do { |interval|
-				if(interval != \, {
-					note = (root + interval + (12 * -1)).midicps;
-					s.bind { Synth(\bass, [freq: note]); };
-				});
-				(beat/2).wait;
+			2.do {
+				[\, 0, 12, 7].do { |interval|
+					if(interval != \, {
+						note = (root + interval + (12 * -1)).midicps;
+						s.bind { Synth(\bass, [freq: note, span: beat/2]); };
+					});
+					(beat/2).wait;
+				};
 			};
-
-			[\, -2, 10, 5].do { |interval|
-				if(interval != \, {
-					note = (root + interval + (12 * -1)).midicps;
-					s.bind { Synth(\bass, [freq: note]); };
-				});
-				(beat/2).wait;
+			2.do {
+				[\, -2, 10, 5].do { |interval|
+					if(interval != \, {
+						note = (root + interval + (12 * -1)).midicps;
+						s.bind { Synth(\bass, [freq: note, span: beat/2]); };
+					});
+					(beat/2).wait;
+				};
 			};
 		};
 	};

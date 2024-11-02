@@ -32,7 +32,7 @@ SynthDef(\hat, {
 	snd = snd * Env.perc(0.005, 0.03).ar;
 	snd = BPF.ar(snd, 7923 * [1, 1.5] * XLine.ar(1, 1.3, 0.1), 0.3).sum;
 	snd = HPF.ar(snd, 5000);
-	snd = snd * -4.dbamp;
+	snd = snd * -8.dbamp;
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -27.dbamp, 0.1, [44e-3, 23e-3]), 200), 3000);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -139,70 +139,30 @@ Routine({
 		loop {
 			s.bind { Synth(\kick, [out: ~drumsBus]); };
 			(beat * 2).wait;
-			// bar //////////////////////
-			/*s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(dur/4).wait;
-			s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(dur/2).wait;
-			s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(dur/4).wait;
-			(dur).wait;
-			s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(dur * 2).wait;
-
-			// bar //////////////////////
-			s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(dur/4).wait;
-			s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(dur/4).wait;
-			s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(dur/2).wait;
-			(dur).wait;
-			s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(dur * 2).wait;*/
 		};
 	};
 	fork {
 		loop {
 			// bar //////////////////////
-			(dur/2).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/2).wait;
+			(beat * 2).wait;
 			s.bind { Synth(\clap, [out: ~drumsBus]); };
-			(dur/2).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/2).wait;
-			// bar //////////////////////
-			(dur/4).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/4).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/2).wait;
-			s.bind { Synth(\clap, [out: ~drumsBus]); };
-			(dur/2).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/2).wait;
-			// bar //////////////////////
-			(dur/2).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/2).wait;
-			s.bind { Synth(\clap, [out: ~drumsBus]); };
-			(dur/2).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/2).wait;
-			// bar //////////////////////
-			(dur/4).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/4).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/2).wait;
-			s.bind { Synth(\clap, [out: ~drumsBus]); };
-			(dur/4).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/4).wait;
-			s.bind { Synth(\hat, [out: ~drumsBus]); };
-			(dur/2).wait;
-
+			(beat * 2).wait;
+		};
+	};
+	fork {
+		loop {
+			4.do {
+				s.bind { Synth(\hat, [out: ~drumsBus]); };
+				(beat/4).wait;
+			};
+			4.do {
+				s.bind { Synth(\hat, [out: ~drumsBus]); };
+				(beat/2).wait;
+			};
+			2.do {
+				s.bind { Synth(\hat, [out: ~drumsBus]); };
+				(beat).wait;
+			};
 		};
 	};
 

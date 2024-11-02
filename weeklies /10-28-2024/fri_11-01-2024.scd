@@ -61,7 +61,7 @@ SynthDef(\bass, {
 	snd = Pulse.ar(freq * [0.1, -0.1].midiratio, 0.4).sum;
 	snd = RLPF.ar(snd, 500, 0.8) * 10.dbamp;
 	snd = BLowShelf.ar(snd, 400, 0.4, 2);
-	snd = Pan2.ar(snd, 0) * -20.dbamp;
+	snd = Pan2.ar(snd, 0) * -18.dbamp;
 	snd = snd * Env.perc(0.01, 1).ar;
 	snd = snd * Env.linen(0, 1, 0.1).ar(Done.freeSelf);
 	Out.ar(0, snd);

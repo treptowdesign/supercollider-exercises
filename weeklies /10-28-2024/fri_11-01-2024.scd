@@ -9,7 +9,7 @@ SynthDef(\kick, {
 	snd = snd + 0.01;
 	snd = snd * Env.perc(0.001, 0.7).ar;
 	snd = snd.tanh;
-	snd = snd * -6.dbamp * \amp.kr(1);
+	snd = snd * -8.dbamp * \amp.kr(1);
 	snd = BLowShelf.ar(snd, 300, 0.4, 5);
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -25.dbamp, 0.1, [34e-3, 63e-3]), 200), 3000);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
@@ -52,7 +52,7 @@ SynthDef(\partials, {
 	snd = snd * Env.perc(0.1, 3).ar;
 	snd = snd * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
 	// snd = Pan2.ar(snd) * -18.dbamp;
-	snd = snd * -28.dbamp;
+	snd = snd * -32.dbamp;
 	Out.ar(0, snd);
 }).add;
 SynthDef(\bass, {
@@ -93,9 +93,8 @@ beat = 60 / 128;
 drumFX = Synth(\drumFx, [in: ~drumsBus]);
 
 Routine({
-	var dur, note, octave, chordBass, chordIntervals;
+	var dur, note, chordBass, chordIntervals;
 	dur = beat * 2;
-	octave = 1;
 	fork {
 		loop {
 			[
@@ -104,7 +103,9 @@ Routine({
 			].do { |chord|
 				chordIntervals = chord[\intervals];
 				chordIntervals.do { |interval|
-					note = (root + interval + (12 * octave)).midicps;
+					note = (root + interval + (12 * 1)).midicps;
+					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length]]); };
+					note = (root + interval + (12 * 2)).midicps;
 					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length]]); };
 				};
 				(beat * chord[\length]).wait;
@@ -132,8 +133,10 @@ Routine({
 	};
 	fork {
 		loop {
-			// bar //////////////////////
 			s.bind { Synth(\kick, [out: ~drumsBus]); };
+			(beat * 2).wait;
+			// bar //////////////////////
+			/*s.bind { Synth(\kick, [out: ~drumsBus]); };
 			(dur/4).wait;
 			s.bind { Synth(\kick, [out: ~drumsBus]); };
 			(dur/2).wait;
@@ -152,7 +155,7 @@ Routine({
 			(dur/2).wait;
 			(dur).wait;
 			s.bind { Synth(\kick, [out: ~drumsBus]); };
-			(dur * 2).wait;
+			(dur * 2).wait;*/
 		};
 	};
 	fork {

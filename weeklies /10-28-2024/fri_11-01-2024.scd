@@ -23,7 +23,7 @@ SynthDef(\clap, {
 	snd = snd + DelayC.ar(snd * -35.dbamp, 0.1, [34e-3, 63e-3]);
 	snd = Splay.ar(snd);
 	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.01, 0.001, 0.01, 0.001, 0.13], curve: -12).ar(Done.freeSelf);
-	Out.ar(\out.kr(0), snd * -20.dbamp);
+	Out.ar(\out.kr(0), snd * -22.dbamp);
 }).add;
 SynthDef(\hat, {
 	var snd, freq, duration;
@@ -34,7 +34,7 @@ SynthDef(\hat, {
 	snd = snd * Env.perc(0.005, 0.03).ar;
 	snd = BPF.ar(snd, 7923 * [1, 1.5] * XLine.ar(1, 1.3, 0.1), 0.3).sum;
 	snd = HPF.ar(snd, 5000);
-	snd = snd * -8.dbamp;
+	snd = snd * -12.dbamp;
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -27.dbamp, 0.1, [44e-3, 23e-3]), 200), 3000);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -64,7 +64,7 @@ SynthDef(\bass, {
 	snd = Pulse.ar(freq * [0.1, -0.1].midiratio, 0.4).sum;
 	snd = RLPF.ar(snd, 500, 0.8) * 10.dbamp;
 	snd = BLowShelf.ar(snd, 400, 0.4, 2);
-	snd = Pan2.ar(snd, 0) * -16.dbamp;
+	snd = Pan2.ar(snd, 0) * -20.dbamp;
 	snd = snd * Env.perc(0.01, 1.4).ar;
 	snd = snd * Env.linen(0, span, 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -118,9 +118,9 @@ Routine({
 				chordIntervals = chord[\intervals];
 				chordIntervals.do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], out: ~sidechainBus]); };
+					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], amp: -40, out: ~sidechainBus]); };
 					note = (root + interval + (12 * 2)).midicps;
-					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], out: ~sidechainBus]); };
+					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], amp: -36, out: ~sidechainBus]); };
 				};
 				(beat * chord[\length]).wait;
 			};

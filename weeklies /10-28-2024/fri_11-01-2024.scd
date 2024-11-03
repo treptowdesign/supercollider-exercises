@@ -61,7 +61,7 @@ SynthDef(\bass, {
 	var snd, freq, span;
 	span = \span.kr(1);
 	freq = \freq.kr(60);
-	snd = Pulse.ar(freq * [0.12, -0.12].midiratio, 0.6).sum;
+	snd = Pulse.ar(freq * [0.12, -0.12].midiratio, 0.4).sum;
 	snd = RLPF.ar(snd, 400, 0.4) * 10.dbamp;
 	snd = BLowShelf.ar(snd, 400, 0.4, 2);
 	snd = Pan2.ar(snd, 0) * -24.dbamp;
@@ -214,6 +214,181 @@ Routine({
 	};
 }).play;
 )
+
+(
+var s, root, beat;
+s = Server.default;
+root = 42;
+beat = 60 / 120;
+Routine({
+	var dur, note, octave, chordBass, chordIntervals;
+	dur = beat;
+	octave = 1;
+	loop {
+		[
+			(intervals: 0 + [0, 3, 7], length: 2),
+			(intervals: -1 + [0, 4, 7], length: 2),
+			(intervals: 5 + [0, 3, 7], length: 2),
+			(intervals: 7 + [0, 4, 7], length: 2),
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\partials, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+
+(
+var s, root, beat;
+s = Server.default;
+root = 42;
+beat = 60 / 120;
+Routine({
+	var dur, note, octave, chordBass, chordIntervals;
+	dur = beat;
+	octave = 2;
+	loop {
+		[
+			(intervals: 2 + [-12, 3, 7, 10], length: 2),
+			(intervals: 7 + [-12, 4, -5, -2], length: 2),
+			(intervals: 0 + [-12, 4, 7, 10], length: 4),
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\partials, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+
+Scale.ionian.degrees;
+
+(
+var s, root, beat;
+s = Server.default;
+root = 42;
+beat = 60 / 120;
+Routine({
+	var dur, note, octave, chordBass, chordIntervals;
+	dur = beat;
+	octave = 1;
+	loop {
+		[
+			(intervals: 0 + [0, 4, 7], length: 2),
+			(intervals: 7 + [0, 4, -5], length: 2),
+			(intervals: 9 + [0, 3, -5], length: 2),
+			(intervals: 5 + [0, 4, 7], length: 2),
+
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\partials, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+(
+var s, root, beat;
+s = Server.default;
+root = 42;
+beat = 60 / 120;
+Routine({
+	var dur, note, octave, chordBass, chordIntervals;
+	dur = beat;
+	octave = 1;
+	loop {
+		[
+			(intervals: 0 + [0, 4, 7, 11], length: 2),
+			(intervals: 7 + [ 0, 4, -5, -2], length: 2),
+			(intervals: 9 + [0, 3, -5, -2], length: 2),
+			(intervals: 5 + [ 0, 4, 7, 11], length: 2),
+
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\partials, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+(
+var s, root, beat;
+s = Server.default;
+root = 42;  // Base MIDI pitch
+beat = 60 / 120;  // Set tempo
+Routine({
+    var dur, note, octave, chordBass, chordIntervals;
+    dur = beat;
+    octave = 1;
+    loop {
+        [
+            (intervals: 0 + [0, 4, 11, 14], length: 2),
+            (intervals: 7 + [0, 4, 10, 21], length: 2),
+            (intervals: 9 + [0, 7, 10, 14], length: 2),
+            (intervals: 5 + [0, 4, 11, 14], length: 2),
+        ].do { |chord|
+            chordIntervals = chord[\intervals];
+            dur = beat * chord[\length];
+            chordIntervals.do { |interval|
+                note = (root + interval + (12 * octave)).midicps;
+                s.bind { Synth(\partials, [freq: note, duration: dur]); };
+            };
+            dur.wait;
+        };
+    };
+}).play;
+)
+
+(
+var s, root, beat;
+s = Server.default;
+root = 42;  // Base MIDI pitch
+beat = 60 / 120;  // Set tempo
+Routine({
+    var dur, note, octave, chordBass, chordIntervals;
+    dur = beat;
+    octave = 1;
+    loop {
+        [
+            (intervals: 0 + [0, 4, 11, 21], length: 2),       // Cmaj13 (C, E, B, A)
+            (intervals: 7 + [0, 10, 14, 21], length: 2),      // G13 (G, F, A, E)
+            (intervals: 9 + [0, 10, 17, 24], length: 2),      // Am11 (A, G, D)
+            (intervals: 5 + [0, 4, 11, 21], length: 2),       // Fmaj13 (F, A, E, D)
+        ].do { |chord|
+            chordIntervals = chord[\intervals];
+            dur = beat * chord[\length];
+            chordIntervals.do { |interval|
+                note = (root + interval + (12 * octave)).midicps;
+                s.bind { Synth(\partials, [freq: note, duration: dur]); };
+            };
+            dur.wait;
+        };
+    };
+}).play;
+)
+
+
 
 
 s.makeWindow;

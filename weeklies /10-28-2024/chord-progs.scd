@@ -20,6 +20,8 @@ SynthDef(\piano, {
 )
 
 
+////////////////////////////////////////////////////////////////////
+// Basic Rock I-V-vi-IV
 (
 var s, root, beat;
 s = Server.default;
@@ -48,3 +50,98 @@ Routine({
 	};
 }).play;
 )
+
+////////////////////////////////////////////////////////////////////
+// Basic Rock I-V-vi-IV with 7ths
+(
+var s, root, beat;
+s = Server.default;
+root = 42;
+beat = 60 / 120;
+Routine({
+	var dur, note, octave, chordBass, chordIntervals;
+	dur = beat;
+	octave = 1;
+	loop {
+		[
+			(intervals: 0 + [0, 4, 7, 11], length: 2),
+			(intervals: 7 + [0, 4, 7, 10], length: 2),
+			(intervals: 9 + [0, 3, 7, 10], length: 2),
+			(intervals: 5 + [0, 4, 7, 11], length: 2),
+
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\piano, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+////////////////////////////////////////////////////////////////////
+// Basic Rock I-V-vi-IV with 7ths + drop root and 5th one octave
+(
+var s, root, beat;
+s = Server.default;
+root = 42;
+beat = 60 / 120;
+Routine({
+	var dur, note, octave, chordBass, chordIntervals;
+	dur = beat;
+	octave = 1;
+	loop {
+		[
+			(intervals: 0 + [-12, 4, -5, 11], length: 2),
+			(intervals: 7 + [-12, 4, -5, 10], length: 2),
+			(intervals: 9 + [-12, 3, -5, 10], length: 2),
+			(intervals: 5 + [-12, 4, -5, 11], length: 2),
+
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\piano, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+////////////////////////////////////////////////////////////////////
+// Basic Rock I-V-vi-IV with 9ths (omit 5ths)
+(
+var s, root, beat;
+s = Server.default;
+root = 42;
+beat = 60 / 120;
+Routine({
+	var dur, note, octave, chordIntervals;
+	dur = beat;
+	octave = 1;
+	loop {
+		[
+			(intervals: 0 + [0, 4, 11, 14], length: 2),       // Cmaj9 (C, E, B, D)
+			(intervals: 7 + [0, 4, 10, 14], length: 2),      // G9 (G, F, A, B)
+			(intervals: 9 + [0, 3, 10, 14], length: 2),      // Am9 (A, G, B, C)
+			(intervals: 5 + [0, 4, 11, 14], length: 2),       // Fmaj9 (F, A, E, G)
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\piano, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+
+

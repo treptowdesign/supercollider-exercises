@@ -9,7 +9,7 @@ SynthDef(\guitar, {
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * -25.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 SynthDef(\guitarFx, {
 	var snd, fb, beat;
 	beat = \beat.kr(1);
@@ -32,12 +32,16 @@ SynthDef(\guitarFx, {
 (
 ~guitarFx = Bus.audio(nil, 2);
 )
-// ~guitarFx.index;
+~guitarFx.index;
 
 
 (
 Synth(\guitarFx, [in: ~guitarFx, beat: (60 / 110)]);
 Synth(\guitar, [freq: 80, out: ~guitarFx]);
+)
+
+(
+Synth(\guitar, [freq: 80, out: 0]);
 )
 
 

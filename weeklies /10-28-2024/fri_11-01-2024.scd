@@ -9,7 +9,7 @@ SynthDef(\kick, {
 	snd = snd + 0.01;
 	snd = snd * Env.perc(0.001, 0.7).ar;
 	snd = snd.tanh;
-	snd = snd * -8.dbamp * \amp.kr(1);
+	snd = snd * -10.dbamp * \amp.kr(1);
 	snd = BLowShelf.ar(snd, 300, 0.4, 5);
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -25.dbamp, 0.1, [34e-3, 63e-3]), 200), 3000);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
@@ -52,7 +52,7 @@ SynthDef(\partials, {
 	snd = snd.sum;
 	snd = snd + LPF.ar(GVerb.ar(snd, 20, 3, 0.6), 1000);
 	snd = Splay.ar(snd);
-	snd = snd * Env.perc(0.1, 3).ar;
+	snd = snd * Env.perc(0.1, 3.4).ar;
 	snd = snd * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
 	snd = snd * amp.dbamp;
 	Out.ar(\out.kr(0), snd);
@@ -61,11 +61,11 @@ SynthDef(\bass, {
 	var snd, freq, span;
 	span = \span.kr(1);
 	freq = \freq.kr(60);
-	snd = Pulse.ar(freq * [0.1, -0.1].midiratio, 0.4).sum;
-	snd = RLPF.ar(snd, 500, 0.8) * 10.dbamp;
+	snd = Pulse.ar(freq * [0.12, -0.12].midiratio, 0.6).sum;
+	snd = RLPF.ar(snd, 400, 0.4) * 10.dbamp;
 	snd = BLowShelf.ar(snd, 400, 0.4, 2);
-	snd = Pan2.ar(snd, 0) * -20.dbamp;
-	snd = snd * Env.perc(0.01, 1.4).ar;
+	snd = Pan2.ar(snd, 0) * -24.dbamp;
+	snd = snd * Env.perc(0.01, 2).ar;
 	snd = snd * Env.linen(0, span, 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -96,6 +96,7 @@ SynthDef(\sidechain, {
 )
 
 
+~sidechainBus.index;
 
 (
 var s, root, beat, drumFX, sidechainFX;
@@ -118,7 +119,7 @@ Routine({
 				chordIntervals = chord[\intervals];
 				chordIntervals.do { |interval|
 					note = (root + interval + (12 * 1)).midicps;
-					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], amp: -40, out: ~sidechainBus]); };
+					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], amp: -30, out: ~sidechainBus]); };
 					note = (root + interval + (12 * 2)).midicps;
 					s.bind { Synth(\partials, [freq: note, duration: beat * chord[\length], amp: -36, out: ~sidechainBus]); };
 				};
@@ -128,8 +129,8 @@ Routine({
 	};
 	fork {
 		loop {
-			2.do {
-				[0, 0, 12, 7].do { |interval|
+			1.do {
+				[0, 0, 12, 7, 0, 12, 12, 7].do { |interval|
 					if(interval != \, {
 						note = (root + interval + (12 * -1)).midicps;
 						s.bind { Synth(\bass, [freq: note, span: beat/2, out: ~sidechainBus]); };
@@ -137,8 +138,8 @@ Routine({
 					(beat/2).wait;
 				};
 			};
-			2.do {
-				[-2, -2, 10, 5].do { |interval|
+			1.do {
+				[-2, -2, 10, 5, -2, 10, 10, 5].do { |interval|
 					if(interval != \, {
 						note = (root + interval + (12 * -1)).midicps;
 						s.bind { Synth(\bass, [freq: note, span: beat/2, out: ~sidechainBus]); };
@@ -190,7 +191,7 @@ Routine({
 var s, root, beat;
 s = Server.default;
 root = 42;
-beat = 60 / 110;
+beat = 60 / 120;
 Routine({
 	var dur, note, octave, chordBass, chordIntervals;
 	dur = beat;
@@ -200,7 +201,7 @@ Routine({
 			(intervals: 0 + [-12, 3, -5, 10, 17], length: 4), // min 7th + 11th
 			(intervals: -2 + [-12, 4, -5, 9, 14], length: 4), // maj 6th + 9th
 			(intervals: 1 + [-12, 3, -5, 10, 14], length: 4),
-			(intervals: 7 + [-12, 3, -5, 9, 5], length: 4),
+			(intervals: 7 + [-12, 3, -5, -3, 5], length: 4),
 		].do { |chord|
 			chordIntervals = chord[\intervals];
 			dur = beat * chord[\length];
@@ -213,6 +214,9 @@ Routine({
 	};
 }).play;
 )
+
+
+s.makeWindow;
 
 
 

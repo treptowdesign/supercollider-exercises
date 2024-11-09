@@ -144,7 +144,7 @@ SynthDef(\detSaw, {
 	var snd, count, freq, duration;
 	count = 10;
 	duration = \duration.kr(1);
-	freq = \freq.kr(440) * Line.kr(\bend.kr(-6), 0, 0.2).midiratio;
+	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = LFSaw.ar(freq * (( {LFNoise2.kr(0.4)} ! count) * 0.3).midiratio, { Rand(0 , 2pi) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
 	// snd = snd * Env.perc(0.01, 4).ar(Done.freeSelf);
@@ -156,9 +156,9 @@ SynthDef(\detSaw, {
 
 
 (
-Synth(\detSaw, [freq: (42 + 0 + (12 * 4)).midiratio]);
-Synth(\detSaw, [freq: (42 + 3 + (12 * 4)).midiratio]);
-Synth(\detSaw, [freq: (42 + 7 + (12 * 4)).midiratio]);
+Synth(\detSaw, [freq: (42 + -12 + (12 * 4)).midiratio, bend: -6]);
+Synth(\detSaw, [freq: (42 + 0 + (12 * 4)).midiratio, bend: -6]);
+Synth(\detSaw, [freq: (42 + -5 + (12 * 4)).midiratio, bend: -6]);
 )
 
 (
@@ -166,19 +166,19 @@ SynthDef(\detPulse, {
 	var snd, count, freq, duration;
 	count = 10;
 	duration = \duration.kr(1);
-	freq = \freq.kr(440) * Line.kr(\bend.kr(-6), 0, 0.2).midiratio;
+	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = Pulse.ar(freq * (( {LFNoise2.kr(0.4)} ! count) * 0.2).midiratio, { Rand(0.01 , 0.99) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
-	snd = snd * Env.linen(0.01, duration, 0.1).ar(Done.freeSelf);
+	snd = snd * Env.linen(0.02, duration, 0.1).ar(Done.freeSelf);
 	snd = snd * \amp.kr(0.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
 
 (
-Synth(\detPulse, [freq: (42 + 0 + (12 * 4)).midiratio]);
-Synth(\detPulse, [freq: (42 + 3 + (12 * 4)).midiratio]);
-Synth(\detPulse, [freq: (42 + 7 + (12 * 4)).midiratio]);
+Synth(\detPulse, [freq: (42 + 0 + (12 * 4)).midiratio, bend: -6]);
+Synth(\detPulse, [freq: (42 + 3 + (12 * 4)).midiratio, bend: -6]);
+Synth(\detPulse, [freq: (42 + 7 + (12 * 4)).midiratio, bend: -6]);
 )
 
 (

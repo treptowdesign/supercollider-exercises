@@ -145,7 +145,7 @@ SynthDef(\detSaw, {
 	count = 10;
 	duration = \duration.kr(1);
 	freq = \freq.kr(440) * Line.kr(\bend.kr(-6), 0, 0.2).midiratio;
-	snd = LFSaw.ar(freq * (( {LFNoise2.kr(0.4)} ! count) * 0.4).midiratio, { Rand(0 , 2pi) } ! count);
+	snd = LFSaw.ar(freq * (( {LFNoise2.kr(0.4)} ! count) * 0.3).midiratio, { Rand(0 , 2pi) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
 	// snd = snd * Env.perc(0.01, 4).ar(Done.freeSelf);
 	snd = snd * Env.linen(0.01, duration, 0.1).ar(Done.freeSelf);
@@ -154,14 +154,20 @@ SynthDef(\detSaw, {
 }).play;
 )
 
+
+(
+Synth(\detSaw, [freq: (42 + 0 + (12 * 4)).midiratio]);
+Synth(\detSaw, [freq: (42 + 3 + (12 * 4)).midiratio]);
+Synth(\detSaw, [freq: (42 + 7 + (12 * 4)).midiratio]);
+)
+
 (
 SynthDef(\detPulse, {
 	var snd, count, freq, duration;
-	count = 5;
+	count = 10;
 	duration = \duration.kr(1);
 	freq = \freq.kr(440) * Line.kr(\bend.kr(-6), 0, 0.2).midiratio;
-	snd = Pulse.ar(freq * (( {LFNoise2.kr(0.4)} ! count) * 0.2).midiratio, { Rand(0.1 , 0.9) } ! count);
-	// snd = Pulse.ar(freq * (( {LFNoise2.kr(0.4)} ! count) * 0.2).midiratio, 0.3);
+	snd = Pulse.ar(freq * (( {LFNoise2.kr(0.4)} ! count) * 0.2).midiratio, { Rand(0.01 , 0.99) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
 	snd = snd * Env.linen(0.01, duration, 0.1).ar(Done.freeSelf);
 	snd = snd * \amp.kr(0.dbamp);
@@ -170,17 +176,29 @@ SynthDef(\detPulse, {
 )
 
 (
+Synth(\detPulse, [freq: (42 + 0 + (12 * 4)).midiratio]);
+Synth(\detPulse, [freq: (42 + 3 + (12 * 4)).midiratio]);
+Synth(\detPulse, [freq: (42 + 7 + (12 * 4)).midiratio]);
+)
+
+(
 SynthDef(\detSin, {
 	var snd, count, freq, duration;
 	count = 5;
 	duration = \duration.kr(1);
-	freq = \freq.kr(440) * Line.kr(\bend.kr(12), 0, 0.2).midiratio;
+	freq = \freq.kr(440) * Line.kr(\bend.kr(-6), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq * (( {LFNoise2.kr(0.4)} ! count) * 0.4).midiratio, { Rand(0 , 2pi) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
 	snd = snd * Env.linen(0.01, duration, 0.1).ar(Done.freeSelf);
 	snd = snd * \amp.kr(0.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).play;
+)
+
+(
+Synth(\detSin, [freq: (42 + 0 + (12 * 5)).midiratio]);
+Synth(\detSin, [freq: (42 + 3 + (12 * 5)).midiratio]);
+Synth(\detSin, [freq: (42 + 7 + (12 * 5)).midiratio]);
 )
 
 

@@ -176,9 +176,9 @@ SynthDef(\detPulse, {
 )
 
 (
-Synth(\detPulse, [freq: (42 + 0 + (12 * 4)).midiratio, bend: -6]);
-Synth(\detPulse, [freq: (42 + 3 + (12 * 4)).midiratio, bend: -6]);
-Synth(\detPulse, [freq: (42 + 7 + (12 * 4)).midiratio, bend: -6]);
+Synth(\detPulse, [freq: (42 + 0 + (12 * 5)).midiratio, bend: -6]);
+Synth(\detPulse, [freq: (42 + 3 + (12 * 5)).midiratio, bend: -6]);
+Synth(\detPulse, [freq: (42 + 7 + (12 * 5)).midiratio, bend: -6]);
 )
 
 (

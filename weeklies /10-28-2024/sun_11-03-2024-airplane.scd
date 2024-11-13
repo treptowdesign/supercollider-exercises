@@ -87,7 +87,7 @@ SynthDef(\fmTest3, {
 	snd = (snd * 12).tanh;
 	snd = snd.blend(Latch.ar(snd, Impulse.ar(ExpRand(800, 16e3))), Rand(0, 1));
 	snd = snd * Env.adsr(0.001, \duration.kr(0.4), 0.0, 0.001).ar;
-	snd = snd * \amp.kr(-10.dbamp);
+	snd = snd * \amp.kr(-20.dbamp);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * Env.linen(0.001, \duration.kr(0.4), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);

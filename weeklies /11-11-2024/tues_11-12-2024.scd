@@ -13,10 +13,9 @@
 {
 	var snd, freq;
 	freq = 440;
-	snd = Pulse.ar(freq);
-	snd = snd ! 2;
-	snd = BPF.ar(snd, freq, 0.1) * 5.dbamp;
-	snd = snd * Env.perc(0.01, 0.2).ar;
-	snd;
+	snd = Saw.ar(freq);
+	snd = BPF.ar(snd, LFNoise2.ar(32).range(freq, freq* 8), 0.1) * 0.dbamp;
+	snd = snd * Env.perc(0.01, 6).ar;
+	snd ! 2;
 }.play;
 )

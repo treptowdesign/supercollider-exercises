@@ -162,9 +162,24 @@ SynthDef(\bpfSaw, {
 };
 )
 
-
-
-
+(
+10.do {
+	var freq=50;
+	Synth(
+		\bpfSaw,
+		[
+			freq: freq,
+			amp: 0.3,
+			atk: 0.01,
+			cfMin: freq * 2,
+			cfMax: freq * 50,
+			rqMin: 0.8,
+			rqMax: 1,
+			pan: rrand(-1, 1)
+		]
+	);
+};
+)
 
 
 

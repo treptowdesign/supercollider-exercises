@@ -11,5 +11,21 @@ SynthDef(\bpfSaw, {
 	snd = BPF.ar(snd, cf, rq);
 	snd = snd * env * amp;
 	Out.ar(out, snd);
-}).play;
+}).add;
+)
+
+Synth(\bpfSaw, [freq: 110, atk: 0.1]);
+
+(
+4.do {
+	Synth(
+		\bpfSaw,
+		[
+			freq: exprand(100, 1000),
+			amp: 0.25,
+			cf: exprand(200, 5000),
+			rq: exprand(0.01, 0.5)
+		]
+	);
+};
 )

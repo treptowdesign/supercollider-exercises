@@ -91,7 +91,7 @@ SynthDef(\bpfSaw, {
 		\bpfSaw,
 		[
 			freq: freq,
-			amp: 0.1,
+			amp: 0.3,
 			atk: 0.01,
 			cfMin: freq * 2,
 			cfMax: freq * 50,
@@ -110,7 +110,7 @@ SynthDef(\bpfSaw, {
 		\bpfSaw,
 		[
 			freq: freq,
-			amp: 1,
+			amp: 3,
 			atk: 0.01,
 			cfMin: freq * 2,
 			cfMax: freq * 50,

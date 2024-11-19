@@ -17,9 +17,9 @@ SynthDef(\pulseBass, {
 (
 SynthDef(\pulseBass, {
 	var snd, env, freq;
-	freq = \freq.kr(60) * Line.kr(\bend.kr(-12), 0, 0.1).midiratio;
+	freq = \freq.kr(60) * Line.kr(\bend.kr(-6), 0, 0.1).midiratio;
 	env = Env.perc(0.01, 1).kr(Done.freeSelf);
-	snd = Pulse.ar(freq);
+	snd = Pulse.ar(freq, env.range(0.1, 0.5));
 	snd = RLPF.ar(snd, env.range(freq, freq * 30), 0.1);
 	snd = snd + ((snd * 8.dbamp).tanh * -8.dbamp);
 	Out.ar(0, Pan2.ar(snd * env, 0) * -8.dbamp);

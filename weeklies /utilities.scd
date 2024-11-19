@@ -26,6 +26,25 @@ s.options.numWireBufs = 128; // (original 64)
 s.boot;
 
 //////////////////////////////////////////////////////
+// Start Up
+//////////////////////////////////////////////////////
+
+( // Start Up for MacBook Speakers
+Server.default.options.outDevice_("MacBook Pro Speakers");
+s.options.memSize = 1048576;
+s.options.numWireBufs = 128;
+s.boot;
+)
+
+( // Start Up for Headphones
+Server.default.options.outDevice_("External Headphones");
+s.options.memSize = 1048576;
+s.options.numWireBufs = 128;
+s.boot;
+)
+
+
+//////////////////////////////////////////////////////
 // End...
 //////////////////////////////////////////////////////
 

@@ -4,11 +4,11 @@
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(1);
-	snd = SinOsc.ar(\freq.kr(60) * (1 + (5 * Env.perc(0.0, 0.02, curve: -8).ar)) * [1, 2]);
-	snd = snd * [1, -8.dbamp];
+	snd = SinOsc.ar(\freq.kr(60) * (1 + (4 * Env.perc(0.0, 0.02, curve: -8).ar)) * [1, 2]);
+	snd = snd * [1, -10.dbamp];
 	snd[1] = snd[1] * Env.perc(0, 3).ar;
 	snd = snd.sum;
-	snd = snd * Env.perc(0.01, 4).ar;
+	snd = snd * Env.perc(0.01, 3).ar;
 	snd = snd ! 2;
 	snd = snd * \amp.kr(-10).dbamp;
 	snd = snd * (1 + (4 * Env.perc(0, 0.02).ar));
@@ -20,10 +20,10 @@ SynthDef(\kick, {
 SynthDef(\clap, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = BPF.ar(snd, 1540, 0.4) * 28.dbamp;
+	snd = BPF.ar(snd, 1540, 0.2) * 30.dbamp;
 	snd = snd + snd.tanh;
-	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.001, 0.01, 0.001, 0.001, 0.12], curve: -12).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, 0) * -22.dbamp * \amp.kr(1);
+	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.001, 0.01, 0.001, 0.001, 0.1], curve: -12).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, 0) * -20.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hat, {
@@ -35,7 +35,7 @@ SynthDef(\hat, {
 	snd = snd * Env.perc(0.005, \rel.kr(0.03)).ar;
 	snd = BPF.ar(snd, 7923 * [1, 1.5] * XLine.ar(1, 1.3, 0.1), 0.2).sum;
 	snd = HPF.ar(snd, 5000);
-	snd = snd * \amp.kr(-6).dbamp;
+	snd = snd * \amp.kr(-10).dbamp;
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -27.dbamp, 0.1, [44e-3, 23e-3]), 200), 3000);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -48,7 +48,7 @@ SynthDef(\pulseBass, {
 	snd = RLPF.ar(snd, env.exprange(freq, freq * 30), 0.6);
 	snd = snd * env * Env.linen(0, \duration.kr(1), 0.1).kr(Done.freeSelf);
 	snd = BLowShelf.ar(snd, 120, 0.5, -4);
-	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * \amp.kr(-12).dbamp);
+	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * \amp.kr(-10).dbamp);
 }).add;
 SynthDef(\sidechain, {
 	var snd, fb, scTrig;

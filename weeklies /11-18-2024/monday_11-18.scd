@@ -17,7 +17,7 @@ SynthDef(\pulseBass, {
 (
 SynthDef(\pulseBass, {
 	var snd, env, freq;
-	freq = \freq.kr(60) * Line.kr(\bend.kr(-12), 0, 0.1).midiratio;
+	freq = \freq.kr(60) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
 	env = Env.perc(\atk.kr(0.01), \rel.kr(1)).kr;
 	snd = Pulse.ar(freq, 0.5);
 	snd = RLPF.ar(snd, env.exprange(freq, freq * 60), 0.2);
@@ -38,7 +38,7 @@ Routine({
 	loop {
 		dur = beat / [1, 2, 4].choose;
 		note = (root + scale.choose + (12 * 0)).midicps;
-		s.bind { Synth(\pulseBass, [freq: note, duration: dur]) };
+		s.bind { Synth(\pulseBass, [freq: note, duration: dur, bend: [0, 6, -6].choose]) };
 		dur.wait;
 	};
 }).play;

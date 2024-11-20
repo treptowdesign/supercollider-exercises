@@ -5,14 +5,14 @@ SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(1);
 	snd = SinOsc.ar(\freq.kr(60) * (1 + (5 * Env.perc(0.0, 0.02, curve: -8).ar)) * [1, 2]);
-	snd = snd * [1, -14.dbamp];
+	snd = snd * [1, -12.dbamp];
 	snd[1] = snd[1] * Env.perc(0, 3).ar;
 	snd = snd.sum;
-	snd = snd * Env.perc(0.01, 3).ar;
+	snd = snd * Env.perc(0.01, 4).ar;
 	snd = snd ! 2;
 	snd = snd * \amp.kr(-10).dbamp;
 	snd = snd * (1 + (4 * Env.perc(0, 0.02).ar));
-	snd = (snd * 2.dbamp).tanh;
+	snd = (snd * 2.5.dbamp).tanh;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -44,16 +44,16 @@ SynthDef(\pulseBass, {
 	freq = \freq.kr(60) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
 	env = Env.perc(\atk.kr(0.01), \rel.kr(1)).kr;
 	snd = Pulse.ar(freq, 0.5);
-	snd = RLPF.ar(snd, env.exprange(freq, freq * 30), 0.5);
+	snd = RLPF.ar(snd, env.exprange(freq, freq * 28), 0.5);
 	snd = snd * env * Env.linen(0, \duration.kr(1), 0.1).kr(Done.freeSelf);
 	snd = LowShelf.ar(snd, 140, 0.5, -4);
-	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * -14.dbamp);
+	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * -12.dbamp);
 }).add;
 SynthDef(\sidechain, {
 	var snd, fb, scTrig;
 	scTrig = T2A.ar(\trigger.tr(0));
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * (1 - (0.6 * Env.perc(0.005, 0.2, curve: 4).ar(gate: scTrig)));
+	snd = snd * (1 - (0.7 * Env.perc(0.005, 0.2, curve: 4).ar(gate: scTrig)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 )

@@ -5,7 +5,7 @@ SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(1);
 	snd = SinOsc.ar(\freq.kr(60) * (1 + (5 * Env.perc(0.0, 0.02, curve: -8).ar)) * [1, 2]);
-	snd = snd * [1, -10.dbamp];
+	snd = snd * [1, -8.dbamp];
 	snd[1] = snd[1] * Env.perc(0, 3).ar;
 	snd = snd.sum;
 	snd = snd * Env.perc(0.01, 4).ar;
@@ -13,6 +13,7 @@ SynthDef(\kick, {
 	snd = snd * \amp.kr(-10).dbamp;
 	snd = snd * (1 + (4 * Env.perc(0, 0.02).ar));
 	snd = (snd * 3.dbamp).tanh;
+	// snd = BLowShelf.ar(snd, 120, 0.5, 2);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -46,7 +47,7 @@ SynthDef(\pulseBass, {
 	snd = Pulse.ar(freq, 0.5);
 	snd = RLPF.ar(snd, env.exprange(freq, freq * 30), 0.6);
 	snd = snd * env * Env.linen(0, \duration.kr(1), 0.1).kr(Done.freeSelf);
-	snd = LowShelf.ar(snd, 120, 0.5, -4);
+	snd = BLowShelf.ar(snd, 120, 0.5, -4);
 	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * \amp.kr(-12).dbamp);
 }).add;
 SynthDef(\sidechain, {
@@ -56,22 +57,37 @@ SynthDef(\sidechain, {
 	snd = snd * (1 - (0.9 * Env.perc(0.005, 0.3, curve: -2).ar(gate: scTrig)));
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\drumFx, {
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = BLowShelf.ar(snd, 600, 0.3, -4);
+	snd = BHiShelf.ar(snd, 3400, 0.3, -4);
+	snd = (snd * 15.dbamp).tanh;
+	snd = BLowShelf.ar(snd, 600, 0.3, 4);
+	snd = BHiShelf.ar(snd, 3400, 0.3, 4);
+	snd = snd * -10.dbamp;
+	snd = snd + GVerb.ar(snd.sum * -30.dbamp, 30, 0.8);
+	Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 (
 ~sidechainBus = Bus.audio(nil, 2);
+~drumsBus = Bus.audio(nil, 2);
 )
 
 ~sidechainBus.index;
+~drumsBus.index;
 
 (
-var s, root, scale, beat, sidechainFx;
+var s, root, scale, beat, sidechainFx, drumsFX;
 s = Server.default;
 root = 32;
 scale = Scale.phrygian.degrees;
 beat = 60 / 112;
 
 sidechainFx = Synth(\sidechain, [in: ~sidechainBus]);
+drumsFX = Synth(\drumFx, [in: ~drumsBus]);
 
 Routine({
 	fork {
@@ -79,28 +95,37 @@ Routine({
 			[0, 1].do { |lastOct|
 				// bar
 				s.bind { sidechainFx.set(\trigger, 1) };
-				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3)]); };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3), out: ~drumsBus]); };
 				(beat * 3).wait;
 				s.bind { sidechainFx.set(\trigger, 1) };
-				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 1), amp: -16]); };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 1), amp: -16, out: ~drumsBus]); };
 				(beat * 1).wait;
 				// bar
 				s.bind { sidechainFx.set(\trigger, 1) };
-				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 4)]); };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 4), out: ~drumsBus]); };
 				(beat * 4).wait;
 				// bar
 				s.bind { sidechainFx.set(\trigger, 1) };
-				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5)]); };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5), out: ~drumsBus]); };
 				(beat * 0.5).wait;
 				s.bind { sidechainFx.set(\trigger, 1) };
-				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5), amp: -16]); };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5), amp: -16, out: ~drumsBus]); };
 				(beat * 0.5).wait;
 				s.bind { sidechainFx.set(\trigger, 1) };
-				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3)]); };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3), out: ~drumsBus]); };
 				(beat * 3).wait;
 				// bar
 				s.bind { sidechainFx.set(\trigger, 1) };
-				s.bind { Synth(\kick, [freq: (root + (12 * lastOct)).midicps, duration: (beat * 4)]); };
+				s.bind {
+					Synth(\kick,
+						[
+							freq: (root + (12 * lastOct)).midicps,
+							duration: (beat * 4),
+							amp: if(lastOct == 1, {-16}, {-10}),
+							out: ~drumsBus
+						]
+					);
+				};
 				(beat * 4).wait;
 			};
 		};
@@ -108,7 +133,7 @@ Routine({
 	fork {
 		loop {
 			(beat * 2).wait;
-			s.bind { Synth(\clap); };
+			s.bind { Synth(\clap, [out: ~drumsBus]); };
 			(beat * 2).wait;
 		};
 	};
@@ -116,7 +141,7 @@ Routine({
 		loop {
 			[1, 2, 4, 2, 1, 2, 4, 8].do { |speed|
 				speed.do {
-					s.bind { Synth(\hat); };
+					s.bind { Synth(\hat, [out: ~drumsBus]); };
 					(beat / speed).wait;
 				}
 			}

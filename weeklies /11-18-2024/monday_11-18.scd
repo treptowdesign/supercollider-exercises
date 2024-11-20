@@ -50,10 +50,10 @@ SynthDef(\pulseBass, {
 	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * -14.dbamp);
 }).add;
 SynthDef(\sidechain, {
-	var snd, trigger;
-	trigger = T2A.ar(\trigger.tr(0));
+	var snd, fb, scTrig;
+	scTrig = T2A.ar(\trigger.tr(0));
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * (1 - (0.8 * Env.perc(0.01, 0.1, curve: 4).ar(gate: trigger)));
+	snd = snd * (1 - (0.6 * Env.perc(0.005, 0.2, curve: 4).ar(gate: scTrig)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 )

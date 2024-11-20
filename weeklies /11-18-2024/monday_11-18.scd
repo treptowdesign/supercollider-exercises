@@ -12,7 +12,7 @@ SynthDef(\kick, {
 	snd = snd ! 2;
 	snd = snd * \amp.kr(-10).dbamp;
 	snd = snd * (1 + (4 * Env.perc(0, 0.02).ar));
-	snd = (snd * 2.5.dbamp).tanh;
+	snd = (snd * 3.dbamp).tanh;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -31,10 +31,10 @@ SynthDef(\hat, {
 	snd = Pulse.ar(34 * [1, 2.23, 3.45, 5.7, 7.8]).sum;
 	snd = FreqShift.ar(snd, 41.2);
 	snd = snd + (Hasher.ar(Sweep.ar) * -8.dbamp);
-	snd = snd * Env.perc(0.005, \rel.kr(0.02)).ar;
-	snd = BPF.ar(snd, 7923 * [1, 1.5] * XLine.ar(1, 1.3, 0.1), 0.3).sum;
+	snd = snd * Env.perc(0.005, \rel.kr(0.03)).ar;
+	snd = BPF.ar(snd, 7923 * [1, 1.5] * XLine.ar(1, 1.3, 0.1), 0.2).sum;
 	snd = HPF.ar(snd, 5000);
-	snd = snd * \amp.kr(-8).dbamp;
+	snd = snd * \amp.kr(-6).dbamp;
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -27.dbamp, 0.1, [44e-3, 23e-3]), 200), 3000);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -42,11 +42,11 @@ SynthDef(\hat, {
 SynthDef(\pulseBass, {
 	var snd, env, freq;
 	freq = \freq.kr(60) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
-	env = Env.perc(\atk.kr(0.01), \rel.kr(1)).kr;
+	env = Env.perc(\atk.kr(0.001), \rel.kr(1.2)).kr;
 	snd = Pulse.ar(freq, 0.5);
-	snd = RLPF.ar(snd, env.exprange(freq, freq * 28), 0.5);
+	snd = RLPF.ar(snd, env.exprange(freq, freq * 30), 0.6);
 	snd = snd * env * Env.linen(0, \duration.kr(1), 0.1).kr(Done.freeSelf);
-	snd = LowShelf.ar(snd, 140, 0.5, -4);
+	snd = LowShelf.ar(snd, 120, 0.5, -4);
 	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * -12.dbamp);
 }).add;
 SynthDef(\sidechain, {
@@ -76,31 +76,33 @@ sidechainFx = Synth(\sidechain, [in: ~sidechainBus]);
 Routine({
 	fork {
 		loop {
-			// bar
-			s.bind { sidechainFx.set(\trigger, 1) };
-			s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3)]); };
-			(beat * 3).wait;
-			s.bind { sidechainFx.set(\trigger, 1) };
-			s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 1), amp: -16]); };
-			(beat * 1).wait;
-			// bar
-			s.bind { sidechainFx.set(\trigger, 1) };
-			s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 4)]); };
-			(beat * 4).wait;
-			// bar
-			s.bind { sidechainFx.set(\trigger, 1) };
-			s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5)]); };
-			(beat * 0.5).wait;
-			s.bind { sidechainFx.set(\trigger, 1) };
-			s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5), amp: -16]); };
-			(beat * 0.5).wait;
-			s.bind { sidechainFx.set(\trigger, 1) };
-			s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3)]); };
-			(beat * 3).wait;
-			// bar
-			s.bind { sidechainFx.set(\trigger, 1) };
-			s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 4)]); };
-			(beat * 4).wait;
+			[0, 1].do { |lastOct|
+				// bar
+				s.bind { sidechainFx.set(\trigger, 1) };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3)]); };
+				(beat * 3).wait;
+				s.bind { sidechainFx.set(\trigger, 1) };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 1), amp: -16]); };
+				(beat * 1).wait;
+				// bar
+				s.bind { sidechainFx.set(\trigger, 1) };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 4)]); };
+				(beat * 4).wait;
+				// bar
+				s.bind { sidechainFx.set(\trigger, 1) };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5)]); };
+				(beat * 0.5).wait;
+				s.bind { sidechainFx.set(\trigger, 1) };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5), amp: -16]); };
+				(beat * 0.5).wait;
+				s.bind { sidechainFx.set(\trigger, 1) };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3)]); };
+				(beat * 3).wait;
+				// bar
+				s.bind { sidechainFx.set(\trigger, 1) };
+				s.bind { Synth(\kick, [freq: (root + (12 * lastOct)).midicps, duration: (beat * 4)]); };
+				(beat * 4).wait;
+			};
 		};
 	};
 	fork {

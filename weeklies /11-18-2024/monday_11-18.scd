@@ -93,11 +93,17 @@ SynthDef(\drumFx, {
 ~drumsBus.index;
 
 (
-var s, root, scale, beat, sidechainFx, drumsFX;
+var s, root, scale, beat, sidechainFx, drumsFX, play808;
 s = Server.default;
 root = 32;
 scale = Scale.phrygian.degrees;
 beat = 60 / 112;
+
+play808 = { |duration, args = #[]|
+	s.bind { sidechainFx.set(\trigger, 1) };
+	s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3), out: ~drumsBus]); };
+	(duration * beat).wait;
+};
 
 Routine({
 	// FX Units

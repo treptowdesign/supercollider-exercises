@@ -8,7 +8,7 @@ SynthDef(\kick, {
 	snd = snd * [1, -10.dbamp];
 	snd[1] = snd[1] * Env.perc(0, 3).ar;
 	snd = snd.sum;
-	snd = snd * Env.perc(0.01, 3).ar;
+	snd = snd * Env.perc(0.01, 2).ar;
 	snd = snd ! 2;
 	snd = snd * \amp.kr(-18).dbamp;
 	snd = snd * (1 + (4 * Env.perc(0, 0.02).ar));
@@ -23,8 +23,8 @@ SynthDef(\clap, {
 	snd = BPF.ar(snd, 1540, 0.3) * 20.dbamp;
 	snd = snd + snd.tanh;
 	snd = snd * Env([0, 1, 0, 1, 0, 1, 0], [0.001, 0.001, 0.01, 0.001, 0.001, 0.08], curve: -12).ar(Done.freeSelf);
-	snd = DelayN.ar(snd, 0.01, 0.01);
-	snd = Pan2.ar(snd, 0) * -16.dbamp * \amp.kr(1);
+	snd = DelayN.ar(snd, 0.01, 0.01 + Rand(0.002, -0.002));
+	snd = Pan2.ar(snd, 0) * -10.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hat, {
@@ -33,17 +33,17 @@ SynthDef(\hat, {
 	snd = Pulse.ar(34 * [1, 2.23, 3.45, 5.7, 7.8]).sum;
 	snd = FreqShift.ar(snd, 41.2);
 	snd = snd + (Hasher.ar(Sweep.ar) * -8.dbamp);
-	snd = snd * Env.perc(0.005, \rel.kr(0.03)).ar;
+	snd = snd * Env.perc(0.005, \rel.kr(0.04)).ar;
 	snd = BPF.ar(snd, 7923 * [1, 1.5] * XLine.ar(1, 1.3, 0.1), 0.2).sum;
 	snd = HPF.ar(snd, 5000);
-	snd = snd * \amp.kr(-10).dbamp;
+	snd = snd * \amp.kr(-12).dbamp;
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -27.dbamp, 0.1, [44e-3, 23e-3]), 200), 3000);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\perc, {
 	var snd;
-	snd = SinOsc.ar(910 * (1.5 ** [0, 1, 1.2])).sum;
+	snd = SinOsc.ar(880 * (1.5 ** [0, 1, 1.2])).sum;
 	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
 	snd = snd * Env.perc(0.001, 0.2).ar;
 	snd = snd + GVerb.ar(snd * -24.dbamp, 18);
@@ -57,17 +57,17 @@ SynthDef(\pulseBass, {
 	var snd, env, freq;
 	freq = \freq.kr(60) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
 	env = Env.perc(\atk.kr(0.001), \rel.kr(1), curve: -4).kr;
-	snd = LFPulse.ar(freq, 0, 0.5);
-	snd = RLPF.ar(snd, env.exprange(freq, freq * 20), 0.6);
+	snd = LFPulse.ar(freq, Rand(0, 1), 0.5);
+	snd = RLPF.ar(snd, env.exprange(freq, freq * 30), 0.6);
 	snd = snd * env * Env.linen(0, \duration.kr(1), 0.1).kr(Done.freeSelf);
-	snd = BLowShelf.ar(snd, 120, 0.5, -4);
-	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * \amp.kr(-12).dbamp);
+	snd = BLowShelf.ar(snd, 240, 0.5, -4);
+	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * \amp.kr(-14).dbamp);
 }).add;
 SynthDef(\sidechain, {
 	var snd, fb, scTrig;
 	scTrig = T2A.ar(\trigger.tr(0));
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * (1 - (0.9 * Env.perc(0.005, 0.3, curve: -2).ar(gate: scTrig)));
+	snd = snd * (1 - (0.9 * Env.perc(0.005, 0.1, curve: -2).ar(gate: scTrig)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\drumFx, {
@@ -79,7 +79,7 @@ SynthDef(\drumFx, {
 	snd = BLowShelf.ar(snd, 600, 0.3, 4);
 	snd = BHiShelf.ar(snd, 3400, 0.3, 4);
 	snd = snd * -10.dbamp;
-	snd = snd + GVerb.ar(snd.sum * -30.dbamp, 30, 0.8);
+	snd = snd + GVerb.ar(snd.sum * -30.dbamp, 20, 0.8);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -159,7 +159,7 @@ Routine({
 		loop {
 			[1, 2, 4, 2, 1, 2, 4, 8].do { |speed|
 				speed.do {
-					s.bind { Synth(\hat, [out: ~drumsBus]); };
+					s.bind { Synth(\hat, [out: ~drumsBus, rel: rrand(0.03, 0.05)]); };
 					(beat / speed).wait;
 				}
 			}
@@ -170,26 +170,26 @@ Routine({
 		var note, dur;
 		loop {
 			[
-				// bar 1
+				// bar 1 ///////////////////////////////////
 				(interval: 0, length: 1, bend: 0),
 				(interval: 7, length: 1/2, bend: -12),
 				(interval: 7, length: 1/2, bend: 0),
 				(interval: 6, length: 1, bend: -6),
 				(interval: 1, length: 1, bend: 0),
-				// bar 2
+				// bar 2 ///////////////////////////////////
 				(interval: 0, length: 1, bend: 6),
 				(interval: 7, length: 1/2, bend: -12),
 				(interval: 7, length: 1/2, bend: 0),
 				(interval: 6, length: 1/2, bend: -6),
 				(interval: 8, length: 1/2, bend: 0),
 				(interval: 1, length: 1, bend: 0),
-				// bar 3
+				// bar 3 ///////////////////////////////////
 				(interval: 0, length: 1/2, bend: 0),
 				(interval: 1, length: 1/2, bend: -6),
 				(interval: 7, length: 1, bend: -6),
 				(interval: 6, length: 1, bend: -6),
 				(interval: 1, length: 1, bend: 0),
-				// bar 4
+				// bar 4 ///////////////////////////////////
 				(interval: 0, length: 1, bend: 6),
 				(interval: 7, length: 1/2, bend: -12),
 				(interval: 7, length: 1/2, bend: 0),
@@ -197,7 +197,7 @@ Routine({
 				(interval: 8, length: 1/2, bend: 0),
 				(interval: 1, length: 1, bend: 0),
 			].do { |item|
-				note = (root + item[\interval] + (12 * 0)).midicps;
+				note = (root + item[\interval] + (12 * 0 )).midicps;
 				dur = beat * item[\length];
 				s.bind { Synth(\pulseBass, [freq: note, duration: dur, bend: item[\bend], out: ~sidechainBus]) };
 				dur.wait;

@@ -126,7 +126,20 @@ SynthDef(\detSaw, {
 
 
 
-
+(
+SynthDef(\detPulse, {
+	var voices, env, freq, snd;
+	voices = 10;
+	env = Env.linen(\atk.kr(0.02), \sus.kr(0.5), \rel.kr(0.2), 1, \crv.kr(-4)).ar(Done.freeSelf);
+	freq = \freq.kr(110); // base freq
+	freq = freq * (({ LFNoise2.kr(\detRate.kr(0.4)) } ! voices) * \detAmt.kr(0.2)).midiratio; // chorus
+	freq = freq * (SinOsc.kr(\vibratoRate.kr(8)) * \vibratoAmt.kr(0)).midiratio; // vibrato
+	snd = LFPulse.ar(freq, { Rand(0.0, 2.0) } ! voices);
+	snd = LPF.ar(snd, 10e3);
+	snd = Splay.ar(snd * env, \spread.kr(1), \amp.kr(-26).dbamp);
+	Out.ar(0, snd);
+}).play;
+)
 
 
 
@@ -150,6 +163,12 @@ SynthDef(\detSaw, {
 
 Synth(\detSaw, [freq: 110, amp: -15, spread: 1]);
 Synth(\detSaw, [freq: 440, amp: -10, detAmt: 0.8, vibratoAmt: 0.3]);
+
+(
+Synth(\detSaw, [freq: (46 + 0 + (12 * 1)).midicps, amp: -15, spread: 1]);
+Synth(\detSaw, [freq: (46 + 3 + (12 * 1)).midicps, amp: -15, spread: 1]);
+Synth(\detSaw, [freq: (46 + 7 + (12 * 1)).midicps, amp: -15, spread: 1]);
+)
 
 (
 var s, beat, root, scale;

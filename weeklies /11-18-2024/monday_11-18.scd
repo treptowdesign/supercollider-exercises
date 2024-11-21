@@ -10,7 +10,7 @@ SynthDef(\kick, {
 	snd = snd.sum;
 	snd = snd * Env.perc(0.01, 3).ar;
 	snd = snd ! 2;
-	snd = snd * \amp.kr(-10).dbamp;
+	snd = snd * \amp.kr(-18).dbamp;
 	snd = snd * (1 + (4 * Env.perc(0, 0.02).ar));
 	snd = (snd * 3.dbamp).tanh;
 	// snd = BLowShelf.ar(snd, 120, 0.5, 2);
@@ -20,7 +20,7 @@ SynthDef(\kick, {
 SynthDef(\clap, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = BPF.ar(snd, 1540, 0.2) * 30.dbamp;
+	snd = BPF.ar(snd, 1540, 0.3) * 20.dbamp;
 	snd = snd + snd.tanh;
 	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.001, 0.01, 0.001, 0.001, 0.1], curve: -12).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, 0) * -20.dbamp * \amp.kr(1);
@@ -40,15 +40,27 @@ SynthDef(\hat, {
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\perc, {
+	var snd;
+	snd = SinOsc.ar(960 * (1.5 ** [0, 1, 1.2])).sum;
+	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
+	snd = snd * Env.perc(0.001, 0.06).ar;
+	snd = snd + GVerb.ar(snd * -20.dbamp, 18);
+	snd = snd * Env.perc(0.0, 3).ar(Done.freeSelf);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * \amp.kr(1);
+	snd = snd * -32.dbamp * (SinOsc.kr(1) * 4).midiratio;
+	Out.ar(\out.kr, snd);
+}).add;
 SynthDef(\pulseBass, {
 	var snd, env, freq;
 	freq = \freq.kr(60) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
-	env = Env.perc(\atk.kr(0.001), \rel.kr(1.1), curve: -4).kr;
-	snd = Pulse.ar(freq, 0.5);
-	snd = RLPF.ar(snd, env.exprange(freq, freq * 30), 0.6);
+	env = Env.perc(\atk.kr(0.001), \rel.kr(1), curve: -4).kr;
+	snd = LFPulse.ar(freq, 0, 0.5);
+	snd = RLPF.ar(snd, env.exprange(freq, freq * 20), 0.6);
 	snd = snd * env * Env.linen(0, \duration.kr(1), 0.1).kr(Done.freeSelf);
 	snd = BLowShelf.ar(snd, 120, 0.5, -4);
-	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * \amp.kr(-10).dbamp);
+	Out.ar(\out.kr(0), Pan2.ar(snd, 0) * \amp.kr(-12).dbamp);
 }).add;
 SynthDef(\sidechain, {
 	var snd, fb, scTrig;
@@ -62,7 +74,7 @@ SynthDef(\drumFx, {
 	snd = In.ar(\in.kr(0), 2);
 	snd = BLowShelf.ar(snd, 600, 0.3, -4);
 	snd = BHiShelf.ar(snd, 3400, 0.3, -4);
-	snd = (snd * 15.dbamp).tanh;
+	snd = (snd * 14.dbamp).tanh;
 	snd = BLowShelf.ar(snd, 600, 0.3, 4);
 	snd = BHiShelf.ar(snd, 3400, 0.3, 4);
 	snd = snd * -10.dbamp;
@@ -86,42 +98,44 @@ root = 32;
 scale = Scale.phrygian.degrees;
 beat = 60 / 112;
 
-sidechainFx = Synth(\sidechain, [in: ~sidechainBus]);
-drumsFX = Synth(\drumFx, [in: ~drumsBus]);
-
 Routine({
+	// FX Units
+	sidechainFx = Synth(\sidechain, [in: ~sidechainBus]);
+	drumsFX = Synth(\drumFx, [in: ~drumsBus]);
+
+	// Kick/Sub/808
 	fork {
 		loop {
 			[0, 1].do { |lastOct|
-				// bar
+				// bar 1
 				s.bind { sidechainFx.set(\trigger, 1) };
 				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3), out: ~drumsBus]); };
 				(beat * 3).wait;
 				s.bind { sidechainFx.set(\trigger, 1) };
-				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 1), amp: -16, out: ~drumsBus]); };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 1), amp: -20, out: ~drumsBus]); };
 				(beat * 1).wait;
-				// bar
+				// bar 2
 				s.bind { sidechainFx.set(\trigger, 1) };
 				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 4), out: ~drumsBus]); };
 				(beat * 4).wait;
-				// bar
+				// bar 3
 				s.bind { sidechainFx.set(\trigger, 1) };
 				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5), out: ~drumsBus]); };
 				(beat * 0.5).wait;
 				s.bind { sidechainFx.set(\trigger, 1) };
-				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5), amp: -16, out: ~drumsBus]); };
+				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 0.5), amp: -20, out: ~drumsBus]); };
 				(beat * 0.5).wait;
 				s.bind { sidechainFx.set(\trigger, 1) };
 				s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3), out: ~drumsBus]); };
 				(beat * 3).wait;
-				// bar
+				// bar 4
 				s.bind { sidechainFx.set(\trigger, 1) };
 				s.bind {
 					Synth(\kick,
 						[
 							freq: (root + (12 * lastOct)).midicps,
 							duration: (beat * 4),
-							amp: if(lastOct == 1, {-16}, {-10}),
+							amp: if(lastOct == 1, {-20}, {-18}),
 							out: ~drumsBus
 						]
 					);
@@ -130,6 +144,31 @@ Routine({
 			};
 		};
 	};
+	// Percs
+	fork {
+		loop {
+			(beat * 1).wait;
+			s.bind { Synth(\perc, [out: ~drumsBus]); };
+			(beat * 0.25).wait;
+			s.bind { Synth(\perc, [out: ~drumsBus]); };
+			(beat * 0.25).wait;
+			s.bind { Synth(\perc, [out: ~drumsBus]); };
+			(beat * 0.25).wait;
+			s.bind { Synth(\perc, [out: ~drumsBus]); };
+			(beat * 0.25).wait;
+
+			(beat * 1).wait;
+			s.bind { Synth(\perc, [out: ~drumsBus]); };
+			(beat * 0.25).wait;
+			// s.bind { Synth(\perc, [out: ~drumsBus]); };
+			(beat * 0.25).wait;
+			s.bind { Synth(\perc, [out: ~drumsBus]); };
+			(beat * 0.25).wait;
+			// s.bind { Synth(\perc, [out: ~drumsBus]); };
+			(beat * 0.25).wait;
+		};
+	};
+	// Clap
 	fork {
 		loop {
 			(beat * 2).wait;
@@ -137,6 +176,7 @@ Routine({
 			(beat * 2).wait;
 		};
 	};
+	// Hats
 	fork {
 		loop {
 			[1, 2, 4, 2, 1, 2, 4, 8].do { |speed|
@@ -147,30 +187,31 @@ Routine({
 			}
 		};
 	};
+	// MidBass
 	fork {
 		var note, dur;
 		loop {
 			[
-				// bar
+				// bar 1
 				(interval: 0, length: 1, bend: 0),
 				(interval: 7, length: 1/2, bend: -12),
 				(interval: 7, length: 1/2, bend: 0),
 				(interval: 6, length: 1, bend: -6),
 				(interval: 1, length: 1, bend: 0),
-				// bar
+				// bar 2
 				(interval: 0, length: 1, bend: 6),
 				(interval: 7, length: 1/2, bend: -12),
 				(interval: 7, length: 1/2, bend: 0),
 				(interval: 6, length: 1/2, bend: -6),
 				(interval: 8, length: 1/2, bend: 0),
 				(interval: 1, length: 1, bend: 0),
-				// bar
+				// bar 3
 				(interval: 0, length: 1/2, bend: 0),
 				(interval: 1, length: 1/2, bend: -6),
 				(interval: 7, length: 1, bend: -6),
 				(interval: 6, length: 1, bend: -6),
 				(interval: 1, length: 1, bend: 0),
-				// bar
+				// bar 4
 				(interval: 0, length: 1, bend: 6),
 				(interval: 7, length: 1/2, bend: -12),
 				(interval: 7, length: 1/2, bend: 0),
@@ -185,7 +226,8 @@ Routine({
 			};
 		};
 	};
-
-
 }).play;
 )
+
+
+s.makeWindow;

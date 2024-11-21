@@ -22,8 +22,9 @@ SynthDef(\clap, {
 	snd = Hasher.ar(Sweep.ar);
 	snd = BPF.ar(snd, 1540, 0.3) * 20.dbamp;
 	snd = snd + snd.tanh;
-	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.001, 0.01, 0.001, 0.001, 0.1], curve: -12).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, 0) * -20.dbamp * \amp.kr(1);
+	snd = snd * Env([0, 1, 0, 1, 0, 1, 0], [0.001, 0.001, 0.01, 0.001, 0.001, 0.08], curve: -12).ar(Done.freeSelf);
+	snd = DelayN.ar(snd, 0.01, 0.01);
+	snd = Pan2.ar(snd, 0) * -16.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hat, {
@@ -42,14 +43,14 @@ SynthDef(\hat, {
 }).add;
 SynthDef(\perc, {
 	var snd;
-	snd = SinOsc.ar(960 * (1.5 ** [0, 1, 1.2])).sum;
+	snd = SinOsc.ar(910 * (1.5 ** [0, 1, 1.2])).sum;
 	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
-	snd = snd * Env.perc(0.001, 0.06).ar;
-	snd = snd + GVerb.ar(snd * -20.dbamp, 18);
+	snd = snd * Env.perc(0.001, 0.2).ar;
+	snd = snd + GVerb.ar(snd * -24.dbamp, 18);
 	snd = snd * Env.perc(0.0, 3).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -32.dbamp * (SinOsc.kr(1) * 4).midiratio;
+	snd = snd * -24.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
 SynthDef(\pulseBass, {
@@ -144,35 +145,12 @@ Routine({
 			};
 		};
 	};
-	// Percs
-	fork {
-		loop {
-			(beat * 1).wait;
-			s.bind { Synth(\perc, [out: ~drumsBus]); };
-			(beat * 0.25).wait;
-			s.bind { Synth(\perc, [out: ~drumsBus]); };
-			(beat * 0.25).wait;
-			s.bind { Synth(\perc, [out: ~drumsBus]); };
-			(beat * 0.25).wait;
-			s.bind { Synth(\perc, [out: ~drumsBus]); };
-			(beat * 0.25).wait;
-
-			(beat * 1).wait;
-			s.bind { Synth(\perc, [out: ~drumsBus]); };
-			(beat * 0.25).wait;
-			// s.bind { Synth(\perc, [out: ~drumsBus]); };
-			(beat * 0.25).wait;
-			s.bind { Synth(\perc, [out: ~drumsBus]); };
-			(beat * 0.25).wait;
-			// s.bind { Synth(\perc, [out: ~drumsBus]); };
-			(beat * 0.25).wait;
-		};
-	};
 	// Clap
 	fork {
 		loop {
 			(beat * 2).wait;
 			s.bind { Synth(\clap, [out: ~drumsBus]); };
+			s.bind { Synth(\perc, [out: ~drumsBus]); };
 			(beat * 2).wait;
 		};
 	};

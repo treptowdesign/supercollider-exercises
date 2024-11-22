@@ -23,10 +23,11 @@ SynthDef(\fm_feedback, {
 // Play the synth
 (
 x = Synth(\fm_feedback, [
-    \freq, 220,
+    \freq, 440,
     \modIndex, 100,   // Intensity of modulation
-    \feedbackAmount, 0.3, // Feedback strength
-    \amp, 0.3
+    \feedbackAmount, 0.9, // Feedback strength
+    \amp, 0.3,
+	\modIndex, 600
 ]);
 )
 

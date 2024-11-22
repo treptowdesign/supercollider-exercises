@@ -28,3 +28,5 @@ SynthDef(\fmSynthG, {
 
 
 Synth(\fmSynthG, [freq: 110, carRatio: 1, modRatio: 1, modAmp: 4000]);
+
+

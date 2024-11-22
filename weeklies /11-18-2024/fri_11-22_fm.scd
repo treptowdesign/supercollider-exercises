@@ -37,7 +37,7 @@ SynthDef(\fmSynthFeedback, {
 	var freq, car, mod, amp, env, modFeedback;
 	freq = \freq.kr(440);
 	amp = \amp.kr(-10.dbamp);
-	env = EnvGen.ar(Env.perc(0.001, 0.6), \gate.kr(1), doneAction: Done.freeSelf);
+	env = EnvGen.ar(Env.perc(0.001, \rel.kr(1)), \gate.kr(1), doneAction: Done.freeSelf);
 	modFeedback = LocalIn.ar(1);
 	mod = SinOsc.ar((freq * \modRatio.kr(1)) + (modFeedback * \fbAmt.kr(0)), \modPhase.kr(0), freq * \modAmp.kr(1));
 	LocalOut.ar(mod);
@@ -47,7 +47,7 @@ SynthDef(\fmSynthFeedback, {
 }).add;
 )
 
-Synth(\fmSynthFeedback, [freq: 220, carRatio: 1, modRatio: 6, modAmp: 4, fbAmt: 0.3]);
+Synth(\fmSynthFeedback, [freq: 220, carRatio: 1, modRatio: 6, modAmp: 2, fbAmt: 0.3]);
 
 
 (
@@ -57,13 +57,14 @@ root = 58;
 scale = Scale.lydian.degrees;
 beat = 60 / 110;
 Routine({
-	var note;
+	var note, dur;
 	loop {
 		s.bind {
+			dur = beat / [2, 4].choose;
 			note = (root + scale.choose + (12 * [0, 1, 2].choose)).midicps;
-			Synth(\fmSynthFeedback, [freq: note, carRatio: 1, modRatio: 6, modAmp: 4, fbAmt: 0.3]);
+			Synth(\fmSynthFeedback, [freq: note, carRatio: 1, modRatio: 7, modAmp: 3, fbAmt: 0.3, rel: dur]);
 		};
-		(beat /2).wait;
+		dur.wait;
 	};
 }).play;
 )

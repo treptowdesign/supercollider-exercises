@@ -33,18 +33,17 @@ play({
 (
 SynthDef(\simplePiano, {
 	var freq, snd;
-	freq = \freq.kr(440) * ([-0.04, 0, 0.05].midiratio * ({ LFNoise2.ar(8) * 0.1 } ! 3).midiratio);
-	snd = LFNoise2.ar(3400, Decay2.ar(Impulse.ar(0, 0, 0.08), 0.008, 0.1));
+	freq = \freq.kr(440) * ([-0.04, 0, 0.05].midiratio * ({ LFNoise2.ar(Rand(2.0, 8.0)) * 0.1 } ! 3).midiratio);
+	snd = LFNoise2.ar(3000, Decay2.ar(Impulse.ar(0, 0, 0.08), 0.008, 0.1));
 	snd = CombL.ar(snd, 1/freq, 1/freq, \rel.kr(8));
 	snd = snd.sum * -24.dbamp;
-	// snd = FreeVerb.ar(snd, 0.4, 0.6, 0.2);
-	snd = snd + GVerb.ar(snd, 8, 2, 0.92);
+	snd = snd + GVerb.ar(snd, 10, 5, 0.92);
 	snd = snd * Env.linen(0, \duration.kr(6), 0.1).ar(Done.freeSelf);
+	snd = DelayN.ar(snd, 0.2, \delay.kr(0));
 	snd = LeakDC.ar(snd);
 	Out.ar(0, snd);
-}).play;
+}).add;
 )
-
 
 [-0.04, 0, 0.05].midiratio;
 [-0.04, 0, 0.05].midiratio * (rrand(-0.3, 0.3) ! 3).midiratio;
@@ -75,16 +74,21 @@ Routine({
 	var dur;
 	loop {
 		[
-			(intervals: 0 + [0, 4, 7, 11], length: 2),
-			(intervals: 7 + [0, 4, 7, 10], length: 2),
-			(intervals: 9 + [0, 3, 7, 10], length: 2),
-			(intervals: 5 + [0, 4, 7, 11], length: 2),
+			(intervals: 0 + [0, 4, 7, 11], length: 2), // I
+			(intervals: 7 + [0, 4, 7, 10], length: 2), // V
+			(intervals: 9 + [0, 3, 7, 10], length: 2), // vi
+			(intervals: 5 + [0, 4, 7, 11], length: 2), // IV
 		].do { |chord|
 			chord[\intervals].do { |interval|
 				dur = beat * chord[\length];
 				s.bind {
 					Synth(\simplePiano,
-						[freq: (root + interval + (12 * 2)).midicps, duration: dur, rel: 5]
+						[
+							freq: (root + interval + (12 * 2)).midicps,
+							duration: dur,
+							rel: rrand(5.0, 7.0),
+							delay: rrand(0, 0.05)
+						]
 					);
 				};
 			};
@@ -93,8 +97,6 @@ Routine({
 	}
 }).play;
 )
-
-
 
 ( // Routine for random scale degrees
 var s, root, scale, beat;
@@ -106,7 +108,7 @@ Routine({
 	var dur, note, octave, rel;
 	loop {
 		dur = beat / [1, 2, 4].choose;
-		octave = 12 * [1, 2, 3, 4].choose;
+		octave = 12 * [0, 1, 2, 3, 4].choose;
 		note = (root + scale.choose + octave).midicps;
 		s.bind { Synth(\simplePiano, [freq: note]); };
 		dur.wait;

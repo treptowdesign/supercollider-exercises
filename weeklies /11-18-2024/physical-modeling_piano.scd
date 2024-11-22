@@ -35,34 +35,41 @@ SynthDef(\simplePiano, {
 	var freq, snd;
 	freq = \freq.kr(440) * ([-0.04, 0, 0.05].midiratio * ({ LFNoise2.ar(0.5) * 0.1 } ! 3).midiratio);
 	snd = LFNoise2.ar(3200, Decay2.ar(Impulse.ar(0, 0, 0.08), 0.008, 0.1));
-	snd = CombL.ar(snd, 1/freq, 1/freq, \rel.kr(6));
-	snd = snd.sum * -10.dbamp;
-	snd = FreeVerb.ar(snd, 0.4, 0.6, 0.8);
+	snd = CombL.ar(snd, 1/freq, 1/freq, \rel.kr(8));
+	snd = snd.sum * -18.dbamp;
+	// snd = FreeVerb.ar(snd, 0.4, 0.6, 0.2);
+	snd = GVerb.ar(snd, 8, 2, 0.92);
 	snd = snd * Env.linen(0, \duration.kr(6), 0.1).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
-	Out.ar(0, snd ! 2);
+	Out.ar(0, snd);
 }).play;
 )
 
 
-[-0.04, 0, 0.05].midiratio
+[-0.04, 0, 0.05].midiratio;
 [-0.04, 0, 0.05].midiratio * (rrand(-0.3, 0.3) ! 3).midiratio;
-[-0.04, 0, 0.05].midiratio * (rrand(-0.01, 0.01) ! 3).midiratio
-[-0.04, 0, 0.05].midiratio
+[-0.04, 0, 0.05].midiratio * (rrand(-0.01, 0.01) ! 3).midiratio;
+[-0.04, 0, 0.05].midiratio;
 
 (
-Synth(\simplePiano, [freq: (36 + 0 + (12 * 3)).midicps, rel: 3]);
-Synth(\simplePiano, [freq: (36 + 4 + (12 * 3)).midicps, rel: 3]);
+Synth(\simplePiano, [freq: (36 + 0 + (12 * 3)).midicps, rel: 6]);
+Synth(\simplePiano, [freq: (36 + 3 + (12 * 3)).midicps, rel: 6]);
 Synth(\simplePiano, [freq: (36 + 7 + (12 * 3)).midicps, rel: 3]);
-Synth(\simplePiano, [freq: (36 + 11 + (12 * 3)).midicps, rel: 3]);
+Synth(\simplePiano, [freq: (36 + 10 + (12 * 3)).midicps, rel: 6]);
+)
+
+(
+Synth(\simplePiano, [freq: (36 + 0 + (12 * 3)).midicps, rel: 6]);
+Synth(\simplePiano, [freq: (36 + 4 + (12 * 3)).midicps, rel: 6]);
+Synth(\simplePiano, [freq: (36 + 7 + (12 * 3)).midicps, rel: 3]);
+Synth(\simplePiano, [freq: (36 + 11 + (12 * 3)).midicps, rel: 6]);
 )
 
 
 ( // Routine for chord progression
-var s, root, scale, beat;
+var s, root, beat;
 s = Server.default;
 root = 36;
-scale = Scale.lydian.degrees;
 beat = 60 / 110;
 Routine({
 	var dur;
@@ -77,7 +84,7 @@ Routine({
 				dur = beat * chord[\length];
 				s.bind {
 					Synth(\simplePiano,
-						[freq: (root + interval + (12 * 2)).midicps, duration: dur]
+						[freq: (root + interval + (12 * 2)).midicps, duration: dur, rel: 5]
 					);
 
 				};

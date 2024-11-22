@@ -39,7 +39,7 @@ SynthDef(\fmSynthFeedback, {
 	amp = \amp.kr(-10.dbamp);
 	env = EnvGen.ar(Env.perc(0.001, 0.6), \gate.kr(1), doneAction: Done.freeSelf);
 	modFeedback = LocalIn.ar(1);
-	mod = SinOsc.ar(freq * \modRatio.kr(1) + (modFeedback * \fbAmt.kr(0)), \modPhase.kr(0), freq * \modAmp.kr(1));
+	mod = SinOsc.ar((freq * \modRatio.kr(1)) + (modFeedback * \fbAmt.kr(0)), \modPhase.kr(0), freq * \modAmp.kr(1));
 	LocalOut.ar(mod);
 	car = SinOsc.ar(freq * \carRatio.kr(1) + mod);
 	car = LeakDC.ar(car);
@@ -47,6 +47,25 @@ SynthDef(\fmSynthFeedback, {
 }).add;
 )
 
-Synth(\fmSynthFeedback, [freq: 220, carRatio: 1, modRatio: 1, modAmp: 10, fbAmt: 0]);
+Synth(\fmSynthFeedback, [freq: 220, carRatio: 1, modRatio: 6, modAmp: 4, fbAmt: 0.3]);
+
+
+(
+var s, root, scale, beat;
+s = Server.default;
+root = 58;
+scale = Scale.lydian.degrees;
+beat = 60 / 110;
+Routine({
+	var note;
+	loop {
+		s.bind {
+			note = (root + scale.choose + (12 * [0, 1, 2].choose)).midicps;
+			Synth(\fmSynthFeedback, [freq: note, carRatio: 1, modRatio: 6, modAmp: 4, fbAmt: 0.3]);
+		};
+		(beat /2).wait;
+	};
+}).play;
+)
 
 

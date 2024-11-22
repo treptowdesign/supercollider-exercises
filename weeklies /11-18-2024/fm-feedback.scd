@@ -24,7 +24,7 @@ SynthDef(\fm_feedback, {
 (
 x = Synth(\fm_feedback, [
     \freq, 220,
-    \modIndex, 200,   // Intensity of modulation
+    \modIndex, 100,   // Intensity of modulation
     \feedbackAmount, 0.3, // Feedback strength
     \amp, 0.3
 ]);

@@ -33,12 +33,12 @@ play({
 (
 SynthDef(\simplePiano, {
 	var freq, snd;
-	freq = \freq.kr(440) * ([-0.04, 0, 0.05].midiratio * ({ LFNoise2.ar(0.5) * 0.1 } ! 3).midiratio);
-	snd = LFNoise2.ar(3200, Decay2.ar(Impulse.ar(0, 0, 0.08), 0.008, 0.1));
+	freq = \freq.kr(440) * ([-0.04, 0, 0.05].midiratio * ({ LFNoise2.ar(8) * 0.1 } ! 3).midiratio);
+	snd = LFNoise2.ar(3400, Decay2.ar(Impulse.ar(0, 0, 0.08), 0.008, 0.1));
 	snd = CombL.ar(snd, 1/freq, 1/freq, \rel.kr(8));
-	snd = snd.sum * -18.dbamp;
+	snd = snd.sum * -24.dbamp;
 	// snd = FreeVerb.ar(snd, 0.4, 0.6, 0.2);
-	snd = GVerb.ar(snd, 8, 2, 0.92);
+	snd = snd + GVerb.ar(snd, 8, 2, 0.92);
 	snd = snd * Env.linen(0, \duration.kr(6), 0.1).ar(Done.freeSelf);
 	snd = LeakDC.ar(snd);
 	Out.ar(0, snd);
@@ -86,7 +86,6 @@ Routine({
 					Synth(\simplePiano,
 						[freq: (root + interval + (12 * 2)).midicps, duration: dur, rel: 5]
 					);
-
 				};
 			};
 			dur.wait;

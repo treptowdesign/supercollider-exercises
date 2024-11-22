@@ -24,7 +24,7 @@ SynthDef(\clap, {
 	snd = snd + snd.tanh;
 	snd = snd * Env([0, 1, 0, 1, 0, 1, 0], [0.001, 0.001, 0.01, 0.001, 0.001, 0.08], curve: -12).ar(Done.freeSelf);
 	snd = DelayN.ar(snd, 0.01, 0.01 + Rand(0.002, -0.002));
-	snd = Pan2.ar(snd, 0) * -10.dbamp * \amp.kr(1);
+	snd = Pan2.ar(snd, 0) * -8.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hat, {
@@ -101,8 +101,8 @@ beat = 60 / 112;
 
 play808 = { |duration, args = #[]|
 	s.bind { sidechainFx.set(\trigger, 1) };
-	s.bind { Synth(\kick, [freq: root.midicps, duration: (beat * 3), out: ~drumsBus]); };
-	(duration * beat).wait;
+	s.bind { Synth(\kick, [duration: duration, out: ~drumsBus] ++ args); };
+	(duration).wait;
 };
 
 Routine({

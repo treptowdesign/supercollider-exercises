@@ -8,7 +8,7 @@ SynthDef(\fmSynth, {
 	car = SinOsc.ar(freq + mod);
 	car = car * Env.perc(0.001, 0.6).ar(Done.freeSelf);
 	Out.ar(0, car * -10.dbamp ! 2);
-}).play;
+}).add;
 )
 
 Synth(\fmSynth, [freq: 440, modRatio: 1, modAmp: 1000]);
@@ -20,13 +20,33 @@ SynthDef(\fmSynthG, {
 	freq = \freq.kr(440);
 	amp = \amp.kr(-10.dbamp);
 	env = EnvGen.ar(Env.perc(0.001, 0.6), \gate.kr(1), doneAction: Done.freeSelf);
-	mod = SinOsc.ar(freq * \modRatio.kr(1), \modPhase.kr(0), \modAmp.kr(1000).clip(0, 2000));
+	mod = SinOsc.ar(freq * \modRatio.kr(1), \modPhase.kr(0), freq * \modAmp.kr(1));
 	car = SinOsc.ar(freq * \carRatio.kr(1) + mod);
+	car = LeakDC.ar(car);
 	Out.ar(0, car * env * amp ! 2);
 }).add;
 )
 
+Synth(\fmSynthG, [freq: 220, carRatio: 1, modRatio: 1, modAmp: 10]);
 
-Synth(\fmSynthG, [freq: 110, carRatio: 1, modRatio: 1, modAmp: 4000]);
+Synth(\fmSynthG, [freq: 50, carRatio: 1, modRatio: 1, modAmp: 10]);
+Synth(\fmSynthG, [freq: 220, carRatio: 1, modRatio: 1, modAmp: 8]);
+
+(
+SynthDef(\fmSynthFeedback, {
+	var freq, car, mod, amp, env, modFeedback;
+	freq = \freq.kr(440);
+	amp = \amp.kr(-10.dbamp);
+	env = EnvGen.ar(Env.perc(0.001, 0.6), \gate.kr(1), doneAction: Done.freeSelf);
+	modFeedback = LocalIn.ar(1);
+	mod = SinOsc.ar(freq * \modRatio.kr(1) + (modFeedback * \fbAmt.kr(0)), \modPhase.kr(0), freq * \modAmp.kr(1));
+	LocalOut.ar(mod);
+	car = SinOsc.ar(freq * \carRatio.kr(1) + mod);
+	car = LeakDC.ar(car);
+	Out.ar(0, car * env * amp ! 2);
+}).add;
+)
+
+Synth(\fmSynthFeedback, [freq: 220, carRatio: 1, modRatio: 1, modAmp: 10, fbAmt: 0]);
 
 

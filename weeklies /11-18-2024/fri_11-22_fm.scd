@@ -47,7 +47,7 @@ SynthDef(\fmSynthFeedback, {
 }).add;
 )
 
-Synth(\fmSynthFeedback, [freq: 220, carRatio: 1, modRatio: 6, modAmp: 2, fbAmt: 0.3]);
+Synth(\fmSynthFeedback, [freq: 220, carRatio: 1, modRatio: 6, modAmp: 2, fbAmt: 0.1]);
 
 
 (

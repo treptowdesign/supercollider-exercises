@@ -36,7 +36,7 @@ SynthDef(\hat, {
 	snd = snd * Env.perc(0.005, \rel.kr(0.04)).ar;
 	snd = BPF.ar(snd, 7923 * [1, 1.5] * XLine.ar(1, 1.3, 0.1), 0.2).sum;
 	snd = HPF.ar(snd, 5000);
-	snd = snd * \amp.kr(-12).dbamp;
+	snd = snd * \amp.kr(-10).dbamp;
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -27.dbamp, 0.1, [44e-3, 23e-3]), 200), 3000);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);

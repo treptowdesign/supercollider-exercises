@@ -50,6 +50,15 @@ SynthDef(\fmSynthFeedback, {
 Synth(\fmSynthFeedback, [freq: 220, carRatio: 1, modRatio: 6, modAmp: 2, fbAmt: 0.1]);
 
 
+
+(
+Synth(\fmSynthFeedback, [freq: (60 + 0 + (12 * 1)).midicps, carRatio: 1, modRatio: 9, modAmp: 3, fbAmt: 0.3]);
+Synth(\fmSynthFeedback, [freq: (60 + 3 + (12 * 1)).midicps, carRatio: 1, modRatio: 9, modAmp: 3, fbAmt: 0.3]);
+Synth(\fmSynthFeedback, [freq: (60 + 7 + (12 * 1)).midicps, carRatio: 1, modRatio: 9, modAmp: 3, fbAmt: 0.3]);
+)
+
+
+
 (
 var s, root, scale, beat;
 s = Server.default;
@@ -60,9 +69,9 @@ Routine({
 	var note, dur;
 	loop {
 		s.bind {
-			dur = beat / [2, 4].choose;
+			dur = beat / 4;
 			note = (root + scale.choose + (12 * [0, 1, 2].choose)).midicps;
-			Synth(\fmSynthFeedback, [freq: note, carRatio: 1, modRatio: 7, modAmp: 3, fbAmt: 0.3, rel: dur]);
+			Synth(\fmSynthFeedback, [freq: note, carRatio: 1, modRatio: 9, modAmp: 3, fbAmt: 0.3, rel: dur]);
 		};
 		dur.wait;
 	};

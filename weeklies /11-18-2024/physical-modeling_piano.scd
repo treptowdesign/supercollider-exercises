@@ -36,7 +36,7 @@ SynthDef(\simplePiano, {
 	freq = \freq.kr(440) * ([-0.04, 0, 0.05].midiratio * ({ LFNoise2.ar(Rand(2.0, 8.0)) * 0.1 } ! 3).midiratio);
 	snd = LFNoise2.ar(3000, Decay2.ar(Impulse.ar(0, 0, 0.08), 0.008, 0.1));
 	snd = CombL.ar(snd, 1/freq, 1/freq, \rel.kr(6));
-	snd = snd.sum * -18.dbamp;
+	snd = snd.sum * -10.dbamp;
 	// snd = snd + GVerb.ar(snd, 10, 5, 0.92);
 	snd = snd * Env.linen(0, \duration.kr(6), 0.1).ar(Done.freeSelf);
 	snd = DelayN.ar(snd, 0.2, \delay.kr(0));
@@ -79,15 +79,16 @@ Routine({
 			(intervals: 9 + [0, 3, 7, 10], length: 2), // vi
 			(intervals: 5 + [0, 4, 7, 11], length: 2), // IV
 		].do { |chord|
-			chord[\intervals].do { |interval|
+			chord[\intervals].do { |interval, index|
 				dur = beat * chord[\length];
+				index.postln;
 				s.bind {
 					Synth(\simplePiano,
 						[
-							freq: (root + interval + (12 * 2)).midicps,
+							freq: (root + interval + (12 * 1)).midicps,
 							duration: dur,
-							rel: 4.0,
-							delay: rrand(0, 0.02)
+							rel: 3,
+							delay: if(index != 0, { rrand(0, 0.06) }, { 0 })
 						]
 					);
 				};

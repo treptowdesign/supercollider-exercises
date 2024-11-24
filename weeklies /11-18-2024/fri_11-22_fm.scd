@@ -91,7 +91,7 @@ Routine({
 		s.bind {
 			dur = beat / 4;
 			note = (root + scale.choose + (12 * [0, 1, 2].choose)).midicps;
-			Synth(\fmSynthFeedback, [freq: note, carRatio: 1, modRatio: 9, modAmp: 3, fbAmt: 0.3, rel: dur]);
+			Synth(\fmSynthFeedback, [freq: note, carRatio: 2, modRatio: 12, modAmp: 3, fbAmt: 0.9, rel: dur]);
 		};
 		dur.wait;
 	};

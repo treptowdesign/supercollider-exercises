@@ -46,7 +46,7 @@ scale = Scale.lydian.degrees;
 beat = 60 / 120;
 Routine({
 	var note, delayFx;
-	delayFx = Synth(\fbDelayUnit, [in: ~delayBus, delayTime: beat/4]);
+	delayFx = Synth(\fbDelayUnit, [in: ~delayBus, delayTime: beat/2]);
 	loop {
 		note = (root + scale.choose + (12 * [2, 3, 4].choose)).midicps;
 		s.bind {Synth(\marimba, [freq: note, pan: rrand(0.7, -0.7), out: ~delayBus]);};

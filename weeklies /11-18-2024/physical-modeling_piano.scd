@@ -16,7 +16,7 @@ play({
 				detune = #[-0.07, 0, 0.08].at(i);
 				delayTime = 1 / (pitch + detune).midicps;
 				// each string gets own exciter :
-				hammer = LFNoise2.ar(3000, hammerEnv); // 3000 Hz was chosen by ear..
+				hammer = LFNoise2.ar(3600, hammerEnv); // 3000 Hz was chosen by ear..
 				CombL.ar(
 					hammer,		// used as a string resonator
 					delayTime, 		// max delay time

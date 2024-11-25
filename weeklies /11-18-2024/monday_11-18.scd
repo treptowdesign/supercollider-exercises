@@ -191,7 +191,7 @@ Routine({
 				(interval: 1, length: 1, bend: 0),
 				// bar 3 ///////////////////////////////////
 				(interval: 0, length: 1/2, bend: 0),
-				(interval: 1, length: 1/2, bend: -6),
+				(interval: 1, length: 1/2, bend: -12),
 				(interval: 7, length: 1, bend: -6),
 				(interval: 6, length: 1, bend: -6),
 				(interval: 1, length: 1, bend: 0),

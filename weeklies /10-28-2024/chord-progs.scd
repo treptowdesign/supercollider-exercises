@@ -165,4 +165,127 @@ Routine({
 )
 
 
+////////////////////////////////////////////////////////////////////
+// Quartal
+(
+var s, root, beat;
+s = Server.default;
+root = 42; // MIDI note for the root
+beat = 60 / 120; // 120 BPM
+Routine({
+	var dur, note, octave, chordBass, chordIntervals;
+	dur = beat;
+	octave = 1; // Octave adjustment
+	loop {
+		[
+			(intervals: 0 + [0, 5, 10], length: 2), // Ro=ot, perfect 4th, minor 7th
+			(intervals: 2 + [0, 5, 10], length: 2), // Major 2nd, perfect 4th, minor 7th
+			(intervals: 5 + [0, 7, 12], length: 2), // Perfect 4th stack
+			(intervals: -2 + [0, 5, 10], length: 2), // Lowered stack for variation
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\piano, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+(
+var s, root, beat;
+s = Server.default;
+root = 42; // MIDI note for the root
+beat = 60 / 120; // 120 BPM
+Routine({
+	var dur, note, octave, chordIntervals;
+	dur = beat;
+	octave = 1; // Base octave
+	loop {
+		[
+			(intervals: 0 + [0, 5, 10, 14], length: 2), // Root, P4, m7, M9
+			(intervals: 7 + [0, 5, 10, 17], length: 1), // P5, P4, m7, #11
+			(intervals: 2 + [0, 5, 12, 19], length: 1), // M2, P4, Octave, M13
+			(intervals: -5 + [0, 5, 10, 15], length: 2), // Lowered root, P4, m7, Aug9
+			(intervals: 0 + [0, 7, 14, 21], length: 2), // Root, P5, M9, M13
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\piano, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+(
+var s, root, beat;
+s = Server.default;
+root = 42; // MIDI note for the root
+beat = 60 / 120; // 120 BPM
+Routine({
+	var dur, note, octave, chordIntervals;
+	dur = beat;
+	octave = 1; // Base octave
+	loop {
+		[
+			(intervals: 0 + [0, 5, 10, 14, 17], length: 2), // Root, P4, m7, M9, #11
+			(intervals: -3 + [0, 5, 10, 15, 19], length: 1), // Lowered root, P4, m7, Aug9, M13
+			(intervals: 4 + [0, 5, 10, 12, 16], length: 1), // M3, P4, m7, Octave, Aug11
+			(intervals: 7 + [0, 5, 10, 14, 21], length: 2), // P5, P4, m7, M9, M13
+			(intervals: -2 + [0, 5, 9, 14, 19], length: 2), // Chromatic slide down, quartal with altered 6th
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\piano, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+(
+var s, root, beat;
+s = Server.default;
+root = 42; // MIDI note for the root
+beat = 60 / 120; // 120 BPM
+Routine({
+	var dur, note, octave, chordIntervals;
+	dur = beat;
+	octave = 1; // Base octave
+	loop {
+		[
+			(intervals: 0 + [0, 5, 10, 14, 17], length: 1.5), // Root, P4, m7, M9, #11
+			(intervals: -5 + [0, 5, 9, 14, 21], length: 1.5), // Descending root, altered 6th, M9, M13
+			(intervals: 2 + [0, 5, 10, 14, 19], length: 2), // M2, P4, m7, M9, M13
+			(intervals: 7 + [0, 5, 10, 15, 18], length: 1), // P5, P4, m7, Aug9, P11
+			(intervals: 0 + [0, 5, 12, 17, 21], length: 2), // Root, P4, Octave, #11, M13
+			(intervals: -2 + [0, 5, 10, 14, 19], length: 3), // Chromatic step, quartal stack, M9, M13
+		].do { |chord|
+			chordIntervals = chord[\intervals];
+			dur = beat * chord[\length];
+			chordIntervals.do { |interval|
+				note = (root + interval + (12 * octave)).midicps;
+				s.bind { Synth(\piano, [freq: note, duration: dur]); };
+			};
+			dur.wait;
+		};
+	};
+}).play;
+)
+
+
+
+
+
+
 

@@ -24,10 +24,10 @@ SynthDef(\markerHarmonics, {
 60.midicps;
 
 (
-Synth(\markerHarmonics, [freq: (60 + 0).midicps]);
-Synth(\markerHarmonics, [freq: (60 + 3).midicps]);
-Synth(\markerHarmonics, [freq: (60 + 7).midicps]);
-Synth(\markerHarmonics, [freq: (60 + 10).midicps]);
+Synth(\markerHarmonics, [freq: (56 + 0).midicps]);
+Synth(\markerHarmonics, [freq: (56 + 3).midicps]);
+Synth(\markerHarmonics, [freq: (56 + 7).midicps]);
+Synth(\markerHarmonics, [freq: (56 + 10).midicps]);
 )
 
 (260 * [1, 2, 3, 4]);

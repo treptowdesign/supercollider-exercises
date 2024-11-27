@@ -110,7 +110,7 @@ SynthDef(\markerSixths, {
 (
 SynthDef(\seqMarker, {
 	var snd, freq;
-	freq = 440 * Demand.ar(Impulse.ar(10 * XLine.kr(1, 2, 1)), 0, Dseq(1.5 ** (0..3), 20));
+	freq = 440 * Demand.ar(Impulse.ar(10 * XLine.kr(1, 2, 1)), 0, Dseq(1.5 ** (0..3), inf));
 	snd = Pulse.ar(freq);
 	snd = snd + GVerb.ar(snd, 20);
 	snd = snd * Env.perc(0.01, 2.0).ar(Done.freeSelf);
@@ -123,7 +123,7 @@ SynthDef(\seqMarker, {
 (
 SynthDef(\seqMarkerBass, {
 	var snd, freq;
-	freq = 60 * Demand.ar(Impulse.ar(10 * XLine.kr(1, 2, 1)), 0, Dseq((1..4), 20));
+	freq = 60 * Demand.ar(Impulse.ar(10 * XLine.kr(1, 2, 1)), 0, Dseq((1..3), 20));
 	snd = Saw.ar(freq);
 	snd = snd + GVerb.ar(snd, 20);
 	snd = snd * Env.perc(0.01, 2.0).ar(Done.freeSelf);
@@ -140,10 +140,10 @@ SynthDef(\stutterMarker, {
 	snd = Saw.ar(freq);
 	snd = snd.collect { |snd| LPF.ar(snd, TExpRand.ar(100, 8000, Dust.ar(10)).lag(0.01)); };
 	snd = snd.sum;
-	3.do { snd = snd + DelayC.ar(snd, 0.1, LFNoise2.kr(0.5 ! 2).linlin(-1, 1, 1e-3, 8e-3)); };
+	3.do { snd = snd + DelayC.ar(snd, 0.1, LFNoise2.kr(0.4 ! 2).linlin(-1, 1, 1e-3, 8e-3)); };
 	snd = snd * Env.perc(0.01, 3.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * -20.dbamp;
+	snd = snd * -25.dbamp;
 	Out.ar(\out.kr, snd);
 }).play;
 )
@@ -197,7 +197,7 @@ SynthDef(\snare, {
 (
 SynthDef(\vocal, {
 	var snd, duration;
-	duration = 0.1;
+	duration = 0.08;
 	snd = Pulse.ar(50);
 	snd = RLPF.ar(snd, XLine.kr([1520, 1820], [620, 3200], duration), 0.05);
 	snd = snd.sum;
@@ -228,6 +228,22 @@ SynthDef(\vocal2, {
 }).play;
 )
 
+(
+SynthDef(\bass3, {
+	var snd, freq, hi;
+	freq = \freq.kr(60);
+	snd = Pulse.ar(freq);
+	snd = RLPF.ar(snd, XLine.kr([800, 1200], [500, 2000], \duration.kr(0.3)), 0.2).sum * 5.dbamp;
+	snd = snd * Line.kr(0, 1, 0.5);
+	snd = BPF.ar(snd, (0..20).normalize.squared.linexp(0, 1, 100, 16000), 0.2).sum;
+	snd = snd.fold2;
+	snd = LPF.ar(snd, 200) + HPF.ar(snd * -5.dbamp, 3000);
+	snd = snd ! 2;
+	snd = snd * Env.linen(0.0, \duration.kr(0.3) - 0.01, 0.01, curve: -4).ar(Done.freeSelf);
+	snd = snd * -5.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
 
 
 ( // LFO

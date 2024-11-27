@@ -4,7 +4,7 @@
 (
 SynthDef(\markerHarmonics, {
 	var snd;
-	snd = (260 * [1, 2, 3, 4]).collect { |freq|
+	snd = (\freq.kr(260) * [1, 2, 3, 4]).collect { |freq|
 		var snd;
 		snd = LFTri.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) * LFNoise2.kr(1 ! 2);
 		snd = [snd[0] + snd[1], snd[0] - snd[1]] / sqrt(2); // midsides
@@ -18,6 +18,15 @@ SynthDef(\markerHarmonics, {
 	snd = snd * -10.dbamp;
 	Out.ar(\out.kr, snd);
 }).play;
+)
+
+
+60.midicps;
+
+(
+Synth(\markerHarmonics, [freq: (60 + 0 -12).midicps]);
+Synth(\markerHarmonics, [freq: (60 + 3).midicps]);
+Synth(\markerHarmonics, [freq: (60 + 7 -12).midicps]);
 )
 
 (260 * [1, 2, 3, 4]);

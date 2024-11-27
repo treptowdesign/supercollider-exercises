@@ -57,6 +57,23 @@ SynthDef(\delayReverb, {
 }.play;
 )
 
+// Harmonizer
+
+(
+SynthDef(\delayHarm, {
+	var snd, phs, del, env, rate, maxDelay;
+	maxDelay = 0.05;
+	rate = \n.kr(6).midiratio - 1 / maxDelay;
+	snd = SinOsc.ar(440) * Env.perc(0.001, 1).ar ! 2;
+	phs = LFSaw.ar(rate.neg, [0, 1]).range(0, maxDelay);
+	env = SinOsc.ar(rate, [3pi/2, pi/2]).range(0, 1).sqrt;
+	del = DelayC.ar(snd, maxDelay, phs) * env;
+	del = del.sum ! 2 * 0.3;
+	Out.ar(0, del);
+}).play;
+)
+
+
 // Chorus
 
 

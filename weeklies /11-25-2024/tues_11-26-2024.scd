@@ -42,16 +42,10 @@ SynthDef(\markerFifths, {
 }).play;
 )
 
-(3/2 ** [0, 1, 2, 3]);
-(1.5 ** [0, 1, 2, 3]);
-
-(4/3 ** [0, 1, 2, 3]);
-(1.3333333333333 ** [0, 1, 2, 3]);
-
 (
-SynthDef(\markerFourths, {
+SynthDef(\markerFifths, {
 	var snd;
-	snd = (260 * (4/3 ** [0, 1, 2, 3])).collect { |freq|
+	snd = (260 * (1.5 ** [0, 1, 2, 3])).collect { |freq|
 		var snd;
 		snd = LFTri.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) * LFNoise2.kr(1 ! 2);
 		snd = [snd[0] + snd[1], snd[0] - snd[1]] / sqrt(2); // midsides
@@ -67,6 +61,54 @@ SynthDef(\markerFourths, {
 }).play;
 )
 
+(260 * (1.5 ** [0, 1, 2, 3])).normalize.linlin(0, 1, 0, -10);
+
+(
+SynthDef(\markerFifths, {
+	var snd;
+	snd = (260 * ((3/2) ** [0, 1, 2, 3])).collect { |freq|
+		var snd;
+		snd = LFTri.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) * LFNoise2.kr(1 ! 2);
+		snd = [snd[0] + snd[1], snd[0] - snd[1]] / sqrt(2); // midsides
+		snd;
+	};
+	snd = snd.sum;
+	snd = snd * (1 + (5 * Env.perc(0, 0.3).ar));
+	snd = snd.tanh;
+	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf, \gate.kr(1));
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * -10.dbamp;
+	Out.ar(\out.kr, snd);
+}).play;
+)
+
+(3/2 ** [0, 1, 2, 3]);
+(1.5 ** [0, 1, 2, 3]);
+
+(4/3 ** [0, 1, 2, 3]);
+(1.3333333333333 ** [0, 1, 2, 3]);
+
+(
+SynthDef(\markerFourths, {
+	var snd;
+	snd = (260 * ((4/3) ** [0, 1, 2, 3])).collect { |freq|
+		var snd;
+		snd = LFTri.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) * LFNoise2.kr(1 ! 2);
+		snd = [snd[0] + snd[1], snd[0] - snd[1]] / sqrt(2); // midsides
+		snd;
+	};
+	snd = snd.sum;
+	snd = snd * (1 + (5 * Env.perc(0, 0.3).ar));
+	snd = snd.tanh;
+	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf, \gate.kr(1));
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * -10.dbamp;
+	Out.ar(\out.kr, snd);
+}).play;
+)
+
+
+(5/3 ** [0, 1, 2, 3])
 
 (
 SynthDef(\markerSixths, {
@@ -128,7 +170,7 @@ SynthDef(\seqMarkerBass, {
 	snd = snd + GVerb.ar(snd, 20);
 	snd = snd * Env.perc(0.01, 2.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * -15.dbamp;
+	snd = snd * -6.dbamp;
 	Out.ar(\out.kr, snd);
 }).play;
 )
@@ -206,7 +248,7 @@ SynthDef(\vocal, {
 	snd = snd * Env.linen(0.0, duration, 0.001).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -15.dbamp;
+	snd = snd * -6.dbamp;
 	Out.ar(\out.kr, snd);
 }).play;
 )
@@ -223,7 +265,7 @@ SynthDef(\vocal2, {
 	snd = snd * Env.linen(0.0, duration, 0.001).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -15.dbamp;
+	snd = snd * -6.dbamp;
 	Out.ar(\out.kr, snd);
 }).play;
 )
@@ -242,6 +284,23 @@ SynthDef(\bass3, {
 	snd = snd * Env.linen(0.0, \duration.kr(0.3) - 0.01, 0.01, curve: -4).ar(Done.freeSelf);
 	snd = snd * -5.dbamp;
 	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\keys, {
+	var snd, freq;
+	freq = \freq.kr(220);
+	snd = SinOsc.ar(freq * [3, 16]) * Env.perc(0.001, 3.0).ar * (1 + (5 * Env.perc(0, 0.3).ar)) * 600 * Hasher.kr(freq).linexp(-1, 1, 1, 1.2);
+	snd = snd.sum;
+	snd = SinOsc.ar(freq + snd);
+	snd = snd * Env([0, 10, 0.5, 1], [0.001, 0.01, 0.001], curve: -4).ar;
+	snd = snd.fold2;
+	snd = snd * Env.perc(0.001, 3.0, curve: -10).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0));
+	snd = snd * \amp.kr(1);
+	snd = snd * -12.dbamp;
+	Out.ar(\out.kr, snd);
 }).play;
 )
 

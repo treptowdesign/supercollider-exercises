@@ -36,6 +36,7 @@ x = Synth(\simplePhaser, [\freq, 220, \lfoRate, 0.2, \feedback, 0.7, \stages, 6,
 {
 	var snd;
 	snd = Pulse.ar(330);
+	// snd = snd * Env.perc(0.001, 1).ar;
 	snd = snd + DelayC.ar(snd, 0.1, SinOsc.ar(0.1, [0, pi]).linlin(-1, 1, 0, 1) * 4e-3);
 	snd * -20.dbamp ! 2;
 }.play;

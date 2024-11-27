@@ -229,6 +229,7 @@ SynthDef(\seqMarkerBassLpf, {
 
 
 
+([-1, 1] * 0.2).midiratio;
 
 (
 SynthDef(\kick, {

@@ -4,7 +4,7 @@
 (
 SynthDef(\markerHarmonics, {
 	var snd;
-	snd = (260 * [0, 1, 2, 3]).collect { |freq|
+	snd = (260 * [1, 2, 3, 4]).collect { |freq|
 		var snd;
 		snd = LFTri.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) * LFNoise2.kr(1 ! 2);
 		snd = [snd[0] + snd[1], snd[0] - snd[1]] / sqrt(2); // midsides
@@ -20,6 +20,8 @@ SynthDef(\markerHarmonics, {
 }).play;
 )
 
+(260 * [1, 2, 3, 4]);
+260 * (1.5 ** [0, 1, 2, 3]);
 
 (
 SynthDef(\markerFifths, {
@@ -103,6 +105,35 @@ SynthDef(\markerSixths, {
 
 
 
+
+
+(
+SynthDef(\marker3, {
+	var snd, freq;
+	freq = 440 * Demand.ar(Impulse.ar(10 * XLine.kr(1, 2, 1)), 0, Dseq(1.5 ** (0..3), 20));
+	snd = Pulse.ar(freq);
+	snd = snd + GVerb.ar(snd, 20);
+	snd = snd * Env.perc(0.01, 2.0).ar(Done.freeSelf);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * -20.dbamp;
+	Out.ar(\out.kr, snd);
+}).play;
+)
+
+(
+SynthDef(\marker4, {
+	var snd, freq;
+	freq = 260 * (1.5 ** (0..3));
+	snd = Saw.ar(freq);
+	snd = snd.collect { |snd| LPF.ar(snd, TExpRand.ar(100, 8000, Dust.ar(10)).lag(0.01)); };
+	snd = snd.sum;
+	3.do { snd = snd + DelayC.ar(snd, 0.1, LFNoise2.kr(0.5 ! 2).linlin(-1, 1, 1e-3, 8e-3)); };
+	snd = snd * Env.perc(0.01, 3.0).ar(Done.freeSelf);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * -20.dbamp;
+	Out.ar(\out.kr, snd);
+}).play;
+)
 
 
 

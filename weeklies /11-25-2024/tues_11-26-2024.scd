@@ -184,7 +184,7 @@ SynthDef(\seqMarkerBassPulse, {
 	snd = snd + GVerb.ar(snd, 20);
 	snd = snd * Env.perc(0.01, 2.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * -8.dbamp;
+	snd = snd * -10.dbamp;
 	Out.ar(\out.kr, snd);
 }).play;
 )
@@ -197,7 +197,22 @@ SynthDef(\seqMarkerBassSaw, {
 	snd = snd + GVerb.ar(snd, 20);
 	snd = snd * Env.perc(0.01, 2.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * -8.dbamp;
+	snd = snd * -10.dbamp;
+	Out.ar(\out.kr, snd);
+}).play;
+)
+
+
+(
+SynthDef(\seqMarkerBassLpf, {
+	var snd, freq;
+	freq = 60;
+	snd = Saw.ar(freq);
+	snd = LPF.ar(snd, Env.perc(0, 0.6).ar.linexp(0, 1, 200, 6000));
+	snd = snd + GVerb.ar(snd, 20);
+	snd = snd * Env.perc(0.01, 2.0).ar(Done.freeSelf);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * -10.dbamp;
 	Out.ar(\out.kr, snd);
 }).play;
 )

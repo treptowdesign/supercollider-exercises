@@ -13,7 +13,7 @@ SynthDef(\markerHarmonics, {
 	snd = snd.sum;
 	snd = snd * (1 + (5 * Env.perc(0, 0.3).ar));
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * -10.dbamp;
 	Out.ar(\out.kr, snd);
@@ -35,7 +35,7 @@ SynthDef(\markerFifths, {
 	snd = snd.sum;
 	snd = snd * (1 + (5 * Env.perc(0, 0.3).ar));
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * -10.dbamp;
 	Out.ar(\out.kr, snd);
@@ -54,7 +54,7 @@ SynthDef(\markerFifths, {
 	snd = snd.sum;
 	snd = snd * (1 + (5 * Env.perc(0, 0.3).ar));
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * -10.dbamp;
 	Out.ar(\out.kr, snd);
@@ -75,7 +75,7 @@ SynthDef(\markerFifths, {
 	snd = snd.sum;
 	snd = snd * (1 + (5 * Env.perc(0, 0.3).ar));
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * -10.dbamp;
 	Out.ar(\out.kr, snd);
@@ -100,7 +100,7 @@ SynthDef(\markerFourths, {
 	snd = snd.sum;
 	snd = snd * (1 + (5 * Env.perc(0, 0.3).ar));
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * -10.dbamp;
 	Out.ar(\out.kr, snd);
@@ -122,7 +122,7 @@ SynthDef(\markerSixths, {
 	snd = snd.sum;
 	snd = snd * (1 + (5 * Env.perc(0, 0.3).ar));
 	snd = snd.tanh;
-	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * -10.dbamp;
 	Out.ar(\out.kr, snd);
@@ -146,6 +146,20 @@ SynthDef(\markerSixths, {
 // 12: octave    2:1
 
 
+(
+SynthDef(\stutterMarker, {
+	var snd, freq;
+	freq = 110 * (1.5 ** (0..3));
+	snd = Saw.ar(freq);
+	snd = snd.collect { |snd| LPF.ar(snd, TExpRand.ar(100, 8000, Dust.ar(10)).lag(0.01)); };
+	snd = snd.sum;
+	3.do { snd = snd + DelayC.ar(snd, 0.1, LFNoise2.kr(0.4 ! 2).linlin(-1, 1, 1e-3, 8e-3)); };
+	snd = snd * Env.perc(0.01, 3.0).ar(Done.freeSelf);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * -25.dbamp;
+	Out.ar(\out.kr, snd);
+}).play;
+)
 
 
 
@@ -188,20 +202,7 @@ SynthDef(\seqMarkerBassSaw, {
 }).play;
 )
 
-(
-SynthDef(\stutterMarker, {
-	var snd, freq;
-	freq = 260 * (1.5 ** (0..3));
-	snd = Saw.ar(freq);
-	snd = snd.collect { |snd| LPF.ar(snd, TExpRand.ar(100, 8000, Dust.ar(10)).lag(0.01)); };
-	snd = snd.sum;
-	3.do { snd = snd + DelayC.ar(snd, 0.1, LFNoise2.kr(0.4 ! 2).linlin(-1, 1, 1e-3, 8e-3)); };
-	snd = snd * Env.perc(0.01, 3.0).ar(Done.freeSelf);
-	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * -25.dbamp;
-	Out.ar(\out.kr, snd);
-}).play;
-)
+
 
 
 (

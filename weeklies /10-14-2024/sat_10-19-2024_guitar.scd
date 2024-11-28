@@ -7,7 +7,7 @@ SynthDef(\guitar, {
 	snd = snd + FreqShift.ar(CombC.ar(FreqShift.ar(snd, 63), 0.2, 1 / 240, 0.01), -63);
 	snd = snd * Env.linen(0.0, \duration.kr(1.0), 0.6, curve: -4).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
-	snd = snd * -25.dbamp;
+	snd = snd * -30.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\guitarFx, {
@@ -24,6 +24,7 @@ SynthDef(\guitarFx, {
 	fb = HPF.ar(fb, 200);
 	LocalOut.ar(fb);
 	snd = snd + fb;
+	// snd = snd + DelayC.ar(snd, 0.1, SinOsc.ar(0.1, [0, pi]).linlin(-1, 1, 0, 1) * 8e-3);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )

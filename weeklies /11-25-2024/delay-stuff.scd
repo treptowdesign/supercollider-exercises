@@ -38,8 +38,8 @@ SynthDef(\delayReverb, {
 	6.do({
 		wet = AllpassC.ar(wet, 0.02, LFNoise1.kr(0.02 ! 2).exprange(0.01, 0.02), decay)
 	});
-	wet = LPF.ar(wet, 1600);
-	snd = snd.blend(wet, 0.15) * 0.3;
+	wet = LPF.ar(wet, 1400);
+	snd = snd.blend(wet, 0.35) * 0.3;
 	snd = snd * Env.linen(0, 3, 1).ar(Done.freeSelf);
 	Out.ar(0, snd ! 2);
 }).play;
@@ -51,7 +51,7 @@ SynthDef(\delayReverb, {
 {
 	var snd;
 	snd = Pulse.ar(110) * Env.perc(0.001, 2).ar;
-	snd = snd + DelayC.ar(snd, 0.1, SinOsc.ar(0.1, [0, pi]).linlin(-1, 1, 0, 1) * 4e-2);  //4e-3
+	snd = snd + DelayC.ar(snd, 0.1, SinOsc.ar(0.1, [0, pi]).linlin(-1, 1, 0, 1) * 4e-3);  //4e-3
 	snd * 0.05;
 }.play;
 )
@@ -83,11 +83,27 @@ SynthDef(\delayHarm, {
 	fx = Mix.fill(n, {
 		var maxdelaytime= rrand(0.01, 0.06);
 		var half= maxdelaytime*0.5;
-		var quarter= maxdelaytime*0.25;
+		// var quarter= maxdelaytime*0.25;
 		//%half+(quarter*LPF.ar(WhiteNoise.ar, rrand(1.0, 10)))
 		DelayC.ar(source, maxdelaytime, LFNoise1.kr(Rand(0.6, 0.1), 0.01, 0.02) )
 	});
-	fx * 0.05 ! 2;
+	fx * 0.1 ! 2;
+}.play
+)
+
+( // plugging in the commented out line as the noise signal
+{
+	var source;
+	var fx;
+	var n = 10;
+	source = Saw.ar(\freq.kr(330), 0.3);
+	fx = Mix.fill(n, {
+		var maxdelaytime= rrand(0.01, 0.06);
+		var half= maxdelaytime*0.5;
+		var quarter= maxdelaytime*0.25;
+		DelayC.ar(source, maxdelaytime, half+(quarter*LPF.ar(WhiteNoise.ar, rrand(1.0, 10))) )
+	});
+	fx * 0.1 ! 2;
 }.play
 )
 
@@ -121,7 +137,7 @@ SynthDef(\improvedChorus, {
 	depthRange = \depthRange.kr([0.01, 0.03]); // Range of modulation depths
 
 	// Source signal
-	source = Pulse.ar(110, 0.5) * Env.perc(0.01, 6).ar;
+	source = Pulse.ar(110, 0.5) * Env.perc(0.1, 6).ar;
 
 	// Create multiple modulated delay lines
 	fx = Mix.fill(n, {
@@ -133,7 +149,7 @@ SynthDef(\improvedChorus, {
 	});
 
 	source = source ! 2;
-	source = source.blend(fx, 0.25) * 0.04;
+	source = source.blend(fx, 0.25) * 0.2;
 
 	Out.ar(0, source); // Output with gain adjustment
 }).add;
@@ -148,7 +164,7 @@ Synth(\improvedChorus, [\maxDelayTime, 0.04, \rateRange, [1, 3], \depthRange, [0
 (
 SynthDef(\phaser, { arg out=0, in=0;
     var input,dsig, mixed;
-	input = Pulse.ar(110);
+	input = Pulse.ar(90);
     dsig = AllpassL.ar(input, 0.2, SinOsc.ar(0.2, 0, 0.01, 0.01), 0);
     mixed = input + dsig;
     Out.ar(0, mixed * 0.05 ! 2);

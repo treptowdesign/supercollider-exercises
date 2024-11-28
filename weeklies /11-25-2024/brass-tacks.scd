@@ -17,7 +17,7 @@
 {
     // var source = WhiteNoise.ar(0.2);  // Input signal: WhiteNoise
 	// var source = Saw.ar(220, 0.2);  // Input signal: Saw
-	var source = Pulse.ar(220, 0.5, 0.2);  // Input signal: Pulse
+	var source = Pulse.ar(110, 0.5, 0.2);  // Input signal: Pulse
 	var wet;
     var delay1 = SinOsc.kr(0.3).range(0.02, 0.03);
     var delay2 = SinOsc.kr(0.4, pi).range(0.015, 0.025);
@@ -34,7 +34,7 @@
 {
     // var source = WhiteNoise.ar(0.2);  // Input signal: WhiteNoise
 	// var source = Saw.ar(220, 0.2);  // Input signal: Saw
-	var source = Pulse.ar(220, 0.5, 0.2);  // Input signal: Pulse
+	var source = Pulse.ar(110, 0.5, 0.2);  // Input signal: Pulse
 	var wet;
     var mod = SinOsc.kr(0.2).range(0, 1);  // LFO for modulation
     var feedback = 0.7;

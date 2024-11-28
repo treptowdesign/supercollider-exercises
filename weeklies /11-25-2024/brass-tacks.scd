@@ -40,7 +40,7 @@
     var feedback = 0.7;
     var phaser = AllpassC.ar(source, 0.05, mod * 0.05, feedback);  // Phaser effect
 	wet = phaser;
-	source.blend(wet, 1) * 0.5 ! 2;
+	source.blend(wet, 0.5) * 0.5 ! 2;
     // Mix([source, phaser]) * 0.3 ! 2;
 }.play;
 )

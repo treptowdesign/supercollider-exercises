@@ -30,7 +30,7 @@ SynthDef(\delayReverb, {
 	var snd, wet, preDelay, decay;
 	preDelay = 0.03;
 	decay = 3;
-	snd = Pan2.ar(SinOsc.ar(440) * Env.perc(0.001, 0.1).ar, 0);
+	snd = Pan2.ar(Pulse.ar(440) * Env.perc(0.001, 0.1).ar, 0);
 	wet = DelayN.ar(snd, preDelay, preDelay);
 	wet = 6.collect({
 		CombC.ar(wet, 0.1, LFNoise1.kr(0.02 ! 2).exprange(0.02, 0.1), decay);
@@ -50,9 +50,9 @@ SynthDef(\delayReverb, {
 (
 {
 	var snd;
-	snd = Pulse.ar(110) * Env.perc(0.001, 2).ar;
-	snd = snd + DelayC.ar(snd, 0.1, SinOsc.ar(0.1, [0, pi]).linlin(-1, 1, 0, 1) * 4e-3);  //4e-3
-	snd * 0.05;
+	snd = Saw.ar(110) * Env.perc(0.001, 2).ar;
+	snd = snd + DelayC.ar(snd, 0.1, SinOsc.ar(0.1, [0, pi]).linlin(-1, 1, 0, 1) * 4e-2);  //4e-3
+	snd * 0.2;
 }.play;
 )
 

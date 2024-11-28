@@ -8,7 +8,7 @@ SynthDef(\improvedChorus2, {
 	depthRange = \depthRange.kr([0.01, 0.03]); // Range of modulation depths
 
 	// Source signal
-	source = Pulse.ar(110, 0.5) * Env.perc(0.1, 6).ar;
+	source = Pulse.ar(220, 0.5) * Env.perc(0.1, 6).ar;
 
 	// Create multiple modulated delay lines
 	fx = Array.fill(n, {
@@ -24,7 +24,7 @@ SynthDef(\improvedChorus2, {
 	fx = Splay.ar(fx);
 
 	source = source ! 2;
-	source = source.blend(fx, \wetAmt.kr(0.15)) * 0.01;
+	source = source.blend(fx, \wetAmt.kr(0.15)) * 0.3;
 
 	Out.ar(0, source); // Output with gain adjustment
 }).add;

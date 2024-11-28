@@ -189,7 +189,7 @@ SynthDef(\seqMarker, {
 (
 SynthDef(\seqMarkerBassPulse, {
 	var snd, freq;
-	freq = \freq.kr(60) * Demand.ar(Impulse.ar(10 * XLine.kr(1, 2, 1)), 0, Dseq((1..3), 20));
+	freq = \freq.kr(60) * Demand.ar(Impulse.ar(10 * XLine.kr(1, 2, 1)), 0, Dseq((1..4), 20));
 	snd = Pulse.ar(freq);
 	snd = snd + GVerb.ar(snd, 20);
 	snd = snd * Env.perc(0.01, 2.0).ar(Done.freeSelf);

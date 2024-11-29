@@ -72,10 +72,12 @@
 	var wet;
 	var delay1 = SinOsc.kr(LFNoise2.ar(3).range(0.1, 0.2)).range(0.02, 0.03);
     var delay2 = SinOsc.kr(LFNoise2.ar(0.2).range(0.2, 0.4), pi).range(0.015, 0.025);
+	var delay3 = SinOsc.kr(LFNoise2.ar(0.8).range(0.15, 0.3), 0.2pi).range(0.02, 0.02);
     var modulated1 = DelayC.ar(source, 0.04, delay1);
     var modulated2 = DelayC.ar(source, 0.04, delay2);
-	wet = Mix([modulated1, modulated2]);
-	source.blend(wet, 1) * 0.5 ! 2;
+	var modulated3 = DelayC.ar(source, 0.04, delay3);
+	wet = Mix.ar([modulated1, modulated2, modulated3]);
+	source.blend(wet, 0.5) * 0.2 ! 2;
     // Mix([source, modulated1, modulated2]) * 0.3 ! 2;
 }.play;
 )
@@ -99,7 +101,7 @@
 (
 {
     // var source = WhiteNoise.ar(0.2);  // Input signal: WhiteNoise
-	// var source = Saw.ar(220, 0.2);  // Input signal: Saw
+	// var source = Saw.ar(60, 0.2);  // Input signal: Saw
 	var source = Pulse.ar(60, 0.5, 0.2);  // Input signal: Pulse
 	var wet;
 	var delayTime = SinOsc.kr(0.05, 0).range(0.001, 0.01);  // LFO for delay time modulation
@@ -128,6 +130,32 @@
     // Mix([source, phaser]) * 0.3 ! 2;
 }.play;
 )
+
+
+
+// Chorus Variable Voices
+(
+{
+	var source = Pulse.ar(60, 0.5, 0.2) ! 2;  // Input signal: Pulse
+	var wet;
+	var n = 6;
+
+	wet = Mix.fill(n, {
+		var speed = 3.0.rand;
+		var min = Rand(0.0001, 0.0003);
+		var max = min + Rand(0.001, 0.003);
+		var delay = SinOsc.kr(speed).range(min, max);
+		var modulated = DelayC.ar(source, max, delay);
+		Pan2.ar(modulated * 0.3, Rand(-0.5, 0.5));
+	});
+
+	// wet = Mix(wet);
+	source.blend(wet, 1) * 0.5;
+}.play;
+)
+
+
+rrand(0.0001, 0.0003);
 
 
 

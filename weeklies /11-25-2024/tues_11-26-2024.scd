@@ -166,7 +166,7 @@ SynthDef(\stutterMarker, {
 	3.do { snd = snd + DelayC.ar(snd, 0.1, LFNoise2.kr(0.4 ! 2).linlin(-1, 1, 1e-3, 8e-3)); };
 	snd = snd * Env.perc(0.01, 3.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * -25.dbamp;
+	snd = snd * -15.dbamp;
 	Out.ar(\out.kr, snd);
 }).play;
 )
@@ -189,9 +189,9 @@ SynthDef(\seqMarker, {
 (
 SynthDef(\seqMarkerBassPulse, {
 	var snd, freq;
-	freq = \freq.kr(60) * Demand.ar(Impulse.ar(10 * XLine.kr(1, 2, 1)), 0, Dseq((1..4), 20));
+	freq = \freq.kr(60) * Demand.ar(Impulse.ar(10 * XLine.kr(1, 2, 1)), 0, Dseq((1..4), inf));
 	snd = Pulse.ar(freq);
-	snd = snd + GVerb.ar(snd, 20);
+	snd = snd + GVerb.ar(snd, 30);
 	snd = snd * Env.perc(0.01, 2.0).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * -10.dbamp;
@@ -330,7 +330,7 @@ SynthDef(\bass3, {
 (
 SynthDef(\keys, {
 	var snd, freq;
-	freq = \freq.kr(220);
+	freq = \freq.kr(110);
 	snd = SinOsc.ar(freq * [3, 16]) * Env.perc(0.001, 3.0).ar * (1 + (5 * Env.perc(0, 0.3).ar)) * 600 * Hasher.kr(freq).linexp(-1, 1, 1, 1.2);
 	snd = snd.sum;
 	snd = SinOsc.ar(freq + snd);

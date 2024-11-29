@@ -3,7 +3,7 @@ SynthDef(\bass1, {
 	var snd, duration;
 	duration = \duration.kr(1);
 	snd = Pulse.ar(40);
-	snd = FreqShift.ar(snd, 13);
+	// snd = FreqShift.ar(snd, 13);
 	snd = BPF.ar(snd, XLine.ar(100, 2000, duration), 0.5) * 10.dbamp;
 	snd = snd.tanh;
 	snd = BPF.ar(snd, (0..20).normalize.linexp(0, 1, 100, 3200), 0.1).sum * 7.dbamp;

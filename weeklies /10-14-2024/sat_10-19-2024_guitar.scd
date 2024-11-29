@@ -7,7 +7,7 @@ SynthDef(\guitar, {
 	snd = snd + FreqShift.ar(CombC.ar(FreqShift.ar(snd, 63), 0.2, 1 / 240, 0.01), -63);
 	snd = snd * Env.linen(0.0, \duration.kr(1.0), 0.6, curve: -4).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
-	snd = snd * -35.dbamp;
+	snd = snd * -30.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\guitarFx, {
@@ -38,14 +38,37 @@ SynthDef(\guitarFx, {
 
 (
 Synth(\guitarFx, [in: ~guitarFx, beat: (60 / 110)]);
-Synth(\guitar, [freq: (60 + 0 -12).midicps, out: ~guitarFx]);
-Synth(\guitar, [freq: (60 + 5 -12).midicps, out: ~guitarFx]);
-Synth(\guitar, [freq: (60 + 7 -12).midicps, out: ~guitarFx]);
+Synth(\guitar, [freq: (60 + 0).midicps, out: ~guitarFx]);
+Synth(\guitar, [freq: (60 + 4).midicps, out: ~guitarFx]);
+Synth(\guitar, [freq: (60 + 7).midicps, out: ~guitarFx]);
 )
 
 (
 Synth(\guitar, [freq: 80, out: 0]);
 )
+
+
+
+(
+var s, beat, root, scale;
+s = Server.default;
+beat = 60 / 110;
+root = 60;
+scale = Scale.aeolian.degrees;
+
+Synth(\guitarFx, [in: ~guitarFx, beat: (60 / 110)]);
+
+Routine({
+	loop {
+		s.bind {
+			Synth(\guitar, [freq: (root + scale.choose).midicps, out: ~guitarFx]);
+		};
+		beat.wait;
+	};
+}).play;
+)
+
+
 
 
 

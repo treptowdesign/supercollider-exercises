@@ -61,9 +61,9 @@ Synth(\guitarFx, [in: ~guitarFx, beat: (60 / 110)]);
 Routine({
 	loop {
 		s.bind {
-			Synth(\guitar, [freq: (root + scale.choose).midicps, out: ~guitarFx]);
+			Synth(\guitar, [freq: (root + scale.choose + (12 * [-1, 0, 1].choose)).midicps, out: ~guitarFx]);
 		};
-		beat.wait;
+		(beat/2).wait;
 	};
 }).play;
 )

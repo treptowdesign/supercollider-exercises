@@ -1,14 +1,14 @@
 // Flanger
 (
 {
-    var source = WhiteNoise.ar(0.2);  // Input signal: WhiteNoise
+    // var source = WhiteNoise.ar(0.2);  // Input signal: WhiteNoise
 	// var source = Saw.ar(220, 0.2);  // Input signal: Saw
-	//var source = Pulse.ar(110, 0.5, 0.2);  // Input signal: Pulse
+	var source = Pulse.ar(60, 0.5, 0.2);  // Input signal: Pulse
 	var wet;
-    var delayTime = SinOsc.kr(0.2, 0).range(0.001, 0.01);  // LFO for delay time modulation
+	var delayTime = SinOsc.kr(0.2, 0).range(0.001, 0.01);  // LFO for delay time modulation
     var feedback = 0.2;
-    wet = CombC.ar(source, 0.01, delayTime, feedback) + source * 0.3;
-	source.blend(wet, 1) * 0.5 ! 2;
+    wet = CombC.ar(source, 0.01, delayTime, feedback) * 0.5;
+	source.blend(wet, 0.5) * 0.5 ! 2;
 }.play;
 )
 
@@ -77,6 +77,55 @@
 	wet = Mix([modulated1, modulated2]);
 	source.blend(wet, 1) * 0.5 ! 2;
     // Mix([source, modulated1, modulated2]) * 0.3 ! 2;
+}.play;
+)
+
+
+// Flanger with delayTme phase mod
+(
+{
+    // var source = WhiteNoise.ar(0.2);  // Input signal: WhiteNoise
+	// var source = Saw.ar(220, 0.2);  // Input signal: Saw
+	var source = Pulse.ar(60, 0.5, 0.2);  // Input signal: Pulse
+	var wet;
+	var delayTime = SinOsc.kr(0.2, LFNoise1.ar(0.01).range(0, 2pi)).range(0.001, 0.01);  // LFO for delay time modulation
+    var feedback = 0.2;
+	wet = LPF.ar(CombC.ar(source, 0.01, delayTime, feedback) * 0.5, 2000);
+	source.blend(wet, 1) * 0.5 ! 2;
+}.play;
+)
+
+// Flanger
+(
+{
+    // var source = WhiteNoise.ar(0.2);  // Input signal: WhiteNoise
+	// var source = Saw.ar(220, 0.2);  // Input signal: Saw
+	var source = Pulse.ar(60, 0.5, 0.2);  // Input signal: Pulse
+	var wet;
+	var delayTime = SinOsc.kr(0.05, 0).range(0.001, 0.01);  // LFO for delay time modulation
+    var feedback = 0.1;
+	wet = CombC.ar(source, 0.01, delayTime, feedback) * 0.5;
+	source = source.blend(wet, 1) * 0.5 ! 2;
+	source;
+}.play;
+)
+
+
+
+
+// Phaser
+(
+{
+    // var source = WhiteNoise.ar(0.2);  // Input signal: WhiteNoise
+	// var source = Saw.ar(220, 0.2);  // Input signal: Saw
+	var source = Pulse.ar(60, 0.5, 0.2);  // Input signal: Pulse
+	var wet;
+    var mod = SinOsc.kr(0.01).range(0, 1);  // LFO for modulation
+    var feedback = 0.7;
+	var phaser = AllpassC.ar(source, 0.05, mod * 0.05, feedback);  // Phaser effect
+	wet = phaser;
+	source.blend(wet, 1) * 0.5 ! 2;
+    // Mix([source, phaser]) * 0.3 ! 2;
 }.play;
 )
 

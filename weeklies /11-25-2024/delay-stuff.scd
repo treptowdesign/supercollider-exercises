@@ -72,6 +72,8 @@ SynthDef(\delayHarm, {
 }).play;
 )
 
+{ SinOsc.ar(1, 0.5pi).range(0, 1).sqrt }.plot(4);
+
 // Chorus
 
 (

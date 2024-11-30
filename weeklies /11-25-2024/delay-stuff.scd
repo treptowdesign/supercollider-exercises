@@ -50,7 +50,7 @@ SynthDef(\delayReverb, {
 (
 {
 	var snd;
-	snd = Saw.ar(110) * Env.perc(0.001, 2).ar;
+	snd = Saw.ar(440) * Env.perc(0.001, 2).ar;
 	snd = snd + DelayC.ar(snd, 0.1, SinOsc.ar(0.1, [0, pi]).linlin(-1, 1, 0, 1) * 4e-2);  //4e-3
 	snd * 0.2;
 }.play;

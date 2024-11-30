@@ -267,11 +267,29 @@ rrand(0.0001, 0.0003);
     source.blend(wet, 0.5) * 0.5 ! 2;
 }.play;
 )
-)
 
 {SinOsc.kr(0.1, pi).linexp(-1, 1, 0.3, 0.01)}.plot(2);
 
 
+
+( // Modulate feedback Alternate
+{
+    var source = Pulse.ar(60, 0.5, 0.2);  // Input signal: Pulse
+    var delayTime = SinOsc.kr(0.1, 0).range(0.001, 0.01);  // LFO for delay time modulation
+    var feedback = SinOsc.kr(0.1, 0).range(0.01, 0.3);  // Modulate feedback
+    var wet = CombC.ar(source, 0.01, delayTime, feedback) * 0.5;
+    source.blend(wet, 0.5) * 0.5 ! 2;
+}.play;
+)
+
+// Main Effect LFO
+{SinOsc.kr(0.1, 0).range(0.001, 0.01)}.plot(10);
+
+// Feedback LFO
+{SinOsc.kr(0.1, pi).linexp(-1, 1, 0.3, 0.01)}.plot(10);
+{SinOsc.kr(0.1, 0).linexp(-1, 1, 0.3, 0.01)}.plot(10);
+
+{SinOsc.kr(0.1, 0).range(0.01, 0.3)}.plot(10);
 
 
 

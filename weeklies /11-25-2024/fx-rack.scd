@@ -24,26 +24,26 @@ SynthDef(\fxFlanger, {
 (
 ~fxBus = Bus.audio(nil, 2);
 )
-
 ~fxBus.index;
 
 (
-Synth(\fxFlanger, [in: ~fxBus, speed: 0.1, wet: 1, fxAmp: 0.7]);
+Synth(\fxFlanger, [in: ~fxBus, speed: 0.2, wet: 1, fxAmp: 0.7]);
 [0, 4, 7, 11].do { |interval |
 	Synth(\pulseSynth, [freq: (60 + interval).midicps, rel: 30, out: ~fxBus, amp: 0.05]);
 };
 )
 
 (
-Synth(\fxFlanger, [in: ~fxBus, speed: 0.1, wet: 1, fxAmp: 0.7]);
+Synth(\fxFlanger, [in: ~fxBus, speed: 0.2, wet: 1, fxAmp: 0.7]);
 [0, 3, 7, 10].do { |interval |
 	Synth(\pulseSynth, [freq: (60 + interval).midicps, rel: 30, out: ~fxBus, amp: 0.05]);
 };
 )
 
+
 (
 Synth(\fxFlanger, [in: ~fxBus, wet: 0.5]);
-Synth(\pulseSynth, [freq: 60, rel: 6, out: ~fxBus]);
+Synth(\pulseSynth, [freq: 60, rel: 30, out: ~fxBus]);
 )
 
 ( // Routine

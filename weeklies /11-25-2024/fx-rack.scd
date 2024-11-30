@@ -5,7 +5,7 @@ SynthDef(\pulseSynth, {
 	freq = \freq.kr(220);
 	env = Env.perc(0.001, \rel.kr(1)).ar(Done.freeSelf);
 	snd = Pulse.ar(freq);
-	snd = snd + (BPF.ar(PinkNoise.ar, freq) * 0.5);
+	snd = snd + (BPF.ar(PinkNoise.ar, [freq, freq * 2]) * [0.5, 0.1]).sum;
 	snd = Pan2.ar(snd * env * \amp.kr(0.1) ! 2, \pan.kr(0));
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -27,23 +27,29 @@ SynthDef(\fxFlanger, {
 ~fxBus.index;
 
 (
-Synth(\fxFlanger, [in: ~fxBus, speed: 0.2, wet: 1, fxAmp: 0.7]);
+Synth(\fxFlanger, [in: ~fxBus, speed: 0.1, wet: 1, fxAmp: 0.7]);
 [0, 4, 7, 11].do { |interval |
 	Synth(\pulseSynth, [freq: (60 + interval).midicps, rel: 30, out: ~fxBus, amp: 0.05]);
 };
 )
 
 (
-Synth(\fxFlanger, [in: ~fxBus, speed: 0.2, wet: 1, fxAmp: 0.7]);
+Synth(\fxFlanger, [in: ~fxBus, speed: 0.01, wet: 0.5, fxAmp: 0.5]);
 [0, 3, 7, 10].do { |interval |
-	Synth(\pulseSynth, [freq: (60 + interval).midicps, rel: 30, out: ~fxBus, amp: 0.05]);
+	Synth(\pulseSynth, [freq: (60 + interval).midicps, rel: 60, out: ~fxBus, amp: 0.05]);
 };
 )
 
+(
+Synth(\fxFlanger, [in: ~fxBus, speed: 0.01, wet: 0.5, fxAmp: 0.5]);
+[0, 3, 7].do { |interval |
+	Synth(\pulseSynth, [freq: (60 + interval).midicps, rel: 60, out: ~fxBus, amp: 0.05]);
+};
+)
 
 (
 Synth(\fxFlanger, [in: ~fxBus, wet: 0.5]);
-Synth(\pulseSynth, [freq: 60, rel: 30, out: ~fxBus]);
+Synth(\pulseSynth, [freq: 60, rel: 60, out: ~fxBus]);
 )
 
 ( // Routine

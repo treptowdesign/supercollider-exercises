@@ -14,6 +14,7 @@ SynthDef(\fxFlanger, {
 	speed = \speed.kr(0.2);
 	delayTime = SinOsc.kr(speed, 0).range(0.001, 0.01);
 	feedback = SinOsc.kr(speed, 0).linexp(-1, 1, 0.01, 0.3);
+	// feedback = 0.3;
 	snd = In.ar(\in.kr(0), 2);
 	fx = CombC.ar(snd, 0.01, delayTime, feedback) * \fxAmp.kr(0.5);
 	snd = snd.blend(fx, \wet.kr(0.5));
@@ -29,7 +30,7 @@ SynthDef(\fxFlanger, {
 (
 Synth(\fxFlanger, [in: ~fxBus, speed: 0.1, wet: 1, fxAmp: 0.7]);
 [0, 4, 7, 11].do { |interval |
-	Synth(\pulseSynth, [freq: (60 + interval).midicps, rel: 30, out: ~fxBus, amp: 0.05]);
+	Synth(\pulseSynth, [freq: (60 + interval).midicps, rel: 60, out: ~fxBus, amp: 0.05]);
 };
 )
 

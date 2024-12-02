@@ -2,7 +2,7 @@
 SynthDef(\guitar, {
 	var snd, freq;
 	freq = \freq.kr(80);
-	snd = Pluck.ar(SinOsc.ar(XLine.ar(3000, 50, 0.01) * ExpRand(0.5, 1)) + WhiteNoise.ar, Impulse.ar(0), 0.2, 1 / freq, 20, 0.2);
+	snd = Pluck.ar(SinOsc.ar(XLine.ar(3000, 50, 0.01) * ExpRand(0.5, 1)) + WhiteNoise.ar, Impulse.ar(0), 0.2, 1 / freq, 30, 0.2);
 	snd = snd + FreqShift.ar(CombC.ar(FreqShift.ar(snd, 63), 0.2, 1 / 150, 0.01), -63);
 	snd = snd + FreqShift.ar(CombC.ar(FreqShift.ar(snd, 63), 0.2, 1 / 240, 0.01), -63);
 	snd = snd * Env.linen(0.0, \duration.kr(1.0), 0.6, curve: -4).ar(Done.freeSelf);
@@ -44,10 +44,8 @@ Synth(\guitar, [freq: (60 + 7).midicps, out: ~guitarFx]);
 )
 
 (
-Synth(\guitar, [freq: 80, out: 0]);
+Synth(\guitar, [freq: 60, out: 0, duration: 2]);
 )
-
-
 
 (
 var s, beat, root, scale;
@@ -67,11 +65,6 @@ Routine({
 	};
 }).play;
 )
-
-
-
-
-
 
 (
 SynthDef(\guitar, {

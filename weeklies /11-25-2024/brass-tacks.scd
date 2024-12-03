@@ -448,6 +448,32 @@ rrand(0.0001, 0.0003);
 )
 
 
+(
+{
+	var source = Pulse.ar(60, 0.5, 0.2);
+    var modRate = 0.2;              // Modulation speed
+    var modDepth = 0.02;            // Depth of modulation
+    var feedback = 0.4;             // Feedback for resonance
+    var mix = 0.5;                  // Wet/dry blend
+    var numStages = 8;              // Number of phaser stages
+    var mod, phaser;
+
+    // Smooth LFO for modulation
+    mod = SinOsc.kr(modRate).range(0, modDepth);
+
+    // Build a multi-stage phaser
+    phaser = source;
+    numStages.do {
+        phaser = AllpassC.ar(phaser, 0.05, mod, feedback);
+    };
+
+    // Blend dry and wet signals
+    source.blend(phaser, mix) * 0.5 ! 2;  // Stereo output
+}.play;
+)
+
+
+
 
 
 

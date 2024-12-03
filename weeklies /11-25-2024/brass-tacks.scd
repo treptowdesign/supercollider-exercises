@@ -429,6 +429,26 @@ rrand(0.0001, 0.0003);
 )
 
 
+( // 8 stage phaser
+{
+    var source = Pulse.ar(220, 0.5, 0.2);  // Input signal
+    var modFreq = 0.2;              // Modulation frequency
+    var modDepth = 0.01;            // Modulation depth
+    var feedback = 0.6;             // Feedback amount
+    var mod = SinOsc.kr(modFreq).range(0, modDepth);  // LFO for modulation
+
+    // 8 all-pass filters in series
+    var phaser = source;
+    8.do {
+        phaser = AllpassC.ar(phaser, modDepth, mod, feedback);
+    };
+
+    source.blend(phaser, 0.6) * 0.5 ! 2;  // Stereo output
+}.play;
+)
+
+
+
 
 
 

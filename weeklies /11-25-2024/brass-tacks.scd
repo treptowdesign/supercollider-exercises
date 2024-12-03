@@ -450,10 +450,11 @@ rrand(0.0001, 0.0003);
 
 (
 {
-	var source = Pulse.ar(60, 0.5, 0.2);
+	// var source = Pulse.ar(60, 0.5, 0.2);
+	var source = WhiteNoise.ar(0.1);
     var modRate = 0.2;              // Modulation speed
     var modDepth = 0.02;            // Depth of modulation
-    var feedback = 0.4;             // Feedback for resonance
+    var feedback = 0.7;             // Feedback for resonance
     var mix = 0.5;                  // Wet/dry blend
     var numStages = 8;              // Number of phaser stages
     var mod, phaser;

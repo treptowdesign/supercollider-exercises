@@ -34,14 +34,19 @@ SynthDef(\harmonicsOctaves, {
 SynthDef(\harmonics, {
 	var freq, partials, snd;
 	partials = (1..10);
-	freq = \freq.kr(180) * partials * ({LFNoise1.kr(1.0.rand) * 0.3} ! 10).midiratio;
-	snd = SinOsc.ar(freq) * (1..10).linlin(1, 10, 1.0, 0.05);
+	freq = \freq.kr(160) * partials * ({LFNoise1.kr(1.0.rand) * 0.1} ! 10).midiratio;
+	snd = SinOsc.ar(freq) * (1..10).linlin(1, 10, 1.0, 0.1);
 	snd = snd.sum;
 	snd = snd * Env.perc(0.001, 10).ar(Done.freeSelf);
 	snd = snd * 0.1 ! 2;
 	Out.ar(0, snd)
 }).play;
 )
+
+
+
+160 * ([1] ++ (2 ** (1..4)))
+160 * (1..10)
 
 
 

@@ -185,20 +185,21 @@ Synth(\detPulse, [freq: (42 + 7 + (12 * 5)).midiratio, bend: -6]);
 SynthDef(\detSin, {
 	var snd, count, freq, duration;
 	count = 5;
-	duration = \duration.kr(1);
+	duration = \duration.kr(4);
 	freq = \freq.kr(440) * Line.kr(\bend.kr(-6), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq * (( {LFNoise2.kr(0.4)} ! count) * 0.4).midiratio, { Rand(0 , 2pi) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
 	snd = snd * Env.linen(0.01, duration, 0.1).ar(Done.freeSelf);
 	snd = snd * \amp.kr(0.dbamp);
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 )
 
 (
 Synth(\detSin, [freq: (42 + 0 + (12 * 5)).midiratio]);
-Synth(\detSin, [freq: (42 + 3 + (12 * 5)).midiratio]);
+Synth(\detSin, [freq: (42 + 4 + (12 * 5)).midiratio]);
 Synth(\detSin, [freq: (42 + 7 + (12 * 5)).midiratio]);
+Synth(\detSin, [freq: (42 + 11 + (12 * 5)).midiratio]);
 )
 
 

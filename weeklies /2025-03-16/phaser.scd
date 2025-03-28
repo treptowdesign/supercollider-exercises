@@ -72,14 +72,38 @@ SynthDef(\src, { |out=0, freq=330|
 }).add;
 )
 
+
+////////////////////////////////////
+// Phaser Effect
+
+(
+SynthDef(\phaser, { |out=0, in=0, rate=0.1, depth=0.5, feedback=0.7, mix=0.5|
+    var input, phased, output;
+    input = In.ar(in, 2);
+    phased = input;
+    4.do { |i|
+		var iLfo, iNoise;
+		iNoise = (LFNoise1.kr(1) * 0.2).midiratio;
+		iLfo = SinOsc.kr(rate * iNoise, (i * 0.2pi), depth, 1).lag((i).midiratio -1);
+		phased = AllpassC.ar(phased, 0.05, iLfo * (i + 1) * 0.01, feedback);
+    };
+    output = XFade2.ar(input, phased, mix * 2 - 1);
+    Out.ar(out, output);
+}).add;
+SynthDef(\src, { |out=0, freq=330|
+	var sig = Pulse.ar(freq) * 0.4;
+    Out.ar(out, sig ! 2);
+}).add;
+)
+
 // fx bus
 ~phaserBus = Bus.audio(s, 2);
 ~phaserBus.index;
 ~phaserBus.free;
 
 ( // phased
-~phaser = Synth(\phaser, [in: ~phaserBus, out: 0, rate: 0.01, mix: 0.7, feedback: 0.8]);
-~source = Synth(\src, [out: ~phaserBus, freq: 220]);
+~phaser = Synth(\phaser, [in: ~phaserBus, out: 0, rate: 0.06, mix: 0.8, feedback: 0.8]);
+// ~source = Synth(\src, [out: ~phaserBus, freq: 220]);
 )
 
 ( // dry Saw

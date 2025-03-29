@@ -31,6 +31,7 @@ SynthDef(\reeseBass, {
 // Play Reese Bass:
 Synth(\reeseBass, [\freq, 80, \detune, 0.02, \amp, 0.4, \cutoff, 1200]);
 
+
 ///////////////////////////////////////////////////////////
 // Acid Bass
 ///////////////////////////////////////////////////////////
@@ -42,7 +43,7 @@ SynthDef(\acidBass, {
 	// Single saw wave oscillator
 	osc = Saw.ar(freq);
 	// Quick envelope for amplitude (typical of acid bass)
-	env = EnvGen.kr(Env.adsr(0.01, 0.2, 0.5, 0.1), gate, doneAction:2);
+	env = EnvGen.kr(Env.adsr(0.01, 0.2, 0.5, 0.1), gate, doneAction: 2);
 	// Short envelope for filter modulation (accent effect)
 	filterEnv = EnvGen.kr(Env.perc(0.01, 0.3), gate, levelScale: 800, levelBias: cutoff);
 	// Resonant low-pass filter (Moog-style ladder filter)
@@ -101,7 +102,7 @@ Pbind(
 	\instrument, \bass808,
 	\degree, Pseq([0, Rest(), Rest(), 0, Rest(), 3, -2, Rest()], inf),
 	\scale, Scale.minor,
-	\octave, 2,
+	\octave, 3,
 	\dur, 0.5,
 	\decay, 1.5,
 	\amp, 0.8
@@ -127,7 +128,7 @@ SynthDef(\classicPad, {
 	filter = LPF.ar(osc, lfo);
 	// Slow amplitude envelope
 	ampEnv = EnvGen.kr(
-		Env.adsr(attackTime: 2.5, decayTime: 1, sustainLevel: 0.7, releaseTime: 3),
+		Env.adsr(attackTime: 0.01, decayTime: 1, sustainLevel: 0.7, releaseTime: 3),
 		gate,
 		doneAction:2
 	);
@@ -275,7 +276,7 @@ Pbind(
 	\instrument, \moogBass,
 	\scale, Scale.minor,
 	\degree, Pseq([0, Rest(), 0, -2, -3, -2], inf),
-	\dur, 0.5,
+	\dur, 0.25,
 	\cutoff, Pseq([800, 600, 700, 650], inf),
 	\res, 0.4,
 	\octave, 4,
@@ -446,9 +447,9 @@ Pbind(
 	\instrument, \junoPad,
 	\dur, 5,
 	\amp, 0.2,
-	\scale, Scale.major,
+	\scale, Scale.phrygian,
 	\degree, Pseq([[0,2,4],[5,7,9],[3,5,7],[4,6,8]], inf),
-	\octave, 4,
+	\octave, 5,
 	\cutoff, Pseq([1500, 1200, 1400, 1300], inf),
 	\legato, 1.1
 ).play;
@@ -463,24 +464,15 @@ Pbind(
 SynthDef(\organ, {
 	arg freq=440, amp=0.4, gate=1, vibRate=5, vibDepth=0.003;
 	var osc, env, vibrato, mix;
-
-	// Simulate drawbars: harmonic series (8', 4', 2 2/3', etc.)
 	osc = Mix([
 		SinOsc.ar(freq, 0, 0.5),       // Fundamental
 		SinOsc.ar(freq*2, 0, 0.3),     // Octave
 		SinOsc.ar(freq*3, 0, 0.2),     // Fifth above octave
 		SinOsc.ar(freq*4, 0, 0.1)      // Two octaves above
 	]);
-
-	// Gentle vibrato (Leslie effect approximation)
 	vibrato = osc * SinOsc.kr(vibRate, 0, vibDepth, 1);
-
-	// Amplitude envelope
 	env = EnvGen.kr(Env.asr(0.01, 1.0, 0.5), gate, doneAction:2);
-
-	// Mild distortion (tube warmth)
 	mix = (vibrato * env).tanh;
-
 	Out.ar(0, mix * amp ! 2);
 }).add;
 )

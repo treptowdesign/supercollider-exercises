@@ -3,7 +3,7 @@
 SynthDef(\kick, {
 	arg amp=0.8, freq=60, decay=0.5;
 	var env, pitchEnv, osc;
-	pitchEnv = EnvGen.kr(Env.perc(0.001, 0.12), levelScale: freq*2, levelBias: freq);
+	pitchEnv = EnvGen.kr(Env.perc(0.001, 0.12), levelScale: freq*2.5, levelBias: freq);
 	env = EnvGen.kr(Env.perc(0.001, decay), doneAction: 2);
 	osc = SinOsc.ar(pitchEnv) * env * amp;
 	// osc = osc.tanh;
@@ -29,7 +29,7 @@ SynthDef(\clap, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hihat, {
-	arg amp=0.3, decay=0.12;
+	arg amp=0.3, decay=0.09;
 	var env, noise, hat;
 	env = EnvGen.kr(Env.perc(0.001, decay), doneAction:2);
 	noise = WhiteNoise.ar();
@@ -38,7 +38,7 @@ SynthDef(\hihat, {
 }).add;
 SynthDef(\technoArp, {
 	arg freq=440, amp=0.3, gate=1, cutoff=2000, res=0.3, outBus=0;
-	var osc, filt, env;
+	var osc, filt, env, snd, chorus;
 	osc = Saw.ar(freq);
 	filt = RLPF.ar(osc, cutoff.clip(400,5000), res.linlin(0,1,0.1,0.9));
 	env = EnvGen.kr(
@@ -46,7 +46,12 @@ SynthDef(\technoArp, {
 		gate,
 		doneAction:2
 	);
-	Out.ar(outBus, filt * env * amp ! 2); // output to custom bus
+	snd = filt * env * amp;
+	chorus = Mix.fill(2, { |i|
+		DelayC.ar(snd, 0.03, SinOsc.kr(0.2 + (0.1 * i)).range(0.01,0.025))
+	}).tanh;
+	// snd = Mix([snd, chorus]);
+	Out.ar(outBus, snd ! 2); // output to custom bus
 }).add;
 SynthDef(\rhythmicDelay, {
 	arg inBus, delayTime=0.3, feedback=0.1;
@@ -64,32 +69,28 @@ SynthDef(\rhythmicDelay, {
 // PATTERN A
 (
 ~beat = 0.75;
-// Kick Pattern
 Pbind(
 	\instrument, \kick,
 	\dur, Pseq([~beat, Rest(~beat), ~beat, Rest(~beat/2), ~beat/2], inf),
-	\freq, 60,
-	\amp, 1.4,
+	\freq, 50,
+	\decay, 0.4,
+	\amp, 0.6,
 ).play;
-
 Pbind(
 	\instrument, \snare,
 	\dur, Pseq([Rest(~beat), ~beat], inf),
-	\amp, 0.3,
+	\amp, 0.1,
 ).play;
-
 Pbind(
 	\instrument, \clap,
 	\dur, Pseq([Rest(~beat), ~beat], inf),
-	\amp, 1.2,
+	\amp, 0.8,
 ).play;
-
 Pbind(
 	\instrument, \hihat,
 	\dur, ~beat/8,
-	\amp, Pseq([0.2, 0.02, 0.1, 0.02, 0.3, 0.03, 0.1, 0.02], inf)
+	\amp, Pseq([0.4, 0.01, 0.1, 0.02, 0.3, 0.03, 0.1, 0.02], inf)
 ).play;
-
 Pbind(
 	\instrument, \technoArp,
 	\degree, Pseq([0,4,7,12,7,4], inf),
@@ -97,18 +98,16 @@ Pbind(
 	\octave, Pseq([2,3,4], inf),
 	\dur, ~beat/2,
 	\cutoff, Pseg([1600,4000,1600], [~beat * 4, ~beat * 4], \exp, inf),
-	\amp, 0.3,
+	\amp, 0.4,
 	\outBus, ~arpBus
 ).play;
-
-// Delay Synth
-Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/4, \feedback, 0.2]);
+// Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/4, \feedback, 0.2]);
+Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/4, \feedback, 1]);
 )
 
 // PATTERN B
 (
 ~beat = 0.5;
-// Kick Pattern
 Pbind(
 	\instrument, \kick,
 	\dur, Pseq([~beat, Rest(~beat), ~beat, Rest(~beat/2), ~beat/2], inf),
@@ -141,10 +140,10 @@ Pbind(
 	\octave, Pseq([2,3,4], inf),
 	\dur, ~beat/4,
 	\cutoff, Pseg([1600,4000,1600], [~beat * 4, ~beat * 4], \exp, inf),
-	\amp, 0.3,
+	\amp, 0.2,
 	\outBus, ~arpBus
 ).play;
 
 // Delay Synth
-Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/8, \feedback, 0.2]);
+Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/4, \feedback, 0.2]);
 )

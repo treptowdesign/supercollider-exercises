@@ -745,7 +745,7 @@ Pbind(
 	\degree, Pseq([0,-3,-5,-2], inf),  // slow-moving harmonic shifts
 	\scale, Scale.minor,
 	\octave, 4,
-	\dur, 10,        // long duration to allow full evolution
+	\dur, 5,        // long duration to allow full evolution
 	\cutoff, 1200,
 	\res, 0.3,
 	\amp, 0.4,

@@ -257,7 +257,7 @@ Pbind(
 Pbind(
 	\instrument, \choirPad,
 	\dur, ~beat * 8,
-	\amp, 0.1,
+	\amp, 0.2,
 	\scale, Scale.phrygian,
 	\degree, Pseq([[0,2,4],[5,7,9],[-2,0,3],[4,6,8]], inf),
 	\octave, 5,

@@ -20,7 +20,6 @@ SynthDef(\kick, {
 	pitchEnv = EnvGen.kr(Env.perc(0.001, 0.08), levelScale: freq*3, levelBias: freq);
 	env = EnvGen.kr(Env.perc(0.001, decay), doneAction: 2);
 	osc = SinOsc.ar(pitchEnv) * env * amp;
-	// osc = osc.tanh;
 	Out.ar(0, osc.dup);
 }).add;
 SynthDef(\snare, {
@@ -80,10 +79,6 @@ SynthDef(\technoArp, {
 		doneAction:2
 	);
 	snd = filt * env * amp;
-	/*chorus = Mix.fill(2, { |i|
-		DelayC.ar(snd, 0.03, SinOsc.kr(0.2 + (0.1 * i)).range(0.01,0.025))
-	}).tanh;*/
-	// snd = Mix([snd, chorus]);
 	Out.ar(outBus, snd ! 2); // output to custom bus
 }).add;
 SynthDef(\technoArpChorus, {

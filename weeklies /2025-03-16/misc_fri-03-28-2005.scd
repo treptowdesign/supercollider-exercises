@@ -295,7 +295,7 @@ SynthDef(\vinylCrackle, {
 	arg amp=0.2, density=5;
 	var noise, clicks, crackle;
 	// Background low-level white noise
-	noise = WhiteNoise.ar(0.02);
+	noise = WhiteNoise.ar(0.01);
 	// Random impulse generator for pops and clicks
 	clicks = Dust.ar(density); // Adjust density for more or fewer pops
 	// Short percussive envelope on clicks
@@ -647,7 +647,7 @@ SynthDef(\analogStrings, {
 (
 Pbind(
 	\instrument, \analogStrings,
-	\dur, 6,
+	\dur, 2,
 	\amp, 0.2,
 	\scale, Scale.minor,
 	\degree, Pseq([[0,2,4],[5,7,9],[3,5,7],[-2,0,3]], inf),
@@ -748,7 +748,7 @@ Pbind(
 	\dur, 5,        // long duration to allow full evolution
 	\cutoff, 1200,
 	\res, 0.3,
-	\amp, 0.4,
+	\amp, 0.4,.
 	\legato, 1.2     // overlapping notes for seamless drones
 ).play;
 )

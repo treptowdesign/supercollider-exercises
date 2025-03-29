@@ -69,11 +69,13 @@ Pdef(\phraseC, Pbind(
 	\degree, Prand([0, 1, 2, 3, 4, 5, 6, 7], inf),
 	\scale, Scale.lydian,
 	\root, 0,
-	\octave, 4,
+	\octave, 2,
 	\amp, 0.2
 ));
 )
 
+
+// in sequence
 (
 Pdef(\switcher, Pseq([
 	Pfindur(4 * ~beat, Pdef(\phraseA)),
@@ -82,6 +84,7 @@ Pdef(\switcher, Pseq([
 ], inf)).play;
 )
 
+// in random
 (
 Pdef(\switcher, Prand([
 	Pfindur(4 * ~beat, Pdef(\phraseA)),
@@ -90,5 +93,22 @@ Pdef(\switcher, Prand([
 ], inf)).play;
 )
 
+// in random (no repeats)
+(
+Pdef(\switcher, Pxrand([
+	Pfindur(4 * ~beat, Pdef(\phraseA)),
+	Pfindur(4 * ~beat, Pdef(\phraseB)),
+	Pfindur(4 * ~beat, Pdef(\phraseC)),
+], inf)).play;
+)
+
+// in weighted random
+(
+Pdef(\switcher, Pwrand([
+	Pfindur(4 * ~beat, Pdef(\phraseA)),
+	Pfindur(4 * ~beat, Pdef(\phraseB)),
+	Pfindur(4 * ~beat, Pdef(\phraseC)),
+], [0.5, 0.2, 0.3], inf)).play; // probabilities: A 50%, B 20%, C 30%
+)
 
 

@@ -20,7 +20,7 @@ SynthDef(\kick, {
 	pitchEnv = EnvGen.kr(Env.perc(0.001, 0.08), levelScale: freq*3, levelBias: freq);
 	env = EnvGen.kr(Env.perc(0.001, decay), doneAction: 2);
 	osc = SinOsc.ar(pitchEnv) * env * amp;
-	Out.ar(0, osc.dup);
+	Out.ar(0, osc ! 2);
 }).add;
 SynthDef(\snare, {
 	arg amp=0.5, decay=0.15;
@@ -44,8 +44,8 @@ SynthDef(\clap, {
 SynthDef(\hihat, {
 	arg amp=0.3, decay=0.09;
 	var env, noise, hat;
-	env = EnvGen.kr(Env.perc(0.001, decay), doneAction:2);
-	// env = Env.perc(0.001, decay).kr(Done.freeSelf);
+	// env = EnvGen.kr(Env.perc(0.001, decay), doneAction: 2);
+	env = Env.perc(0.001, decay).kr(Done.freeSelf);
 	noise = WhiteNoise.ar();
 	hat = HPF.ar(noise, 6000);
 	Out.ar(0, hat * env * amp ! 2);
@@ -109,6 +109,7 @@ SynthDef(\rhythmicDelay, {
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 // PATTERN A
+// no pad, slow arp with no arp chorus
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 (
@@ -152,6 +153,7 @@ Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/4, \feedback, 0.8]);
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 // PATTERN B
+// faster bpm, vocal pad added, slower hats
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 (
@@ -163,19 +165,16 @@ Pbind(
 	\freq, 60,
 	\amp, 0.5,
 ).play;
-
 Pbind(
 	\instrument, \snare,
 	\dur, Pseq([Rest(~beat), ~beat], inf),
 	\amp, 0.3,
 ).play;
-
 Pbind(
 	\instrument, \clap,
 	\dur, Pseq([Rest(~beat), ~beat], inf),
 	\amp, 0.8,
 ).play;
-
 Pbind(
 	\instrument, \hihat,
 	\dur, ~beat/4,
@@ -217,6 +216,7 @@ Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/4, \feedback, 0.2]);
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 // PATTERN C
+// mid tempo, chorus on arp
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 (
@@ -228,13 +228,11 @@ Pbind(
 	\freq, 60,
 	\amp, 0.6,
 ).play;
-
 Pbind(
 	\instrument, \snare,
 	\dur, Pseq([Rest(~beat), ~beat], inf),
 	\amp, 0.3,
 ).play;
-
 Pbind(
 	\instrument, \clap,
 	\dur, Pseq([Rest(~beat), ~beat], inf),

@@ -60,8 +60,54 @@ SynthDef(\rhythmicDelay, {
 ~arpBus = Bus.audio(s, 2);
 ~arpBus.index;
 
+
+// PATTERN A
 (
 ~beat = 0.75;
+// Kick Pattern
+Pbind(
+	\instrument, \kick,
+	\dur, Pseq([~beat, Rest(~beat), ~beat, Rest(~beat/2), ~beat/2], inf),
+	\freq, 60,
+	\amp, 1.4,
+).play;
+
+Pbind(
+	\instrument, \snare,
+	\dur, Pseq([Rest(~beat), ~beat], inf),
+	\amp, 0.3,
+).play;
+
+Pbind(
+	\instrument, \clap,
+	\dur, Pseq([Rest(~beat), ~beat], inf),
+	\amp, 1.2,
+).play;
+
+Pbind(
+	\instrument, \hihat,
+	\dur, ~beat/8,
+	\amp, Pseq([0.2, 0.02, 0.1, 0.02, 0.3, 0.03, 0.1, 0.02], inf)
+).play;
+
+Pbind(
+	\instrument, \technoArp,
+	\degree, Pseq([0,4,7,12,7,4], inf),
+	\scale, Scale.phrygian,
+	\octave, Pseq([2,3,4], inf),
+	\dur, ~beat/2,
+	\cutoff, Pseg([1600,4000,1600], [~beat * 4, ~beat * 4], \exp, inf),
+	\amp, 0.3,
+	\outBus, ~arpBus
+).play;
+
+// Delay Synth
+Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/4, \feedback, 0.2]);
+)
+
+// PATTERN B
+(
+~beat = 0.5;
 // Kick Pattern
 Pbind(
 	\instrument, \kick,
@@ -93,13 +139,12 @@ Pbind(
 	\degree, Pseq([0,4,7,12,7,4], inf),
 	\scale, Scale.phrygian,
 	\octave, Pseq([2,3,4], inf),
-	\dur, ~beat/2,
-	\cutoff, Pseg([1200,4000,1200], [~beat * 4, ~beat * 4], \exp, inf),
-	\amp, 0.24,
+	\dur, ~beat/4,
+	\cutoff, Pseg([1600,4000,1600], [~beat * 4, ~beat * 4], \exp, inf),
+	\amp, 0.3,
 	\outBus, ~arpBus
 ).play;
 
 // Delay Synth
-Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/4, \feedback, 0.2]);
+Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/8, \feedback, 0.2]);
 )
-

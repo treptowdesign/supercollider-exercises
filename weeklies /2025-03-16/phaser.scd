@@ -11,6 +11,27 @@ SynthDef(\test, {
 }).play;
 )
 
+// Phaser Effect (Basic)
+
+(
+SynthDef(\phaser, { |out=0, in=0, rate=0.1, depth=0.5, feedback=0.7, mix=0.5|
+    var input, phased, lfo, output;
+    input = In.ar(in, 2);
+	lfo = SinOsc.kr(rate, 0, depth, 1);
+    phased = input;
+    4.do { |i|
+		phased = AllpassC.ar(phased, 0.05, lfo * (i + 1) * 0.01, feedback);
+    };
+    output = XFade2.ar(input, phased, mix * 2 - 1);
+    Out.ar(out, output);
+}).add;
+
+SynthDef(\src, { |out=0, freq=330|
+    var sig = Saw.ar(freq) * 0.3;
+    Out.ar(out, sig ! 2);
+}).add;
+)
+
 // Phaser Effect (RAND)
 
 (
@@ -103,7 +124,7 @@ SynthDef(\src, { |out=0, freq=330|
 
 ( // phased
 ~phaser = Synth(\phaser, [in: ~phaserBus, out: 0, rate: 0.06, mix: 0.8, feedback: 0.8]);
-// ~source = Synth(\src, [out: ~phaserBus, freq: 220]);
+~source = Synth(\src, [out: ~phaserBus, freq: 220]);
 )
 
 ( // dry Saw

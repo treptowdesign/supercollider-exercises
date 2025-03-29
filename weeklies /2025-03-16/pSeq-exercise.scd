@@ -47,21 +47,29 @@ Pbind(
 (
 Pdef(\phraseA, Pbind(
 	\instrument, \simpleSynth,
-	\dur, Pseq([0.5, 0.25, 0.25, 0.5, 1], inf) * ~beat / 2,
+	\dur, Pseq([0.5, 0.25, 0.25, 0.5, 1], inf) * ~beat / 4,
 	\degree, Prand([0, 1, 2, 3, 4, 5, 6, 7], inf),
 	\scale, Scale.phrygian,
+	\root, 0,
+	\octave, 3,
+	\amp, 0.2
+));
+Pdef(\phraseB, Pbind(
+	\instrument, \simpleSynth,
+	\dur, Pseq([0.5, 0.25, 0.25, 0.5, 1], inf) * ~beat * 4,
+	\degree, Prand([0, 1, 2, 3, 4, 5, 6, 7], inf),
+	\scale, Scale.ionian,
 	\root, 0,
 	\octave, 2,
 	\amp, 0.2
 ));
-
-Pdef(\phraseB, Pbind(
+Pdef(\phraseC, Pbind(
 	\instrument, \simpleSynth,
-	\dur, Pseq([0.5, 0.25, 0.25, 0.5, 1], inf) * ~beat * 2,
+	\dur, Pseq([0.5, 0.25, 0.25, 0.5, 1], inf) * ~beat,
 	\degree, Prand([0, 1, 2, 3, 4, 5, 6, 7], inf),
-	\scale, Scale.aeolian,
+	\scale, Scale.lydian,
 	\root, 0,
-	\octave, 6,
+	\octave, 4,
 	\amp, 0.2
 ));
 )
@@ -70,6 +78,15 @@ Pdef(\phraseB, Pbind(
 Pdef(\switcher, Pseq([
 	Pfindur(4 * ~beat, Pdef(\phraseA)),
 	Pfindur(4 * ~beat, Pdef(\phraseB)),
+	Pfindur(4 * ~beat, Pdef(\phraseC)),
+], inf)).play;
+)
+
+(
+Pdef(\switcher, Prand([
+	Pfindur(4 * ~beat, Pdef(\phraseA)),
+	Pfindur(4 * ~beat, Pdef(\phraseB)),
+	Pfindur(4 * ~beat, Pdef(\phraseC)),
 ], inf)).play;
 )
 

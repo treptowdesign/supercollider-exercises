@@ -145,7 +145,7 @@ Synth(\rhythmicDelay, [\inBus, ~arpBus, \delayTime, ~beat/4, \feedback, 0.8]);
 // PATTERN B
 //////////////////////////////////////////////////////////////////////////////////////////
 (
-~beat = 0.6;
+~beat = 0.5;
 Pbind(
 	\instrument, \kick,
 	\dur, Pseq([~beat, Rest(~beat), ~beat, Rest(~beat/2), ~beat/2], inf),
@@ -228,11 +228,6 @@ Pbind(
 	\dur, Pseq([Rest(~beat), ~beat], inf),
 	\amp, 0.8,
 ).play;
-/*Pbind(
-	\instrument, \hihat,
-	\dur, ~beat/8,
-	\amp, Pseq([0.2, 0.02, 0.1, 0.02, 0.3, 0.03, 0.1, 0.02], inf)
-).play;*/
 Pbind(
 	\instrument, \hihat,
 	\dur, ~beat/4,

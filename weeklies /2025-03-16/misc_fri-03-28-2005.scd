@@ -218,11 +218,10 @@ Pbind(
 SynthDef(\classicLead, {
 	arg freq=440, amp=0.4, gate=1, vibRate=5, vibDepth=5;
 	var osc, env, vibrato;
-	// Subtle vibrato
+	// subtle vibrato
 	vibrato = SinOsc.kr(vibRate, 0, vibDepth, freq);
-	// Single sawtooth oscillator
+	// single sawtooth oscillator
 	osc = Saw.ar(vibrato);
-	// Quick amplitude envelope (ADSR)
 	env = EnvGen.kr(
 		Env.adsr(0.01, 0.1, 0.8, 0.2),
 		gate,
@@ -238,10 +237,14 @@ Pbind(
 	\scale, Scale.minorPentatonic,
 	\degree, Pseq([0, 2, 3, 2, 4, 3, 2, 0], inf),
 	\dur, 0.25,
-	\octave, 5,
+	\octave, 4,
+	\vibRate, 5,
+	\vibDepth, 5,
 	\amp, 0.1
 ).play;
 )
+
+{SinOsc.kr(5, 0, 5, 440)}.plot(0.2);
 
 
 ///////////////////////////////////////////////////////////

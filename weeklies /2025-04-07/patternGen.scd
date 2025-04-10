@@ -131,8 +131,10 @@ var scale = Scale.aeolian.degrees;
 		var degrees = nextArray.collect(_.first);
 		var weights = nextArray.collect(_.last).normalizeSum;
 
-		var dur = [1, 0.5, 0.25].wchoose([0.2, 0.5, 0.3]);
-		var octave = [0, 1, 2].wchoose([0.1, 0.5, 0.4]);
+		// var dur = [1, 0.5, 0.25].wchoose([0.2, 0.5, 0.3]);
+		// var octave = [0, 1, 2].wchoose([0.1, 0.5, 0.4]);
+		var dur = [1, 0.5, 0.25].choose();
+		var octave = [0, 1, 2].choose();
 
 		if ((totalDur + dur) > beatLength) {
 			dur = beatLength - totalDur;
@@ -212,7 +214,7 @@ Routine({
 			};
 
 			// alter the pattern
-			currentPattern = ~alterPattern.(currentPattern, 2);
+			currentPattern = ~alterPattern.(currentPattern, (1..3).choose);
 			"Pattern altered: %".format(currentPattern).postln;
 		};
 	};

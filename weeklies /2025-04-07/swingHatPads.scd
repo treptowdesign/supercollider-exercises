@@ -81,6 +81,19 @@ SynthDef(\choirPad, {
 	snd = Mix([snd, chorus]);
 	Out.ar(0, snd ! 2);
 }).add;
+SynthDef(\fmBass, {
+	arg freq=50, amp=0.6, modIndex=3, modRatio=2, gate=1;
+	var carrier, modulator, env, modEnv;
+	env = EnvGen.kr(
+		Env.adsr(attackTime:0.01, decayTime:0.2, sustainLevel:0.7, releaseTime:0.3),
+		gate,
+		doneAction:2
+	);
+	modEnv = EnvGen.kr(Env.perc(0.01, 0.2), levelScale: modIndex);
+	modulator = SinOsc.ar(freq * modRatio, 0, freq * modEnv);
+	carrier = SinOsc.ar(freq + modulator);
+	Out.ar(0, carrier * env * amp ! 2);
+}).add;
 )
 
 
@@ -99,12 +112,22 @@ Pbind(
 Pbind(
 	\instrument, \junoPad,
 	\dur, ~beat * 4,
-	\amp, 0.1,
+	\amp, 0.2,
 	\scale, Scale.aeolian,
 	\degree, Pseq([[0,2,4,6],[1,3,5,7]], inf),
 	\octave, 4,
 	\cutoff, Pseq([1500, 1200, 1400, 1300], inf),
 	\legato, 1
+).play;
+Pbind(
+	\instrument, \fmBass,
+	\degree, Pseq([0, -2, -3, -2], inf),
+	\scale, Scale.aeolian,
+	\octave, 4,
+	\dur, Pseq([Rest(~beat), ~beat/4, ~beat/4, ~beat/2, Rest(~beat), ~beat/2, Rest(~beat/2)], inf),
+	\modIndex, Pseq([4,2,3],inf),
+	\modRatio, 3,
+	\amp, 0.3
 ).play;
 Pbind(
 	\instrument, \kick,
@@ -128,8 +151,9 @@ Pbind(
 Pbind(
 	\instrument, \hihat,
 	\dur, ~beat/4,
-	\amp, Pseq([0.65, 0.5, 0.55, 0.6] * 0.5, inf),
+	\amp, Pseq([0.65, 0.5, 0.55, 0.6] * 0.4, inf),
 	\out, ~hatBus
 ).play;
 Synth(\swingLag, [\inBus, ~hatBus, \lagTime, ~beat/7.3]);
 )
+

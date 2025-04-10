@@ -1,4 +1,7 @@
+
+(
 ~hatBus = Bus.audio(s, 2); // set this bus
+)
 ~hatBus.index;
 
 
@@ -35,15 +38,15 @@ SynthDef(\clap, { |lagTime=0|
 }).add;
 SynthDef(\hihat, { |amp=0.3, decay=0.03, out=0|
 	var env, noise, hat;
-	env = Env.perc(0.001, decay).kr(Done.freeSelf);
+	env = Env.perc(0.001, decay, curve: -4).kr(Done.freeSelf);
 	noise = WhiteNoise.ar();
-	hat = HPF.ar(noise, 6600);
+	hat = HPF.ar(noise, 6300);
 	Out.ar(out, hat * env * amp ! 2);
 }).add;
 SynthDef(\swingLag, { |inBus=0, lagTime=0|
 	var snd, delayed;
 	snd = In.ar(inBus, 2);
-	delayed = DelayN.ar(snd, lagTime, lagTime) * 0.8;
+	delayed = DelayN.ar(snd, lagTime, lagTime) * 1;
 	snd = snd + delayed;
 	snd = FreeVerb.ar(snd, 0.1, 0.8, 0.6);
 	Out.ar(0, snd);
@@ -85,21 +88,29 @@ SynthDef(\fmBass, {
 	arg freq=50, amp=0.6, modIndex=3, modRatio=2, gate=1;
 	var carrier, modulator, env, modEnv;
 	env = EnvGen.kr(
-		Env.adsr(attackTime:0.01, decayTime:0.2, sustainLevel:0.7, releaseTime:0.3),
+		Env.adsr(attackTime: 0.001, decayTime: 0.2, sustainLevel: 0.7, releaseTime: 0.3),
 		gate,
-		doneAction:2
+		doneAction: 2
 	);
 	modEnv = EnvGen.kr(Env.perc(0.01, 0.2), levelScale: modIndex);
 	modulator = SinOsc.ar(freq * modRatio, 0, freq * modEnv);
 	carrier = SinOsc.ar(freq + modulator);
 	Out.ar(0, carrier * env * amp ! 2);
 }).add;
+SynthDef(\vinylCrackle, { | amp=0.2, density=5 |
+	var noise, clicks, crackle;
+	noise = WhiteNoise.ar(0.01);
+	clicks = Dust.ar(density);
+	crackle = clicks * Decay.ar(clicks, 0.01, WhiteNoise.ar(0.5));
+	crackle = HPF.ar(crackle, 1000);
+	Out.ar(0, (noise + crackle) * amp ! 2);
+}).add;
 )
 
 
 
 (
-~beat = 1;
+~beat = 0.9;
 Pbind(
 	\instrument, \choirPad,
 	\dur, ~beat * 4,
@@ -112,7 +123,7 @@ Pbind(
 Pbind(
 	\instrument, \junoPad,
 	\dur, ~beat * 4,
-	\amp, 0.2,
+	\amp, 0.15,
 	\scale, Scale.aeolian,
 	\degree, Pseq([[0,2,4,6],[1,3,5,7]], inf),
 	\octave, 4,
@@ -121,20 +132,24 @@ Pbind(
 ).play;
 Pbind(
 	\instrument, \fmBass,
-	\degree, Pseq([0, -2, -3, -2], inf),
+	\degree, Pseq([0, 0, 0, -3, 0, 0], inf),
 	\scale, Scale.aeolian,
 	\octave, 4,
-	\dur, Pseq([Rest(~beat), ~beat/4, ~beat/4, ~beat/2, Rest(~beat), ~beat/2, Rest(~beat/2)], inf),
-	\modIndex, Pseq([4,2,3],inf),
-	\modRatio, 3,
-	\amp, 0.3
+	\dur, Pseq([
+		Rest(~beat), ~beat/4, ~beat/4, ~beat/2, Rest(~beat), ~beat/2, Rest(~beat/2),
+		Rest(~beat), Rest(~beat/4), ~beat/4, ~beat/2, Rest(~beat), Rest(~beat/2), Rest(~beat/2)
+	], inf),
+	\modIndex, 2,
+	\modRatio, 2,
+	\amp, 0.24,
+	\legato, 1
 ).play;
 Pbind(
 	\instrument, \kick,
 	\dur, Pseq([~beat, Rest(~beat), ~beat, Rest(~beat/2), ~beat/2], inf),
 	\freq, 50,
 	\decay, ~beat,
-	\amp, 0.5,
+	\amp, 0.6,
 ).play;
 Pbind(
 	\instrument, \snare,
@@ -146,14 +161,17 @@ Pbind(
 	\instrument, \clap,
 	\dur, Pseq([Rest(~beat), ~beat], inf),
 	\amp, 0.8,
-	\lagTime, 0.017
+	\lagTime, 0.018
 ).play;
 Pbind(
 	\instrument, \hihat,
-	\dur, ~beat/4,
-	\amp, Pseq([0.65, 0.5, 0.55, 0.6] * 0.4, inf),
+	\dur, Pseq([~beat/2, ~beat/2, ~beat/2, ~beat/2, ~beat/2, ~beat/2, ~beat/2, ~beat/8, ~beat/8, ~beat/8, ~beat/8], inf),
+	\amp, Pseq([0.65, 0.5, 0.55, 0.6] * 0.21, inf),
 	\out, ~hatBus
 ).play;
-Synth(\swingLag, [\inBus, ~hatBus, \lagTime, ~beat/7.3]);
+Synth(\vinylCrackle, [\amp, 0.2, \density, 10]);
+Synth(\swingLag, [\inBus, ~hatBus, \lagTime, ~beat/4.1]);
 )
+
+
 

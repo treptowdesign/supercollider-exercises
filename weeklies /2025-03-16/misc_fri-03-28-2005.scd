@@ -458,6 +458,47 @@ Pbind(
 ).play;
 )
 
+(
+Pbind(
+	\instrument, \junoPad,
+	\dur, 5,
+	\amp, 0.2,
+	\scale, Scale.phrygian,
+	\degree, Pseq([[0,2,4,6],[5,7,9,11]], inf),
+	\octave, 5,
+	\cutoff, Pseq([1500, 1200, 1400, 1300], inf),
+	\legato, 1.1
+).play;
+)
+
+(
+Pbind(
+	\instrument, \junoPad,
+	\dur, 5,
+	\amp, 0.2,
+	\scale, Scale.dorian,
+	\degree, Pseq([[0,2,4,6],[1,3,5,7]], inf),
+	\octave, 4,
+	\cutoff, Pseq([1500, 1200, 1400, 1300], inf),
+	\legato, 1
+).play;
+)
+
+(
+Pbind(
+	\instrument, \junoPad,
+	\dur, 5,
+	\amp, 0.2,
+	\scale, Scale.aeolian,
+	\degree, Pseq([[0,2,4,6],[1,3,5,7]], inf),
+	\octave, 4,
+	\cutoff, Pseq([1500, 1200, 1400, 1300], inf),
+	\legato, 1
+).play;
+)
+
+Scale.dorian;
+
 ///////////////////////////////////////////////////////////
 // Organ
 ///////////////////////////////////////////////////////////

@@ -193,12 +193,12 @@ var scale = Scale.aeolian.degrees;
 
 // Main Routine: generate pattern -> loop it -> alter -> occasionally regenerate
 Routine({
-	var currentPattern, repetitions = 4, alterations = 7;
+	var currentPattern, repetitions = 4, alterations = 3;
 
 	loop {
 		// generate new pattern
 		currentPattern = ~generatePattern.(4);
-		"✨ New pattern generated: %".format(currentPattern).postln;
+		"New pattern generated: %".format(currentPattern).postln;
 
 		alterations.do {
 			// loop current pattern

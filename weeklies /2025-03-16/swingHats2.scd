@@ -79,5 +79,5 @@ Pbind(
 	\amp, Pseq([0.65, 0.5, 0.55, 0.6], inf),
 	\out, ~hatBus
 ).play;
-Synth(\swingLag, [\inBus, ~hatBus, \lagTime, ~beat/7.4]);
+Synth(\swingLag, [\inBus, ~hatBus, \lagTime, ~beat/7.3]);
 )

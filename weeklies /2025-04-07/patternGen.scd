@@ -204,7 +204,7 @@ Routine({
 			// loop current pattern
 			repetitions.do {
 				currentPattern.do { |event|
-					var freq = (root + event[\degree] + (event[\octave]*12)).midicps;
+					var freq = (root + event[\degree] + (event[\octave] * 12)).midicps;
 					Synth(\basic, [freq: freq, amp: 0.3]);
 					// "Note Duration: %".format(event[\dur]*beat).postln;
 					(event[\dur]*beat).wait;
@@ -213,7 +213,7 @@ Routine({
 
 			// alter the pattern
 			currentPattern = ~alterPattern.(currentPattern, 2);
-			"Pattern slightly altered: %".format(currentPattern).postln;
+			"Pattern altered: %".format(currentPattern).postln;
 		};
 	};
 }).play;

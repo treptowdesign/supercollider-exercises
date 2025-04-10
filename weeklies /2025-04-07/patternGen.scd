@@ -134,7 +134,7 @@ var scale = Scale.aeolian.degrees;
 		// var dur = [1, 0.5, 0.25].wchoose([0.2, 0.5, 0.3]);
 		// var octave = [0, 1, 2].wchoose([0.1, 0.5, 0.4]);
 		var dur = [1, 0.5, 0.25].choose();
-		var octave = [0, 1, 2].choose();
+		var octave = [0, 1, 2, 3].choose();
 
 		if ((totalDur + dur) > beatLength) {
 			dur = beatLength - totalDur;
@@ -172,7 +172,7 @@ var scale = Scale.aeolian.degrees;
 				var idx = alteredPattern.size.rand;
 				var currentOctave = alteredPattern[idx][\octave];
 				"Octave Altered".postln;
-				alteredPattern[idx][\octave] = (currentOctave + [1,-1].choose).clip(0,2);
+				alteredPattern[idx][\octave] = (currentOctave + [1,-1].choose).clip(0,3);
 			},
 			\duration, {
 				if (alteredPattern.size > 1) {

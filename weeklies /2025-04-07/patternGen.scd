@@ -106,6 +106,7 @@ Routine({
 ///////////////////////////////////////////////////////////
 
 (
+var s = Server.default;
 var bpm = 140;
 var beat = 60 / bpm;
 var root = 34;
@@ -207,7 +208,7 @@ Routine({
 			repetitions.do {
 				currentPattern.do { |event|
 					var freq = (root + event[\degree] + (event[\octave] * 12)).midicps;
-					Synth(\basic, [freq: freq, amp: 0.3]);
+					s.bind { Synth(\basic, [freq: freq, amp: 0.3]); };
 					// "Note Duration: %".format(event[\dur]*beat).postln;
 					(event[\dur]*beat).wait;
 				};
@@ -219,4 +220,5 @@ Routine({
 		};
 	};
 }).play;
+
 )

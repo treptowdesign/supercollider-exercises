@@ -48,12 +48,64 @@ SynthDef(\swingLag, { |inBus=0, lagTime=0|
 	snd = FreeVerb.ar(snd, 0.1, 0.8, 0.6);
 	Out.ar(0, snd);
 }).add;
+SynthDef(\junoPad, {
+	arg freq=440, amp=0.5, gate=1, cutoff=1200, res=0.2, chorusMix=0.3;
+	var osc, filt, env, chorus;
+	osc = Saw.ar(freq * [1,1.005,0.997]).mean;
+	filt = RLPF.ar(osc, cutoff.clip(300,8000), res.linexp(0,1,0.5,0.99));
+	env = EnvGen.kr(
+		Env.adsr(attackTime:2.5, decayTime:1.5, sustainLevel:0.8, releaseTime:3.5),
+		gate,
+		doneAction:2
+	);
+	chorus = Mix.fill(2, { |i|
+		DelayC.ar(filt, 0.03, SinOsc.kr(0.2 + (0.1 * i)).range(0.01,0.025))
+	}).tanh;
+	Out.ar(0, XFade2.ar(filt, chorus, chorusMix) * env * amp ! 2);
+}).add;
+SynthDef(\choirPad, {
+	arg freq=220, amp=0.5, gate=1, lfoRate=0.1;
+	var osc, pwm, formants, env, lfo, chorus, snd;
+	lfo = SinOsc.kr(lfoRate).range(0.3, 0.7);
+	pwm = Pulse.ar(freq * [1,1.01,0.995], width: lfo).mean;
+	formants = BPF.ar(pwm, [800, 1200, 2500], 0.2).mean;
+	env = EnvGen.kr(
+		Env.adsr(attackTime: 2.0, decayTime: 1.0, sustainLevel: 0.8, releaseTime: 3.0),
+		gate,
+		doneAction:2
+	);
+	snd = formants * env * amp;
+	chorus = Mix.fill(2, { |i|
+		DelayC.ar(snd, 0.03, SinOsc.kr(0.2 + (0.1 * i)).range(0.01,0.025))
+	}).tanh;
+	snd = Mix([snd, chorus]);
+	Out.ar(0, snd ! 2);
+}).add;
 )
 
 
 
 (
 ~beat = 1;
+Pbind(
+	\instrument, \choirPad,
+	\dur, ~beat * 4,
+	\amp, 0.2,
+	\scale, Scale.aeolian,
+	\degree, Pseq([[0,2,4,6],[1,3,5,7]], inf),
+	\octave, 5,
+	\legato, 1
+).play;
+Pbind(
+	\instrument, \junoPad,
+	\dur, ~beat * 4,
+	\amp, 0.1,
+	\scale, Scale.aeolian,
+	\degree, Pseq([[0,2,4,6],[1,3,5,7]], inf),
+	\octave, 4,
+	\cutoff, Pseq([1500, 1200, 1400, 1300], inf),
+	\legato, 1
+).play;
 Pbind(
 	\instrument, \kick,
 	\dur, Pseq([~beat, Rest(~beat), ~beat, Rest(~beat/2), ~beat/2], inf),

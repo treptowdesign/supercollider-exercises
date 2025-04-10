@@ -426,21 +426,16 @@ Pbind(
 SynthDef(\junoPad, {
 	arg freq=440, amp=0.5, gate=1, cutoff=1200, res=0.2, chorusMix=0.3;
 	var osc, filt, env, chorus;
-	// Slightly detuned saw oscillators for richness
 	osc = Saw.ar(freq * [1,1.005,0.997]).mean;
-	// Low-pass filter with gentle resonance
 	filt = RLPF.ar(osc, cutoff.clip(300,8000), res.linexp(0,1,0.5,0.99));
-	// Slow ADSR envelope for amplitude
 	env = EnvGen.kr(
 		Env.adsr(attackTime:2.5, decayTime:1.5, sustainLevel:0.8, releaseTime:3.5),
 		gate,
 		doneAction:2
 	);
-	// Chorus effect (modulated delay lines for stereo chorus)
 	chorus = Mix.fill(2, { |i|
 		DelayC.ar(filt, 0.03, SinOsc.kr(0.2 + (0.1 * i)).range(0.01,0.025))
 	}).tanh;
-	// Blend original and chorus signals
 	Out.ar(0, XFade2.ar(filt, chorus, chorusMix) * env * amp ! 2);
 }).add;
 )

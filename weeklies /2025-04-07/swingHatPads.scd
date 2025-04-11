@@ -161,7 +161,7 @@ Pbind(
 	\instrument, \clap,
 	\dur, Pseq([Rest(~beat), ~beat], inf),
 	\amp, 0.8,
-	\lagTime, 0.018
+	\lagTime, 0.014
 ).play;
 Pbind(
 	\instrument, \hihat,

@@ -16,7 +16,7 @@ SynthDef(\basicWash, {
 (
 SynthDef(\basicWashB, {
 	var snd, duration, n;
-	n = 30;
+	n = 20;
 	duration = \duration.kr(10);
 	snd = { WhiteNoise.ar } ! 2;
 	snd = BPF.ar([snd], ((0..n) ** 0.8).normalize.linexp(0, 1, 50, 10000), 0.01) * -5.dbamp;

@@ -79,3 +79,30 @@ SynthDef(\glitterWash, {
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
+
+(
+SynthDef(\hiss, {
+	var snd;
+	snd = CombC.ar(WhiteNoise.ar, 0.2, 1 / 50, 0.3);
+	snd = BPF.ar(snd, [10120, 14230] * XLine.kr(0.5, 1, 2), 0.3).sum;
+	snd = HPF.ar(snd, 1000);
+	snd = snd ! 2;
+	snd = snd * Env([0, 1, 1, 0.1, 0], [0.5, 0.3, 0.03, 1], curve: [4, 0.1, -4]).ar(Done.freeSelf);
+	snd = snd * -18.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\rumble, {
+	var snd;
+	snd = SinOsc.ar(70 * (LFNoise2.kr(1 ! 16) * 10).midiratio);
+	snd = Splay.ar(snd);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 300, 3, 0.8);
+	snd = (snd * 4.dbamp).tanh;
+	snd = LPF.ar(snd, 300) + HPF.ar(snd, 3000);
+	snd = snd * Env.perc(4.0, 0.3, curve: 8).ar(Done.freeSelf);
+	snd = snd * -10.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)

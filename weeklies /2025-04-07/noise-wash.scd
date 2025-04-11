@@ -19,7 +19,7 @@ SynthDef(\basicWashB, {
 	n = 30;
 	duration = \duration.kr(10);
 	snd = { WhiteNoise.ar } ! 2;
-	snd = BPF.ar([snd], ((0..n) ** 0.8).normalize.linexp(0, 1, 50, 10000), 0.01);
+	snd = BPF.ar([snd], ((0..n) ** 0.8).normalize.linexp(0, 1, 50, 10000), 0.01) * -5.dbamp;
 	snd = snd * (0..n) / n;
 	snd = snd.sum;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
@@ -39,6 +39,43 @@ SynthDef(\brownWash, {
 	snd = snd.sum;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	snd = snd * -2.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\pinkWash, {
+	var snd, duration, n;
+	n = 10;
+	duration = \duration.kr(10);
+	snd = { PinkNoise.ar } ! 2;
+	snd = BPF.ar([snd], ((0..n) ** 0.5).normalize.linexp(0, 1, 100, 2000), 0.01) * 10.dbamp;
+	snd = snd * (0..n) / n;
+	snd = snd.sum;
+	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
+	snd = snd * -2.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\glitterWash, {
+	var snd;
+	snd = WhiteNoise.ar;
+	snd = 10.collect {
+		FreqShift.ar(
+			CombC.ar(snd * (1 + (0.5 * LFNoise2.kr(7))) * (1 + (0.3 * LFNoise2.kr(30))),
+				0.1,
+				1 / (ExpRand(500, 1000) * (LFNoise2.kr(3) * 0.3).midiratio),
+				1.0
+			),
+			ExpRand(1000, 5000)
+		)
+	};
+	snd = Splay.ar(snd) * -10.dbamp;
+	snd = BPF.ar(snd, 9200, 0.3);
+	3.do { snd = HPF.ar(snd, 8000); };
+	snd = snd * -23.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).play;
 )

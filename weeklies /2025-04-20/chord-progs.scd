@@ -15,13 +15,14 @@ SynthDef(\simpleSin, {|freq=440, amp=1, duration=1|
 
 (
 SynthDef(\blipChord, {|freq=440, amp=1, duration=1|
-	var snd, env;
+	var snd, env, lfo;
+	lfo = Array.fill(5, { SinOsc.ar(Rand(1.0, 8.0)) * 10 });
 	env = Env.perc(1e-2, duration * 3, curve: -4).ar;
-	snd = SinOsc.ar(freq*[0.9 ,0.985 , 1, 1.01, 1.2], mul: [0.05,0.18,1,0.2,0.05]).mean;
+	snd = SinOsc.ar(freq * [0.9 ,0.985 , 1, 1.01, 1.2] + lfo.midiratio, mul: [0.05,0.18,1,0.2,0.05]).mean;
 	snd = Pan2.ar(snd * env, 0, amp);
 	snd = snd * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
 	Out.ar(0, snd);
-}).add;
+}).play;
 )
 
 {Env.perc(1e-2, 1, curve: 8).ar}.plot(2);
@@ -78,24 +79,25 @@ SynthDef(\clap, {
 	snd = Hasher.ar(Sweep.ar);
 	snd = RHPF.ar(snd, 1600, 0.6) * -3.dbamp;
 	snd = LPF.ar(snd, 6200);
-	snd = snd * Env([0, 2, 0.1, 1, 0.1, 1, 0.1, 0], [0.001, 0.01, 0.003, 0.01, 0.003, 0.08, 0.2] * 0.5, curve: -2).ar ** 1.2;
+	snd = snd * Env([0, 2, 0.1, 1, 0.1, 1, 0.1, 0], [0.001, 0.01, 0.003, 0.01, 0.003, 0.08, 0.2] * 0.5, curve: -2).ar ** 1.4;
 	snd = snd.clip2;
 	snd = snd + GVerb.ar(snd * -25.dbamp, 10, 1, 0.9);
 	snd = snd * Env.linen(0, 0.2, 0.2, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 )
 
 ////////////////////////////////////////////////////////
-// Baisc Routine
+// "Massage Situation" Chords
 ////////////////////////////////////////////////////////
 
 
 (
-var s, bpm, beat;
+var s, bpm, beat, root;
 s = Server.default;
 bpm = 110;
 beat = 60 / bpm;
+root = -2;
 Routine({
 	fork {
 		loop {
@@ -112,15 +114,59 @@ Routine({
 		loop {
 			// Synth(\glitterWash, [amp: 0.3, duration: beat * 4, lfoRate: beat]);
 			[
-				(intervals: (0 + [0, 2, 7, 10]), length: beat * 2),
-				(intervals: (1 + [0, 4, 7, 11]), length: beat),
-				(intervals: (-2 + [0, 3, 7, 10]), length: beat)
+				(intervals: (0 + [-12, 2, 7, 10]), length: beat * 2),
+				(intervals: (-2 + [-12, 3, 7, 10]), length: beat * 2)
 			].do { |chord|
 				chord[\intervals].do { |degree|
-					var note = ((12 * octave) + degree).midicps;
+					var note = (root + (12 * octave) + degree).midicps;
 					s.bind{
 						Synth(\blipChord, [freq: note, amp: 0.5, duration: chord[\length]]);
+					};
+				};
+				chord[\length].wait;
+			};
 
+		};
+	};
+
+}).play;
+)
+
+////////////////////////////////////////////////////////
+// Baisc Routine
+////////////////////////////////////////////////////////
+
+
+(
+var s, bpm, beat, root;
+s = Server.default;
+bpm = 110;
+beat = 60 / bpm;
+root = -2;
+Routine({
+	fork {
+		loop {
+			s.bind { Synth(\kick); };
+			((beat * 2)).wait;
+			s.bind { Synth(\clap); };
+			((beat * 1.5) - 0.01).wait;
+			s.bind { Synth(\kick); };
+			((beat * 0.5) + 0.01).wait;
+		}
+	};
+	fork {
+		var octave = 5;
+		loop {
+			// Synth(\glitterWash, [amp: 0.3, duration: beat * 4, lfoRate: beat]);
+			[
+				(intervals: (0 + [-12, 2, 7, 10]), length: beat * 2),
+				(intervals: (1 + [-12, 4, 7, 11]), length: beat),
+				(intervals: (-2 + [-12, 3, 7, 10]), length: beat)
+			].do { |chord|
+				chord[\intervals].do { |degree|
+					var note = (root + (12 * octave) + degree).midicps;
+					s.bind{
+						Synth(\blipChord, [freq: note, amp: 0.5, duration: chord[\length]]);
 					};
 				};
 				chord[\length].wait;

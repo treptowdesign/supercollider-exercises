@@ -114,17 +114,22 @@ SynthDef(\hat, {
 )
 
 (
-SynthDef(\fmBass, {
-	arg freq=50, amp=0.6, modIndex=4, modRatio=1, duration=1;
-	var carrier, modulator, env, modEnv;
-	env = Env.perc(0.01, 4, curve: -2).ar(Done.freeSelf);
-	modEnv = EnvGen.kr(Env.perc(0.01, 0.2), levelScale: modIndex);
-	modulator = SinOsc.ar(freq * modRatio, 0, freq * modEnv);
-	carrier = SinOsc.ar(freq + modulator);
-	carrier = carrier * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
-	Out.ar(0, carrier * env * amp ! 2);
+SynthDef(\bass, {
+	var snd, duration;
+	duration = \duration.kr(1);
+	snd = Pulse.ar(\freq.kr(60), 0.5);
+	snd = MoogFF.ar(snd, XLine.kr(750, 100, duration * 2), 0);
+	snd = (snd * 5.dbamp).tanh;
+	snd = snd * Env.linen(0.01, duration, 0.1, curve: -8).ar(Done.freeSelf);
+	snd = snd * -12.dbamp * \amp.kr(1);
+	Out.ar(\out.kr(0), snd ! 2);
 }).add;
+
+
 )
+
+
+
 ////////////////////////////////////////////////////////
 // "Massage Situation" Chords
 ////////////////////////////////////////////////////////
@@ -168,8 +173,12 @@ Routine({
 				chord[\intervals].do { |degree|
 					var n = (root + (12 * octave) + degree).midicps;
 					s.bind{
-						// Synth(\blipChord, [freq: n, amp: 0.5, duration: chord[\length]]);
+						Synth(\blipChord, [freq: n, amp: 0.6, duration: chord[\length]]);
 					};
+					/*n = (root + (12 * (octave + 1)) + degree).midicps;
+					s.bind{
+						Synth(\blipChord, [freq: n, amp: 0.05, duration: chord[\length]]);
+					};*/
 				};
 				chord[\length].wait;
 			};
@@ -198,43 +207,42 @@ Routine({
 			].do{ |note|
 				var n = ( root + (12 * octave) + note[\interval]).midicps;
 				s.bind {
-						// Synth(\blipSqr, [freq: n, amp: 0.4, duration: note[\length]]);
+						Synth(\blipSqr, [freq: n, amp: 0.5, duration: note[\length]]);
 				};
 				note[\length].wait;
 			}
 		};
 	};
 	fork {
-
 		var octave = 3;
 		loop {
 			[
 				// bar 1
-				(interval: 2, length: beat * 0.5),
-				(interval: 2, length: beat * 0.25),
-				(interval: 0, length: beat * 0.5),
-				(interval: 0, length: beat * 0.25),
-				(interval: -2, length: beat * 0.5),
-				(interval: 2, length: beat),
-				(interval: 0, length: beat),
+				(interval: 2, length: beat * 0.5, span: 0.9, amp: 1),
+				(interval: 0, length: beat * 0.5, span: 0.9, amp: 0.8),
+				(interval: -5, length: beat * 0.25, span: 0.9, amp: 0.6),
+				(interval: 0, length: beat * 0.25, span: 0.9, amp: 1),
+				(interval: 0, length: beat * 0.5, span: 0.9, amp: 1),
+				(interval: 7, length: beat, span: 0.5, amp: 1),
+				(interval: 0, length: beat, span: 0.5, amp: 1),
 				// bar 2
-				(interval: -2, length: beat * 2),
-				(interval: -2, length: beat * 2),
-				// bar 1
-				(interval: 2, length: beat * 0.5),
-				(interval: 2, length: beat * 0.25),
-				(interval: 0, length: beat * 0.5),
-				(interval: 0, length: beat * 0.25),
-				(interval: -2, length: beat * 0.5),
-				(interval: 2, length: beat),
-				(interval: 0, length: beat),
-				// bar 2
-				(interval: -2, length: beat * 2),
-				(interval: 2, length: beat * 2),
+				(interval: -2, length: beat * 2, span: 0.5, amp: 1),
+				(interval: -2, length: beat * 2, span: 0.5, amp: 1),
+				// bar 3
+				(interval: 2, length: beat * 0.5, span: 0.9, amp: 1),
+				(interval: 0, length: beat * 0.5, span: 0.9, amp: 0.8),
+				(interval: -5, length: beat * 0.25, span: 0.9, amp: 0.6),
+				(interval: 0, length: beat * 0.25, span: 0.9, amp: 1),
+				(interval: 0, length: beat * 0.5, span: 0.9, amp: 1),
+				(interval: 7, length: beat, span: 0.5, amp: 1),
+				(interval: 0, length: beat, span: 0.5, amp: 1),
+				// bar 4
+				(interval: -2, length: beat * 2, span: 0.5, amp: 1),
+				(interval: -2 + 7, length: beat * 2, span: 0.5, amp: 1),
 			].do{ |note|
 				var n = ( root + (12 * octave) + note[\interval]).midicps;
 				s.bind {
-						Synth(\fmBass, [freq: n, amp: 0.3, duration: note[\length]]);
+					Synth(\bass, [freq: n, duration: note[\length] * note[\span], amp: note[\amp]]);
 				};
 				note[\length].wait;
 			}

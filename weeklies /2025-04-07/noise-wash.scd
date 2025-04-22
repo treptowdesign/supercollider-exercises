@@ -101,7 +101,7 @@ SynthDef(\rumble, {
 	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 300, 3, 0.8);
 	snd = (snd * 4.dbamp).tanh;
 	snd = LPF.ar(snd, 300) + HPF.ar(snd, 3000);
-	snd = snd * Env.perc(4.0, 0.3, curve: 8).ar(Done.freeSelf);
+	snd = snd * Env.perc(1.0, 1, curve: 8).ar(Done.freeSelf);
 	snd = snd * -10.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).play;

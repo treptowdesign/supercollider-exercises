@@ -125,6 +125,7 @@ SynthDef(\fmBass, {
 	Out.ar(0, carrier * env * amp ! 2);
 }).add;
 )
+
 ////////////////////////////////////////////////////////
 // "Massage Situation" Chords
 ////////////////////////////////////////////////////////
@@ -137,6 +138,21 @@ bpm = 93; // 93
 beat = 60 / bpm;
 root = -2; // offset 0=C, -2=Bb
 Routine({
+	/*fork {
+		loop {
+			s.bind { Synth(\kick); };
+			((beat * 0.5)).wait;
+			s.bind { Synth(\kick); };
+			((beat * 0.25)).wait;
+			s.bind { Synth(\kick); };
+			((beat * 0.75)).wait;
+			((beat)).wait;
+			((beat)).wait;
+			((beat)).wait;
+
+			((beat * 4)).wait;
+		};
+	};*/
 	fork {
 		loop {
 			s.bind { Synth(\hat); };
@@ -153,7 +169,7 @@ Routine({
 			((beat * 1)).wait;
 			s.bind { Synth(\hat); };
 			((beat * 0.5)).wait;
-			s.bind { Synth(\kick); };
+			// s.bind { Synth(\kick); };
 			((beat * 0.5)).wait;
 		}
 	};
@@ -168,7 +184,7 @@ Routine({
 				chord[\intervals].do { |degree|
 					var n = (root + (12 * octave) + degree).midicps;
 					s.bind{
-						// Synth(\blipChord, [freq: n, amp: 0.5, duration: chord[\length]]);
+						Synth(\blipChord, [freq: n, amp: 0.5, duration: chord[\length]]);
 					};
 				};
 				chord[\length].wait;
@@ -198,7 +214,7 @@ Routine({
 			].do{ |note|
 				var n = ( root + (12 * octave) + note[\interval]).midicps;
 				s.bind {
-						// Synth(\blipSqr, [freq: n, amp: 0.4, duration: note[\length]]);
+						Synth(\blipSqr, [freq: n, amp: 0.5, duration: note[\length]]);
 				};
 				note[\length].wait;
 			}
@@ -240,7 +256,6 @@ Routine({
 			}
 		};
 	};
-
 
 }).play;
 )

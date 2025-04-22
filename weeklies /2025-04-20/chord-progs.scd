@@ -16,10 +16,11 @@ SynthDef(\simpleSin, {|freq=440, amp=1, duration=1|
 (
 SynthDef(\blipSqr, {|freq=440, amp=1, duration=1|
 	var snd, env;
-	env = Env.perc(1e-4, 1).ar** 1;
-	snd = Pulse.ar(freq*[0.9,0.988,1,1.01,1.1], mul: [0.05,0.2,1,0.2,0.1]).mean;
+	env = Env.perc(1e-4, 1).ar ** 1;
+	snd = Pulse.ar(freq*[0.9,0.988,1,1.01,1.1], mul: [0.03,0.2,1,0.2,0.05]).mean;
+	snd = LPF.ar(snd, 12000);
 	snd = Pan2.ar(snd * env, 0, amp);
-	snd = snd * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
+	snd = snd * Env.linen(0, duration, 0.001).ar(Done.freeSelf);
 	Out.ar(0, snd);
 }).add;
 )
@@ -28,7 +29,7 @@ SynthDef(\blipSqr, {|freq=440, amp=1, duration=1|
 SynthDef(\blipChord, {|freq=440, amp=1, duration=1|
 	var snd, env, lfo;
 	lfo = Array.fill(5, { SinOsc.ar(Rand(1.0, 8.0)) * 10 });
-	env = Env.perc(1e-3, duration * 3, curve: -4).ar;
+	env = Env.perc(1e-3, duration * 4, curve: -4).ar;
 	snd = SinOsc.ar(freq * [0.9 ,0.985 , 1, 1.01, 1.2] + lfo.midiratio, mul: [0.05,0.18,1,0.2,0.05]).mean;
 	snd = Pan2.ar(snd * env, 0, amp);
 	snd = snd * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
@@ -98,6 +99,20 @@ SynthDef(\clap, {
 }).add;
 )
 
+(
+SynthDef(\hat, {
+	var snd;
+	snd = Hasher.ar(Sweep.ar);
+	snd = snd + CombC.ar(snd, 0.23, 1 / 90);
+	snd = BPF.ar(snd, [12240, 6230, 10832, 9830, 8320], 0.1).sum;
+	snd = snd + BPF.ar(Hasher.ar(Sweep.ar) * Env.perc(0.02, 0.03).ar * -18.dbamp, 8320, 0.3);
+	snd = snd * Env.perc(0.01, 0.1, curve: -8).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0)) * 3.dbamp;
+	snd = snd * -26.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+)
+
 ////////////////////////////////////////////////////////
 // "Massage Situation" Chords
 ////////////////////////////////////////////////////////
@@ -106,32 +121,42 @@ SynthDef(\clap, {
 (
 var s, bpm, beat, root;
 s = Server.default;
-bpm = 110;
+bpm = 93; // 93
 beat = 60 / bpm;
 root = -2; // offset 0=C, -2=Bb
 Routine({
 	fork {
 		loop {
+			s.bind { Synth(\hat); };
 			s.bind { Synth(\kick); };
-			((beat * 2)).wait;
+			((beat * 0.25)).wait;
+			s.bind { Synth(\hat); };
+			((beat * 0.25)).wait;
+			s.bind { Synth(\hat); };
+			((beat * 0.5)).wait;
+			s.bind { Synth(\hat); };
+			((beat * 1)).wait;
+			s.bind { Synth(\hat); };
 			s.bind { Synth(\clap); };
-			((beat * 1.5) - 0.01).wait;
+			((beat * 1)).wait;
+			s.bind { Synth(\hat); };
+			((beat * 0.5)).wait;
 			s.bind { Synth(\kick); };
-			((beat * 0.5) + 0.01).wait;
+			((beat * 0.5)).wait;
 		}
 	};
 	fork {
 		var octave = 5;
 		loop {
-			// Synth(\glitterWash, [amp: 0.3, duration: beat * 4, lfoRate: beat]);
+			// Synth(\glitterWash, [amp: 0.3, duration: beat * 8, lfoRate: beat]);
 			[
 				(intervals: (0 + [-12, 2, 7, 10]), length: beat * 4),
 				(intervals: (-2 + [-12, 3, 7, 10]), length: beat * 4)
 			].do { |chord|
 				chord[\intervals].do { |degree|
-					var note = (root + (12 * octave) + degree).midicps;
+					var n = (root + (12 * octave) + degree).midicps;
 					s.bind{
-						Synth(\blipChord, [freq: note, amp: 0.4, duration: chord[\length]]);
+						Synth(\blipChord, [freq: n, amp: 0.5, duration: chord[\length]]);
 					};
 				};
 				chord[\length].wait;
@@ -161,7 +186,7 @@ Routine({
 			].do{ |note|
 				var n = ( root + (12 * octave) + note[\interval]).midicps;
 				s.bind {
-						Synth(\blipSqr, [freq: n, amp: 0.5, duration: note[\length]]);
+						Synth(\blipSqr, [freq: n, amp: 0.4, duration: note[\length]]);
 				};
 				note[\length].wait;
 			}

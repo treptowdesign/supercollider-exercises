@@ -51,6 +51,41 @@ SynthDef(\glitterWash, { |duration=2, amp=1, lfoRate=1|
 }).add;
 )
 
+(
+SynthDef(\kick, {
+	var snd, velocity;
+	velocity = \velocity.kr(1);
+	snd = SinOsc.ar(50 * ((Env.perc(0, 0.1).ar * [30, 20, 10, 20]) + (Env.perc(0, 0.02).ar * 10)).midiratio * [1, 2.3, 3.4, 5.3]);
+	snd = snd * Env.perc(0.0, 0.3 * [1, 0.5, 0.2, 0.1]).ar(Done.none);
+	snd = snd * [0, -5, -6, -5].dbamp;
+	snd = snd.sum;
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 6120, 0.3) * Env.perc(0.05, 0.1).ar * -25.dbamp);
+	snd = snd * velocity.sqrt;
+	snd = BLowShelf.ar(snd, 300, 0.3, -5);
+	snd = (snd * 13.dbamp).tanh;
+	snd = BLowShelf.ar(snd, 300, 0.3, 5);
+	snd = snd * velocity.sqrt;
+	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2100), 0.1, [30e-3, 54e-3]) * -15.dbamp);
+	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.005), 0.3 * velocity).ar(Done.freeSelf);
+	snd = snd * -16.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\clap, {
+	var snd;
+	snd = Hasher.ar(Sweep.ar);
+	snd = RHPF.ar(snd, 1600, 0.6) * -3.dbamp;
+	snd = LPF.ar(snd, 6200);
+	snd = snd * Env([0, 2, 0.1, 1, 0.1, 1, 0.1, 0], [0.001, 0.01, 0.003, 0.01, 0.003, 0.08, 0.2] * 0.5, curve: -2).ar ** 1.2;
+	snd = snd.clip2;
+	snd = snd + GVerb.ar(snd * -25.dbamp, 10, 1, 0.9);
+	snd = snd * Env.linen(0, 0.2, 0.2, curve: -4).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
 ////////////////////////////////////////////////////////
 // Baisc Routine
 ////////////////////////////////////////////////////////
@@ -62,38 +97,37 @@ s = Server.default;
 bpm = 110;
 beat = 60 / bpm;
 Routine({
-	var octave = 5;
-	loop {
-		1.do { |index|
-			(0 + [0, 2, 7, 10]).do { |degree| // i: sus2 min7
-				var note = ((12 * octave) + degree).midicps;
-				s.bind{
-					Synth(\blipChord, [freq: note, amp: 0.5, duration: beat * 2]);
-					Synth(\glitterWash, [amp: 0.3, duration: beat * 2, lfoRate: beat]);
+	fork {
+		loop {
+			s.bind { Synth(\kick); };
+			((beat * 2)).wait;
+			s.bind { Synth(\clap); };
+			((beat * 1.5) - 0.01).wait;
+			s.bind { Synth(\kick); };
+			((beat * 0.5) + 0.01).wait;
+		}
+	};
+	fork {
+		var octave = 5;
+		loop {
+			// Synth(\glitterWash, [amp: 0.3, duration: beat * 4, lfoRate: beat]);
+			[
+				(intervals: (0 + [0, 2, 7, 10]), length: beat * 2),
+				(intervals: (1 + [0, 4, 7, 11]), length: beat),
+				(intervals: (-2 + [0, 3, 7, 10]), length: beat)
+			].do { |chord|
+				chord[\intervals].do { |degree|
+					var note = ((12 * octave) + degree).midicps;
+					s.bind{
+						Synth(\blipChord, [freq: note, amp: 0.5, duration: chord[\length]]);
+
+					};
 				};
+				chord[\length].wait;
 			};
-			(beat * 2).wait;
-		};
-		1.do { |index|
-			(1 + [0, 4, 7, 11]).do { |degree| // bII: Maj7
-				var note = ((12 * octave) + degree).midicps;
-				s.bind{
-					Synth(\blipChord,[freq: note, amp: 0.5, duration: beat] );
-					Synth(\glitterWash, [amp: 0.3, duration: beat, lfoRate: beat]);
-				};
-			};
-			(beat).wait;
-		};
-		1.do { |index|
-			(-2 + [0, 3, 7, 10]).do { |degree| // bvii: min7
-				var note = ((12 * octave) + degree).midicps;
-				s.bind{
-					Synth(\blipChord, [freq: note, amp: 0.5, duration: beat]);
-					Synth(\glitterWash, [amp: 0.3, duration: beat, lfoRate: beat]);
-				};
-			};
-			(beat).wait;
+
 		};
 	};
+
 }).play;
 )

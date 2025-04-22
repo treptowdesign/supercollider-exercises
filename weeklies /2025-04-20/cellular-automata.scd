@@ -54,10 +54,11 @@ s = Server.default;
 bpm = 110;
 beat = 60 / bpm;
 Routine({
+	var octave = 5;
 	loop {
 		4.do { |index|
-			(0 + [0, 2, 7, 10]).do { |degree|
-				var note = (60 + degree).midicps;
+			(0 + [0, 2, 7, 10]).do { |degree| // i: sus2 min7
+				var note = ((12 * octave) + degree).midicps;
 				s.bind{ Synth(\blipChord,
 					[freq: note, amp: index.linlin(0, 3, 1, 0.3), duration: beat/2]
 				); };
@@ -65,8 +66,8 @@ Routine({
 			(beat/2).wait;
 		};
 		2.do { |index|
-			(1 + [0, 4, 7, 11]).do { |degree|
-				var note = (60 + degree).midicps;
+			(1 + [0, 4, 7, 11]).do { |degree| // bII: Maj7
+				var note = ((12 * octave) + degree).midicps;
 				s.bind{ Synth(\blipChord,
 					[freq: note, amp: index.linlin(0, 1, 1, 0.3), duration: beat/2]
 				); };
@@ -74,8 +75,8 @@ Routine({
 			(beat/2).wait;
 		};
 		2.do { |index|
-			(-2 + [0, 3, 7, 10]).do { |degree|
-				var note = (60 + degree).midicps;
+			(-2 + [0, 3, 7, 10]).do { |degree| // bvii: min7
+				var note = ((12 * octave) + degree).midicps;
 				s.bind{ Synth(\blipChord, [
 					freq: note, amp: index.linlin(0, 1, 1, 0.3), duration: beat/2]
 				); };
@@ -120,16 +121,18 @@ SynthDef(\blipSqr, {|freq=440, amp=1|
 
 // initial state (random binary pattern)
 ~cells = Array.fill(16, { [0, 1].choose });
-
 ~scale = Scale.lydian.degrees + 60;
+
+// Good Rules:
+// 30: standard good one
+// 38: melodic
 
 (
 var s;
 s = Server.default;
 Routine({
 	var rule, scaleLength;
-	// rule = rrand(0, 255);
-	rule = 38;
+	rule = 42;
 	scaleLength = ~scale.size;
 	"Rule: %".format(rule).postln;
 

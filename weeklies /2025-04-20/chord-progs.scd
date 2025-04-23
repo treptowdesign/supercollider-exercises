@@ -285,19 +285,24 @@ SynthDef(\padA, {
 (
 SynthDef(\keys, {
 	var snd, freq;
-	freq = \freq.kr(320);
-	snd = SinOsc.ar(freq * [3, 12]) * Env.perc(0.001, 3.0).ar * (1 + (5 * Env.perc(0, 0.3).ar)) * 250 * Hasher.kr(freq).linexp(-1, 1, 1, 1.2);
+	freq = \freq.kr(440);
+	snd = SinOsc.ar(freq * [3, 10]) * Env.perc(0.001, 3.0).ar * (1 + (3 * Env.perc(0, 0.3).ar)) * 320 * Hasher.kr(freq).linexp(-1, 1, 1, 1.4);
 	snd = snd.sum;
 	snd = SinOsc.ar(freq + snd);
-	snd = snd * Env([0, 10, 0.5, 1], [0.001, 0.01, 0.001], curve: -4).ar;
+	snd = snd * Env([0, 10, 0.5, 1], [0.001, 0.01, 0.01], curve: -4).ar;
 	snd = snd.fold2;
-	snd = snd * Env.perc(0.001, 3.0, curve: -10).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.1, 4, curve: -4).ar;
+	// snd = BRF.ar(snd, ((0..20) ** 0.8).normalize.linexp(0, 1, 500, 8000), 0.2);
+	snd = snd * Env.linen(0, \duration.kr(1), 0.1, curve: -4).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * \amp.kr(1);
 	snd = snd * -12.dbamp;
 	Out.ar(\out.kr, snd);
-}).add;
+}).play;
 )
+
+
+
 ////////////////////////////////////////////////////////
 // "Massage Situation" Chords
 ////////////////////////////////////////////////////////
@@ -332,7 +337,7 @@ Routine({
 	fork {
 		var octave = 5;
 		loop {
-			Synth(\glitterWash, [amp: 0.2, duration: beat * 8, lfoRate: beat]);
+			// Synth(\glitterWash, [amp: 0.1, duration: beat * 8, lfoRate: beat]);
 			[
 				(intervals: (0 + [-12, 2, 7, 10]), length: beat * 4),
 				(intervals: (-2 + [-12, 3, 7, 10]), length: beat * 4)
@@ -342,7 +347,7 @@ Routine({
 					s.bind{
 						// Synth(\blipChord, [freq: n, amp: 0.2, duration: chord[\length]]);
 						// Synth(\saw, [freq: n, amp: 0.08, duration: chord[\length]]);
-						Synth(\padA, [freq: n, amp: 0.4, duration: chord[\length]]);
+						Synth(\padA, [freq: n, amp: 0.7, duration: chord[\length]]);
 					};
 				};
 				chord[\length].wait;
@@ -376,8 +381,9 @@ Routine({
 					// Synth(\organ, [freq: n, amp: 1, duration: note[\length]]);
 					// Synth(\guitar, [freq: n, amp: 0.4, duration: note[\length]]);
 					// Synth(\acid, [freq: n, amp: 0.2, duration: note[\length]]);
-					Synth(\sawCenter, [freq: n, amp: 0.2, duration: note[\length]]);
-					// Synth(\keys, [freq: n, amp: 0.2, duration: note[\length]]);
+					// Synth(\sawCenter, [freq: n, amp: 0.2, duration: note[\length]]);
+
+					Synth(\keys, [freq: n, amp: 0.2, duration: note[\length]]);
 
 				};
 				note[\length].wait;

@@ -168,10 +168,10 @@ SynthDef(\organ, {
 	snd = snd * Env.perc(0, [5, 10, 1]).ar;
 	snd = snd * [-5, 0, -9].dbamp;
 	snd = snd * (1 + (0.3 * LFNoise2.kr(16 ! snd.size)));
-	snd = snd.sum;
+	snd = snd.sum ! 2;
 	snd = LPF.ar(snd, XLine.ar(8000, 100, 3.0));
-	snd = snd + GVerb.ar(snd * -20.dbamp, 10, 3, damping: 0.2);
-	snd = snd * Env.linen(0.01, duration, 0.0, curve: -4).ar(Done.freeSelf);
+	snd = snd + GVerb.ar(snd.mean * -20.dbamp, 10, 3, damping: 0.2);
+	snd = snd * Env.linen(0.03, duration, 0.0, curve: -4).ar(Done.freeSelf);
 	snd = snd * -18.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -286,19 +286,19 @@ SynthDef(\padA, {
 SynthDef(\keys, {
 	var snd, freq;
 	freq = \freq.kr(440);
-	snd = SinOsc.ar(freq * [3, 10]) * Env.perc(0.001, 3.0).ar * (1 + (3 * Env.perc(0, 0.3).ar)) * 320 * Hasher.kr(freq).linexp(-1, 1, 1, 1.4);
+	snd = SinOsc.ar(freq * [3, 12]) * Env.perc(0.001, 3.0).ar * (1 + (3 * Env.perc(0, 0.3).ar)) * 220 * Hasher.kr(freq).linexp(-1, 1, 1, 1.4);
 	snd = snd.sum;
 	snd = SinOsc.ar(freq + snd);
 	snd = snd * Env([0, 10, 0.5, 1], [0.001, 0.01, 0.01], curve: -4).ar;
 	snd = snd.fold2;
-	snd = snd * Env.perc(0.1, 4, curve: -4).ar;
-	// snd = BRF.ar(snd, ((0..20) ** 0.8).normalize.linexp(0, 1, 500, 8000), 0.2);
+	snd = snd * Env.perc(0.1, 4, curve: -8).ar;
+	snd = BRF.ar(snd, ((0..20) ** 0.8).normalize.linexp(0, 1, 100, 8000), 0.8);
 	snd = snd * Env.linen(0, \duration.kr(1), 0.1, curve: -4).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * \amp.kr(1);
 	snd = snd * -12.dbamp;
 	Out.ar(\out.kr, snd);
-}).play;
+}).add;
 )
 
 
@@ -347,7 +347,7 @@ Routine({
 					s.bind{
 						// Synth(\blipChord, [freq: n, amp: 0.2, duration: chord[\length]]);
 						// Synth(\saw, [freq: n, amp: 0.08, duration: chord[\length]]);
-						Synth(\padA, [freq: n, amp: 0.7, duration: chord[\length]]);
+						Synth(\padA, [freq: n, amp: 0.5, duration: chord[\length]]);
 					};
 				};
 				chord[\length].wait;
@@ -378,12 +378,11 @@ Routine({
 				var n = ( root + (12 * octave) + note[\interval]).midicps;
 				s.bind {
 					// Synth(\pluck, [freq: n, amp: 0.1, duration: note[\length]]);
-					// Synth(\organ, [freq: n, amp: 1, duration: note[\length]]);
+					// Synth(\organ, [freq: n, amp: 0.7, duration: note[\length]]);
 					// Synth(\guitar, [freq: n, amp: 0.4, duration: note[\length]]);
 					// Synth(\acid, [freq: n, amp: 0.2, duration: note[\length]]);
 					// Synth(\sawCenter, [freq: n, amp: 0.2, duration: note[\length]]);
-
-					Synth(\keys, [freq: n, amp: 0.2, duration: note[\length]]);
+					// Synth(\keys, [freq: n, amp: 0.2, duration: note[\length]]);
 
 				};
 				note[\length].wait;
@@ -469,6 +468,12 @@ root = -2;
 Routine({
 	fork {
 		loop {
+			s.bind { Synth(\hat); };
+			(beat/2).wait;
+		}
+	};
+	fork {
+		loop {
 			s.bind { Synth(\kick); };
 			((beat * 2)).wait;
 			s.bind { Synth(\clap); };
@@ -489,12 +494,30 @@ Routine({
 				chord[\intervals].do { |degree|
 					var note = (root + (12 * octave) + degree).midicps;
 					s.bind{
-						Synth(\blipChord, [freq: note, amp: 0.6, duration: chord[\length]]);
+						Synth(\padA, [freq: note, amp: 0.6, duration: chord[\length]]);
 					};
 				};
 				chord[\length].wait;
 			};
 
+		};
+	};
+	fork {
+		var octave = 3;
+		loop {
+			[
+				// bar 1
+				(interval: 0, length: beat, span: 0.4, amp: 0.8),
+				(interval: 0, length: beat, span: 0.4, amp: 0.8),
+				(interval: 1, length: beat, span: 0.4, amp: 0.8),
+				(interval: -2, length: beat, span: 0.4, amp: 0.8),
+			].do{ |note|
+				var n = ( root + (12 * octave) + note[\interval]).midicps;
+				s.bind {
+					Synth(\bass, [freq: n, duration: note[\length] * note[\span], amp: note[\amp]]);
+				};
+				note[\length].wait;
+			}
 		};
 	};
 

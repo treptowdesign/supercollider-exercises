@@ -52,9 +52,10 @@ SynthDef(\bass, {
 	snd = Pulse.ar(\freq.kr(60), 0.5);
 	snd = MoogFF.ar(snd, XLine.kr(400, 100, duration * 2), 0);
 	dry = snd;
-	snd = DelayC.ar(HPF.ar((snd * 10.dbamp).tanh, 600), 0.2, SinOsc.ar(3, [0, pi]).linlin(-1, 1, 0, 1) * 0.5e-3);
-	snd = dry + snd;
-	snd = (snd * 6.dbamp).tanh;
+	snd = DelayC.ar(HPF.ar((snd * 12.dbamp).tanh, 700), 0.2, SinOsc.ar(3, [0, pi]).linlin(-1, 1, 0, 1) * 0.5e-4);
+	snd = XFade2.ar(dry, snd, -0.65);
+	snd = (snd * 2.dbamp).tanh;
+	snd = snd * (0.25 + Env.perc(0.01, duration).ar);
 	snd = snd * Env.linen(0.01, duration, 0.1, curve: -4).ar(Done.freeSelf);
 	snd = snd * -10.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd ! 2);
@@ -72,11 +73,41 @@ SynthDef(\padA, {
 	snd = snd * Env.perc(0.1, 3.0).ar;
 	snd = snd * Env.linen(0, \duration.kr(1), 0.1, curve: -8).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * -15.dbamp;
-	Out.ar(\out.kr, snd);
+	snd = snd * -15.dbamp * \amp.kr(1);
+	Out.ar(\out.kr.(0), snd);
+}).add;
+
+SynthDef(\sidechainFx, {
+	var snd, trigger;
+	trigger = T2A.ar(\trigger.tr(0));
+	snd = In.ar(\in.kr(0), 2);
+	snd = snd * (1 - (0.4 * Env.perc(0.001, 0.2, curve: 4).ar(gate: trigger)));
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\drumsFx, {
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = (snd + LPF.ar(HPF.ar(GVerb.ar(snd.sum * -40.dbamp, 10, 1), 100), 3000)) * -2.dbamp;
+	snd = BLowShelf.ar(snd, 200, 0.3, -3);
+	snd = BHiShelf.ar(snd, 3200, 0.3, -3);
+	snd = (snd * 10.dbamp).tanh;
+	snd = BLowShelf.ar(snd, 200, 0.3, 3);
+	snd = BHiShelf.ar(snd, 3200, 0.3, 3);
+	snd = snd * -5.dbamp;
+	Out.ar(\out.kr(0), snd);
 }).add;
 )
 
+////////////////////////////////////////////////////////
+// Bussing
+////////////////////////////////////////////////////////
+
+(
+~sidechainBus = Bus.audio(nil, 2);
+~drumsBus = Bus.audio(nil, 2);
+)
+~sidechainBus.index;
+~drumsBus.index;
 
 ////////////////////////////////////////////////////////
 // Baisc Routine
@@ -90,19 +121,35 @@ bpm = 110;
 beat = 60 / bpm;
 root = -2;
 Routine({
+	var sidechainFx, drumsFx, pump;
+
+	// fx
+	drumsFx = Synth.tail(nil, \drumsFx, [in: ~drumsBus, out: 0]);
+	sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~sidechainBus, out: 0]);
+
+
+	// functions
+	pump = {
+		s.bind { sidechainFx.set(\trigger, 1) };
+	};
+
+	// loops
 	fork {
 		loop {
-			s.bind { Synth(\hat); };
+			s.bind { Synth(\hat, [out: ~drumsBus]); };
 			(beat/2).wait;
 		}
 	};
 	fork {
 		loop {
-			s.bind { Synth(\kick); };
-			((beat * 2)).wait;
-			s.bind { Synth(\clap); };
+			pump.();
+			s.bind { Synth(\kick, [out: ~drumsBus]); };
+			((beat * 1.5)).wait;
+			pump.();
+			s.bind { Synth(\kick, [out: ~drumsBus]); };
+			((beat * 0.5)).wait;
+			s.bind { Synth(\clap, [out: ~drumsBus]); };
 			((beat * 1.5) - 0.01).wait;
-			s.bind { Synth(\kick); };
 			((beat * 0.5) + 0.01).wait;
 		}
 	};
@@ -118,7 +165,7 @@ Routine({
 				chord[\intervals].do { |degree|
 					var note = (root + (12 * octave) + degree).midicps;
 					s.bind{
-						Synth(\padA, [freq: note, amp: 0.8, duration: chord[\length]]);
+						Synth(\padA, [freq: note, amp: 1, duration: chord[\length], out: ~sidechainBus]);
 					};
 				};
 				chord[\length].wait;
@@ -131,13 +178,13 @@ Routine({
 		loop {
 			[
 				// bar 1
-				(interval: 0, length: beat * 2, span: 1, amp: 0.8),
-				(interval: 1, length: beat, span: 1, amp: 0.8),
-				(interval: -2, length: beat, span: 1, amp: 0.8),
+				(interval: 0, length: beat * 2, span: 1, amp: 1),
+				(interval: 1, length: beat, span: 1, amp: 1),
+				(interval: -2, length: beat, span: 1, amp: 1),
 			].do{ |note|
 				var n = ( root + (12 * octave) + note[\interval]).midicps;
 				s.bind {
-					Synth(\bass, [freq: n, duration: note[\length] * note[\span], amp: note[\amp]]);
+					Synth(\bass, [freq: n, duration: note[\length] * note[\span], amp: note[\amp], out: 0]);
 				};
 				note[\length].wait;
 			}

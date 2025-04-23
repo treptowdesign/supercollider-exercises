@@ -264,37 +264,20 @@ SynthDef(\acid, {
 )
 
 (
-SynthDef(\marker1, {
+SynthDef(\padA, {
 	var snd;
-	snd = (\freq.kr(440) * (1.5 ** [0, 1, 2, 3]) * \ratio.kr(1)).collect { |freq|
+	snd = (\freq.kr(440) * [0, 1, 2, 3] * \ratio.kr(1)).collect { |freq, index|
 		var snd;
-		snd = SinOsc.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) * LFNoise2.kr(8 ! 2);
+		snd = SinOsc.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio, Rand(0, 2pi)) * LFNoise2.kr(8 ! 2);
+		snd = snd * (1 / (index + 1));
 		snd = [snd[0] + snd[1], snd[0] - snd[1]] / sqrt(2);
 		snd;
 	};
 	snd = snd.sum;
-	snd = snd * Env.perc(0.01, 3.0).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * Env.perc(0.1, 3.0).ar;
+	snd = snd * Env.linen(0, \duration.kr(1), 0.1, curve: -8).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * -15.dbamp * \amp.kr(1);
-	Out.ar(\out.kr, snd);
-}).add;
-)
-
-(
-SynthDef(\marker2, {
-	var snd;
-	snd = (\freq.kr(440) * (1 ** [0, 1, 2, 3]) * \ratio.kr(1)).collect { |freq|
-		var snd;
-		snd = LFTri.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) * LFNoise2.kr(1 ! 2);
-		snd = [snd[0] + snd[1], snd[0] - snd[1]] / sqrt(2);
-		snd;
-	};
-	snd = snd.sum;
-	snd = snd * (1 + (5 * Env.perc(0, 0.3).ar));
-	snd = snd.tanh;
-	snd = snd * Env.perc(0.1, 3.0).ar(Done.freeSelf, \gate.kr(1));
-	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * -6.dbamp;
+	snd = snd * -15.dbamp;
 	Out.ar(\out.kr, snd);
 }).add;
 )
@@ -358,7 +341,8 @@ Routine({
 					var n = (root + (12 * octave) + degree).midicps;
 					s.bind{
 						// Synth(\blipChord, [freq: n, amp: 0.2, duration: chord[\length]]);
-						Synth(\saw, [freq: n, amp: 0.1, duration: chord[\length]]);
+						// Synth(\saw, [freq: n, amp: 0.08, duration: chord[\length]]);
+						Synth(\padA, [freq: n, amp: 0.4, duration: chord[\length]]);
 					};
 				};
 				chord[\length].wait;
@@ -390,10 +374,10 @@ Routine({
 				s.bind {
 					// Synth(\pluck, [freq: n, amp: 0.1, duration: note[\length]]);
 					// Synth(\organ, [freq: n, amp: 1, duration: note[\length]]);
-					// Synth(\guitar, [freq: n, amp: 1, duration: note[\length]]);
+					// Synth(\guitar, [freq: n, amp: 0.4, duration: note[\length]]);
 					// Synth(\acid, [freq: n, amp: 0.2, duration: note[\length]]);
 					Synth(\sawCenter, [freq: n, amp: 0.2, duration: note[\length]]);
-					Synth(\keys, [freq: n, amp: 0.2, duration: note[\length]]);
+					// Synth(\keys, [freq: n, amp: 0.2, duration: note[\length]]);
 
 				};
 				note[\length].wait;
@@ -407,8 +391,8 @@ Routine({
 				// bar 1
 				(interval: 2, length: beat * 0.5, span: 0.8, amp: 1),
 				(interval: 0, length: beat * 0.5, span: 0.8, amp: 1),
-				(interval: -5, length: beat * 0.25, span: 0.6, amp: 1),
-				(interval: -5, length: beat * 0.25, span: 0.8, amp: 1),
+				(interval: -5, length: beat * 0.25, span: 0.6, amp: 0.6),
+				(interval: -5, length: beat * 0.25, span: 0.6, amp: 0.8),
 				(interval: 0, length: beat * 0.5, span: 0.3, amp: 1),
 				(interval: 7, length: beat, span: 0.4, amp: 1),
 				(interval: 0, length: beat, span: 0.4, amp: 1),
@@ -418,8 +402,8 @@ Routine({
 				// bar 3
 				(interval: 2, length: beat * 0.5, span: 0.8, amp: 1),
 				(interval: 0, length: beat * 0.5, span: 0.8, amp: 1),
-				(interval: -5, length: beat * 0.25, span: 0.6, amp: 1),
-				(interval: -5, length: beat * 0.25, span: 0.8, amp: 1),
+				(interval: -5, length: beat * 0.25, span: 0.6, amp: 0.6),
+				(interval: -5, length: beat * 0.25, span: 0.6, amp: 0.8),
 				(interval: 0, length: beat * 0.5, span: 0.3, amp: 1),
 				(interval: 7, length: beat, span: 0.4, amp: 1),
 				(interval: 0, length: beat, span: 0.4, amp: 1),

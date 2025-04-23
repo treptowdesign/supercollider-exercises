@@ -354,7 +354,7 @@ SynthDef(\choirPad, {
 
 	// Gentle amplitude envelope
 	env = EnvGen.kr(
-		Env.adsr(attackTime: 2.0, decayTime: 1.0, sustainLevel: 0.8, releaseTime: 3.0),
+		Env.adsr(attackTime: 0.1, decayTime: 1.0, sustainLevel: 0.8, releaseTime: 3.0),
 		gate,
 		doneAction:2
 	);

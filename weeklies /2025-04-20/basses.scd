@@ -43,12 +43,27 @@ SynthDef(\bassThree, {
 SynthDef(\bass808ish, {
 	var snd, freq, dry;
 	freq = \freq.kr(60);
-	snd = SinOsc.ar(freq * XLine.kr(2, 1, 0.02));
+	snd = SinOsc.ar(freq * XLine.kr(3, 1, 0.03));
 	dry = snd;
 	snd = DelayC.ar(HPF.ar((snd * 12.dbamp).tanh, 900), 0.2, SinOsc.ar(3, [0, pi]).linlin(-1, 1, 0, 1) * 0.5e-3);
 	snd = dry + (snd * -1.dbamp);
 	// snd = snd * Env.adsr(0.001, 0.1, 0.9, 0.02).ar(Done.freeSelf, \gate.kr(1));
-	snd = snd * Env.perc(0.01, 1).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.01, \duration.kr(2)).ar(Done.freeSelf);
+	snd = snd * -8.dbamp;
+	snd = snd * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\sub, {
+	var snd, freq, dry;
+	freq = \freq.kr(60);
+	snd = SinOsc.ar(freq);
+	dry = snd;
+	snd = DelayC.ar(HPF.ar((snd * 12.dbamp).tanh, 800), 0.2, SinOsc.ar(3, [0, pi]).linlin(-1, 1, 0, 1) * 0.5e-3);
+	snd = dry + (snd * -1.dbamp);
+	snd = snd * Env.linen(0.01, \duration.kr(1), 0.1).ar(Done.freeSelf);
 	snd = snd * -8.dbamp;
 	snd = snd * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);

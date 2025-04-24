@@ -21,9 +21,6 @@ SynthDef(\kick, {
 	snd = snd * -16.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
-)
-
-(
 SynthDef(\clap, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
@@ -52,8 +49,8 @@ SynthDef(\bass, {
 	snd = Pulse.ar(\freq.kr(60), 0.5);
 	snd = MoogFF.ar(snd, XLine.kr(400, 100, duration * 2), 0);
 	dry = snd;
-	snd = DelayC.ar(HPF.ar((snd * 12.dbamp).tanh, 700), 0.2, SinOsc.ar(3, [0, pi]).linlin(-1, 1, 0, 1) * 0.5e-4);
-	snd = XFade2.ar(dry, snd, -0.65);
+	snd = DelayC.ar(HPF.ar((snd * 12.dbamp).tanh, 600), 0.2, SinOsc.ar(3, [0, pi]).linlin(-1, 1, 0, 1) * 0.5e-4);
+	snd = XFade2.ar(dry, snd, -0.25);
 	snd = (snd * 2.dbamp).tanh;
 	snd = snd * (0.25 + Env.perc(0.01, duration).ar);
 	snd = snd * Env.linen(0.01, duration, 0.1, curve: -4).ar(Done.freeSelf);
@@ -77,25 +74,60 @@ SynthDef(\padA, {
 	Out.ar(\out.kr.(0), snd);
 }).add;
 
+SynthDef(\brownWash, {
+	var snd, duration, n;
+	n = 10;
+	duration = \duration.kr(10);
+	snd = { BrownNoise.ar } ! 2;
+	snd = BPF.ar([snd], ((0..n) ** 1.2).normalize.linexp(0, 1, 40, 400), 0.03);
+	snd = snd * (0..n) / n;
+	snd = snd.sum;
+	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
+	snd = snd * -2.dbamp * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\glitterWash, { |duration=2, amp=1, lfoRate=1|
+	var snd, lfo;
+	lfo = SinOsc.kr(lfoRate);
+	snd = WhiteNoise.ar;
+	snd = 10.collect {
+		FreqShift.ar(
+			CombC.ar(snd * (1 + (0.5 * LFNoise2.kr(7))) * (1 + (0.3 * LFNoise2.kr(30))),
+				0.1,
+				1 / (ExpRand(500, 1000) * (LFNoise2.kr(3) * 0.3).midiratio),
+				1.0
+			),
+			ExpRand(1000, 5000)
+		)
+	};
+	snd = Splay.ar(snd) * -10.dbamp;
+	snd = BPF.ar(snd, lfo.range(8200, 9800), 0.3);
+	3.do { snd = HPF.ar(snd, 8000); };
+	snd = snd * -23.dbamp * amp;
+	snd = snd * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
+
 SynthDef(\sidechainFx, {
 	var snd, trigger;
 	trigger = T2A.ar(\trigger.tr(0));
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * (1 - (0.4 * Env.perc(0.001, 0.2, curve: 4).ar(gate: trigger)));
+	snd = snd * (1 - (0.9 * Env.perc(0.001, 0.2, curve: 2).ar(gate: trigger)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\drumsFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
 	snd = (snd + LPF.ar(HPF.ar(GVerb.ar(snd.sum * -40.dbamp, 10, 1), 100), 3000)) * -2.dbamp;
-	snd = BLowShelf.ar(snd, 200, 0.3, -3);
-	snd = BHiShelf.ar(snd, 3200, 0.3, -3);
+	snd = BLowShelf.ar(snd, 200, 0.3, -4);
+	snd = BHiShelf.ar(snd, 3200, 0.3, -4);
 	snd = (snd * 10.dbamp).tanh;
-	snd = BLowShelf.ar(snd, 200, 0.3, 3);
-	snd = BHiShelf.ar(snd, 3200, 0.3, 3);
+	snd = BLowShelf.ar(snd, 200, 0.3, 4);
+	snd = BHiShelf.ar(snd, 3200, 0.3, 4);
 	snd = snd * -5.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
+
 )
 
 ////////////////////////////////////////////////////////
@@ -134,12 +166,12 @@ Routine({
 	};
 
 	// loops
-	fork {
+	/*fork {
 		loop {
 			s.bind { Synth(\hat, [out: ~drumsBus]); };
 			(beat/2).wait;
 		}
-	};
+	};*/
 	fork {
 		loop {
 			pump.();
@@ -154,18 +186,18 @@ Routine({
 		}
 	};
 	fork {
-		var octave = 5;
 		loop {
-			// Synth(\glitterWash, [amp: 0.3, duration: beat * 4, lfoRate: beat]);
+			Synth(\glitterWash, [amp: 0.3, duration: beat * 4, lfoRate: beat, out: ~sidechainBus]);
+			Synth(\brownWash, [amp: 0.2, out: ~sidechainBus]);
 			[
 				(intervals: (0 + [-12, 2, 7, 10]), length: beat * 2),
 				(intervals: (1 + [-12, 4, 7, 11]), length: beat),
 				(intervals: (-2 + [-12, 3, 7, 10]), length: beat)
 			].do { |chord|
 				chord[\intervals].do { |degree|
-					var note = (root + (12 * octave) + degree).midicps;
+					var note = (root + (12 * 5) + degree).midicps;
 					s.bind{
-						Synth(\padA, [freq: note, amp: 1, duration: chord[\length], out: ~sidechainBus]);
+						Synth(\padA, [freq: note, amp: 1.25, duration: chord[\length], out: ~sidechainBus]);
 					};
 				};
 				chord[\length].wait;

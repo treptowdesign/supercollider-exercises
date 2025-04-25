@@ -198,7 +198,7 @@ SynthDef(\formantSwarmPulse, {
 		BPF.ar(source, SinOsc.kr(0.1).range(formants[2], formantsB[2]), 0.04)
 	]) * 28.dbamp;
 
-	filtered = HPF.ar(filtered, 120);
+	filtered = HPF.ar(filtered, 200);
 	filtered = RLPF.ar(filtered, Env.perc(0.001, 0.4, curve: -2).kr.range(200, 6240), 0.2);
 	filtered.tanh;
 

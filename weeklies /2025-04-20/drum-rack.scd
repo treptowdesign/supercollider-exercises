@@ -269,6 +269,45 @@ SynthDef(\drumsFx, {
 }).add;
 )
 
+(
+SynthDef(\formantSwarmPulse, {
+	arg amp = 0.2, vowel = 1, vowelB = 3, gate = 1;
+	var source, count, freq, env, formants, formantsB, filtered, high;
+
+	count = 8;
+	freq = \freq.kr(58) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
+	source = LFPulse.ar(freq * (({LFNoise2.kr(0.5) }! count) * 0.1).midiratio, {Rand(0, 2pi) } ! count);
+
+	high = (Pulse.ar(\freq.kr(58) * [4, 8]) * [1, 0.1] * amp).mean ! 2;
+
+	// source = Splay.ar(source) * -8.dbamp;
+	source = Mix(source) * -14.dbamp;
+
+	formants = Select.kr(vowel.clip(0, 4), [
+		~vowels[\a], ~vowels[\e], ~vowels[\i], ~vowels[\o], ~vowels[\u]
+	]);
+	formantsB = Select.kr(vowelB.clip(0, 4), [
+		~vowels[\a], ~vowels[\e], ~vowels[\i], ~vowels[\o], ~vowels[\u]
+	]);
+
+	filtered = Mix.new([
+		BPF.ar(source, SinOsc.kr(0.1).range(formants[0], formantsB[0]), 0.04),
+		BPF.ar(source, SinOsc.kr(0.1).range(formants[1], formantsB[1]), 0.04),
+		BPF.ar(source, SinOsc.kr(0.1).range(formants[2], formantsB[2]), 0.04)
+	]) * 28.dbamp;
+
+	filtered = HPF.ar(filtered, 200);
+	filtered = RLPF.ar(filtered, Env.perc(0.001, 0.4, curve: -2).kr.range(200, 6240), 0.2);
+	filtered.tanh;
+
+	env = XLine.kr(1, 0.6, \duration.kr(1)) * Env.linen(0.01, \duration.kr(1), 0.1).ar(Done.freeSelf);
+	// filtered = (filtered ) * env * amp;
+	filtered = (filtered + high) * env * amp;
+
+	Out.ar(0, Pan2.ar(filtered));
+}).add;
+)
+
 Synth(\kick);
 Synth(\kick2);
 Synth(\ghostKick);
@@ -361,16 +400,16 @@ Routine({
 	};
 	fork {
 		loop {
-			// playP.(\sub, 8, [freq: 58, out: ~sidechainBus]);
+			playP.(\sub2, 6, [freq: 55, out: ~sidechainBus]);
 			pump.();
 			play.(\kick, 12, [out: ~drumsBus]);
 			play.(\ghostKick, 4, [out: ~drumsBus]);
 
-			// playP.(\sub, 8, [freq: 58, out: ~sidechainBus]);
+			playP.(\sub2, 6, [freq: 55, out: ~sidechainBus]);
 			pump.();
 			play.(\kick, 8, [out: ~drumsBus]);
 			play.(\ghostKick, 4, [out: ~drumsBus]);
-			// playP.(\sub, 4, [freq: 58, out: ~sidechainBus]);
+			playP.(\sub2, 4, [freq: 55, out: ~sidechainBus]);
 			pump.();
 			play.(\kick, 4, [out: ~drumsBus]);
 		};
@@ -389,17 +428,33 @@ Routine({
 	};
 	fork {
 		loop {
-			[12, 0, 8, 7].do { |interval|
+			[
+				(degree: 12, length: 2, bend: -7, vowels: [0, 4]),
+				(degree: 0, length: 1, bend: 0, vowels: [0, 1]),
+				(degree: 8, length: 2, bend: 0, vowels: [2, 1]),
+				(degree: 0, length: 1, bend: 7, vowels: [3, 4]),
+				(degree: 7, length: 2, bend: 0, vowels: [4, 2]),
+			].do { |note|
 				s.bind {
-					Synth(\formantSwarmPulse, [freq: (30 + interval).midicps, duration: beat*2, bend: [0, -7, 7].choose, amp: 0.075]);
+					Synth(\formantSwarmPulse, [
+						freq: (30 + note[\degree]).midicps,
+						duration: beat * note[\length],
+						bend: note[\bend],
+						amp: 0.075,
+						vowel: note[\vowels][0],
+						vowelB: note[\vowels][1]
+					]);
 				};
-				(beat*2).wait;
+				(beat * note[\length]).wait;
 			};
 		};
 	};
 
 }).play;
 )
+
+
+30 + 25
 
 
 

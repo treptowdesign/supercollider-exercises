@@ -434,6 +434,13 @@ Routine({
 				(degree: 8, length: 2, bend: 0, vowels: [2, 1]),
 				(degree: 0, length: 1, bend: 7, vowels: [3, 4]),
 				(degree: 7, length: 2, bend: 0, vowels: [4, 2]),
+
+				(degree: 12, length: 2, bend: -7, vowels: [0, 4]),
+				(degree: 0, length: 1, bend: 0, vowels: [0, 1]),
+				(degree: 8, length: 2, bend: 0, vowels: [2, 1]),
+				(degree: 0, length: 1, bend: 7, vowels: [3, 4]),
+				(degree: 7, length: 1, bend: 0, vowels: [4, 2]),
+				(degree: 7, length: 1, bend: 0, vowels: [0, 4]),
 			].do { |note|
 				s.bind {
 					Synth(\formantSwarmPulse, [

@@ -6,6 +6,7 @@
     o: [450, 800, 2830],
     u: [325, 700, 2530]
 );
+
 SynthDef(\formantLead, {
 	arg freq = 220, amp = 0.3, vowel = 0, gate = 1;
 	var source, env, formants, filtered;
@@ -170,7 +171,7 @@ SynthDef(\formantSwarm, {
 
 (
 SynthDef(\formantSwarmPulse, {
-	arg amp = 0.2, vowel = 4, vowelB = 0, gate = 1;
+	arg amp = 0.2, vowel = 1, vowelB = 3, gate = 1;
 	var source, count, freq, env, formants, formantsB, filtered, high;
 
 	count = 8;

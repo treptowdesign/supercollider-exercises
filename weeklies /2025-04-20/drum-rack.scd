@@ -339,7 +339,7 @@ Routine({
 		s.bind { sidechainFx.set(\trigger, 1) };
 	};
 
-	/*fork {
+	fork {
 		loop {
 			play.(\hat, 2, [out: ~drumsBus]);
 			play.(\hat2, 2, [out: ~drumsBus]);
@@ -358,19 +358,19 @@ Routine({
 			play.(\hat3, 1, [out: ~drumsBus]);
 			play.(\hat4, 2, [out: ~drumsBus]);
 		};
-	};*/
+	};
 	fork {
 		loop {
-			playP.(\sub, 6, [freq: 58, out: ~sidechainBus]);
+			// playP.(\sub, 8, [freq: 58, out: ~sidechainBus]);
 			pump.();
 			play.(\kick, 12, [out: ~drumsBus]);
 			play.(\ghostKick, 4, [out: ~drumsBus]);
 
-			playP.(\sub, 6, [freq: 58, out: ~sidechainBus]);
+			// playP.(\sub, 8, [freq: 58, out: ~sidechainBus]);
 			pump.();
 			play.(\kick, 8, [out: ~drumsBus]);
 			play.(\ghostKick, 4, [out: ~drumsBus]);
-			playP.(\sub, 4, [freq: 58, out: ~sidechainBus]);
+			// playP.(\sub, 4, [freq: 58, out: ~sidechainBus]);
 			pump.();
 			play.(\kick, 4, [out: ~drumsBus]);
 		};
@@ -385,6 +385,16 @@ Routine({
 			wait.(2);
 			playP.(\clap, 8, [out: ~drumsBus], latency: 0.04);
 			play.(\rim, 8, [out: ~drumsBus]);
+		};
+	};
+	fork {
+		loop {
+			[12, 0, 8, 7].do { |interval|
+				s.bind {
+					Synth(\formantSwarmPulse, [freq: (30 + interval).midicps, duration: beat*2, bend: [0, -7, 7].choose, amp: 0.075]);
+				};
+				(beat*2).wait;
+			};
 		};
 	};
 

@@ -447,7 +447,7 @@ Routine({
 						freq: (30 + note[\degree]).midicps,
 						duration: beat * note[\length],
 						bend: note[\bend],
-						amp: 0.075,
+						amp: 0.070,
 						vowel: note[\vowels][0],
 						vowelB: note[\vowels][1]
 					]);

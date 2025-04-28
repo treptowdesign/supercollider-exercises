@@ -120,7 +120,7 @@ SynthDef(\key2, {
 	snd = snd ! 2;
 	snd = snd * -29.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 SynthDef(\bass, {
 	var snd, freq, freqs;
 	freq = \freq.kr(58);

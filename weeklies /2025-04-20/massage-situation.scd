@@ -123,7 +123,7 @@ SynthDef(\fmBass, {
 	carrier = SinOsc.ar(freq + modulator);
 	carrier = carrier * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
 	Out.ar(0, carrier * env * amp ! 2);
-}).add;
+}).play;
 )
 
 ////////////////////////////////////////////////////////

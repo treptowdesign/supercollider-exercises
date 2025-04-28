@@ -45,8 +45,19 @@ SynthDef(\snare, {
 	snd = LPF.ar(snd, velocity.linexp(0, 1, 1000, 16e3));
 	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [63e-3, 74e-3]) * -15.dbamp);
 	snd = snd * velocity.sqrt;
-	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.015), 0.3 * velocity, curve: -4).ar(Done.freeSelf);
+	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.015), 0.2 * velocity, curve: -4).ar(Done.freeSelf);
 	snd = snd * -19.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\clap, {
+	var snd;
+	snd = Hasher.ar(Sweep.ar);
+	snd = RHPF.ar(snd, 1600, 0.6) * 2.dbamp;
+	snd = LPF.ar(snd, 5200);
+	snd = snd * Env([0, 2, 0.1, 1, 0.1, 1, 0.1, 0], [0.001, 0.01, 0.003, 0.01, 0.003, 0.08, 0.2] * 0.5, curve: -2).ar ** 1.6;
+	snd = snd.clip2;
+	snd = snd + GVerb.ar(snd * -26.dbamp, 10, 1, 0.9);
+	snd = snd * Env.linen(0, 0.2, 0.2, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hat, {
@@ -63,7 +74,7 @@ SynthDef(\hat, {
 SynthDef(\hatSoft, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = CombC.ar(snd, 0.23, 1 / 120, 1);
+	snd = CombC.ar(snd, 0.23, 1 / 50, 1);
 	snd = FreqShift.ar(snd, -34);
 	snd = BPF.ar(snd, [12240, 5230, 8832] * XLine.ar(0.9, 1.2, 0.1), 0.3).sum;
 	snd = HPF.ar(snd, 4e3);
@@ -84,7 +95,7 @@ SynthDef(\keys, {
 	snd = BLowShelf.ar(snd, 400, 0.3, -5);
 	snd = (snd * 2.dbamp).tanh * -3.dbamp;
 	snd = BLowShelf.ar(snd, 400, 0.3, 3);
-	snd = snd * Env.linen(0.05, \duration.kr(1.0), 0.05, curve: -4).ar(Done.freeSelf);
+	snd = snd * Env.linen(0.04, \duration.kr(1.0), 0.05, curve: -4).ar(Done.freeSelf);
 	snd = snd * SinOsc.ar(Rand(0.5, 1), [0, pi]).linlin(-1, 1, 0.7, 1);
 	snd = snd * -23.dbamp;
 	Out.ar(\out.kr(0), snd);
@@ -129,8 +140,10 @@ Routine({
 	loop {
 		fork {
 			[
-				(0 + [-12, 2, 7, 10]),
-				(-2 + [-12, 3, 7, 10])
+				[-5, 0, 2, 7],
+				[-3, 5, 9, 0],
+				[0, 2, 5, 9],
+				[-2, 7, 10, 2]
 			].do { |chord|
 				(root.midicps * chord.midiratio).do { |freq|
 					playParallel.(\keys, 8, [freq: freq, out: 0], latency: 0);
@@ -138,34 +151,50 @@ Routine({
 				wait.(8);
 			};
 		};
-		fork {
-			8.do{
-				wait.(1);
-				play.(\hat, 0.5);
-				play.(\hat, 0.5);
+		2.do {
+			fork {
+				4.do {
+					wait.(0.5);
+					play.(\hat, 0.25, [pan: -0.3], latency: 0);
+					play.(\hat, 0.25, [pan: 0.3], latency: 0.01);
+					play.(\hat, 0.5, [pan: -0.3], latency: 0);
+					play.(\hat, 0.5, [pan: 0], latency: 0);
+					wait.(0.5);
+					play.(\hatSoft, 0.5, [pan: 0], latency: 0.005);
+					play.(\hat, 0.5, [pan: -0.3], latency: 0.005);
+					play.(\hat, 0.5, [pan: 0.3], latency: 0.005);
+				};
 			};
-		};
-		fork {
-			4.do {
-				wait.(2);
-				play.(\snare, 2);
-			};
-		};
-		play.(\kick, 2);
-		wait.(1.5);
-		play.(\kick, 0.5, [velocity: 0.5]);
-		play.(\kick, 0.5);
-		play.(\kick, 0.5, [velocity: 0.6], latency: 0.005);
-		play.(\kick, 1, [velocity: 0.7]);
-		wait.(2);
+			fork {
+				1.do {
+					wait.(2);
+					play.(\snare, 2);
+					wait.(2);
+					play.(\snare, 1);
+					play.(\snare, 1, [\velocity: 0.8], latency: 0.005);
 
-		play.(\kick, 2);
-		wait.(1.5);
-		play.(\kick, 0.5, [velocity: 0.5]);
-		play.(\kick, 0.5);
-		play.(\kick, 0.5, [velocity: 0.6], latency: 0.005);
-		play.(\kick, 1, [velocity: 0.7]);
-		wait.(2);
+					wait.(2);
+					play.(\snare, 2);
+					wait.(1.5);
+					play.(\snare, 0.5, [\velocity: 0.7], latency: 0.005);
+					play.(\snare, 1);
+					play.(\snare, 1, [\velocity: 0.8], latency: 0.005);
+				};
+			};
+			play.(\kick, 3.5);
+			play.(\kick, 0.5, [velocity: 0.5]);
+
+			play.(\kick, 2.5);
+			play.(\kick, 1, [velocity: 0.5], latency: 0.005);
+			play.(\kick, 0.5, [velocity: 0.7]);
+
+			play.(\kick, 3.5);
+			play.(\kick, 0.5, [velocity: 0.5]);
+
+			play.(\kick, 2.5);
+			play.(\kick, 1, [velocity: 0.5], latency: 0.005);
+			play.(\kick, 0.5, [velocity: 0.7]);
+		};
 	};
 }).play;
 

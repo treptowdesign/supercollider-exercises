@@ -120,7 +120,7 @@ SynthDef(\key2, {
 	snd = snd ! 2;
 	snd = snd * -29.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 SynthDef(\bass, {
 	var snd, freq, freqs;
 	freq = \freq.kr(58);
@@ -130,7 +130,7 @@ SynthDef(\bass, {
 	snd = snd * (1 + (3 * Env.perc(0, 0.1).ar));
 	snd = snd.tanh;
 	snd = snd ! 2;
-	snd = snd * -16.dbamp;
+	snd = snd * -14.dbamp;
 	snd = snd * Env.linen(0.05, \duration.kr(1.0) - 0.05, 0.05, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -139,7 +139,7 @@ SynthDef(\sidechainFx, {
 	env = Env.perc(0.01, 0.2, curve: 4).ar(gate: T2A.ar(\trigger.tr(1)));
 	snd = In.ar(\in.kr(0), 2);
 	snd = snd * (1 - (0.6 * env));
-	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5).linlin(-1, 1, 0, 1) * 2e-3);
+	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5).linlin(-1, 1, 0, 1) * 2e-3);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\delayFx, {
@@ -217,10 +217,10 @@ Routine({
 		fork {
 			[
 				// [ 0, 2, 3, 5, 7, 9, 10 ]
-				[0, 3, 7, 10 -12], // i
-				[2, 5, 9, 12 -12], // ii
-				[5, 9, 12 -12, 15 -12], // iv
-				[7, 10, 14 -12, 17 -12] // v
+				[0 -12, 3, 7, 10 -12], // i
+				[2 -12, 5, 9, 12 -12], // ii
+				[5 -12, 9, 12 -12, 15 -12], // iv
+				[7 -12, 10, 14 -12, 17 -12] // v
 			].do { |chord|
 				(root.midicps * chord.midiratio).do { |freq|
 					playParallel.(\keys, 8, [freq: freq, out: 0], latency: 0);
@@ -230,18 +230,24 @@ Routine({
 		};
 		fork {
 			[
-				[10, 7, 3, 0],
-				[0, 9, 2, 5],
-				[9, 5, 0, 3],
-				[7, 5, 2],
+				[0, 12, \, 7, 0, \, 3, 7],
+				[\, \, 3, 7, \, 12, \, 7],
+				[2, 14, \, 9, 2, \, 5, 9],
+				[\, \, 5, 9, \, 14, \, 9],
+				[5, 9, \, 0, 5, \, 3, 12],
+				[\, 9, 3, 0, 5, 9, 3, 12],
+				[7, -5, \, 2, 7, \, 10, 2],
+				[\, \, 10, 2, \, -5, \, 2],
 			].do { |sequence|
 				fork {
 					sequence.do { |note|
-						playParallel.(\key2, 4, [freq: root.midicps * 1 * note.midiratio, out: ~delayBus], latency: 0.005);
+						if(note != \, {
+							playParallel.(\key2, 8, [freq: root.midicps * 1 * note.midiratio, out: ~delayBus], latency: 0.01);
+						});
 						wait.(0.5);
 					};
 				};
-				wait.(8);
+				wait.(4);
 			};
 		};
 		// wait.(32);

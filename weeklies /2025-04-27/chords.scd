@@ -97,8 +97,41 @@ SynthDef(\keys, {
 	snd = (snd * 2.dbamp).tanh * -3.dbamp;
 	snd = BLowShelf.ar(snd, 400, 0.3, 3);
 	snd = snd * Env.linen(0.04, \duration.kr(1.0), 0.05, curve: -4).ar(Done.freeSelf);
-	snd = snd * SinOsc.ar(Rand(0.5, 1), [0, pi]).linlin(-1, 1, 0.7, 1);
+	snd = snd * SinOsc.ar(Rand(0.25, 0.5), [0, pi]).linlin(-1, 1, 0.3, 1);
 	snd = snd * -23.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\key2, {
+	var snd, freq, velocity;
+	velocity = \velocity.kr(1) * Rand(0.5, 1.0);
+	freq = \freq.kr(440);
+	snd = SinOsc.ar(freq * 2 * ([1, 5.13, 8.1, 12.1] ** Hasher.kr(freq).linlin(0, 1, 1, 1.05)));
+	snd = snd * Env.perc(0, [10, 0.3, 0.1, 0.01]).ar;
+	snd = snd * [0, -5, -8, -10].dbamp;
+	snd = snd * (0.8 + (0.2 * SinOsc.ar([0.3, 0.4, 0.5, 0.6], Rand(0, 2pi ! 4))));
+	snd = snd.sum;
+	snd = snd + (WhiteNoise.ar * Env.perc(0, 0.05).ar * velocity);
+	snd = snd * (1 + (5 * Env.perc(0, 0.02).ar));
+	snd = snd * velocity.sqrt;
+	snd = snd.clip2;
+	snd = snd * velocity.sqrt;
+	snd = snd * freq.explin(1000, 3000, 0, -20).dbamp;
+	snd = snd * Env.perc(0.01, 3 * velocity, curve: -2).ar(Done.freeSelf);
+	snd = snd ! 2;
+	snd = snd * -29.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\bass, {
+	var snd, freq, freqs;
+	freq = \freq.kr(58);
+	snd = SinOsc.ar(freq * [1, 2]);
+	snd = snd * [0, -12].dbamp;
+	snd = snd.sum;
+	snd = snd * (1 + (3 * Env.perc(0, 0.1).ar));
+	snd = snd.tanh;
+	snd = snd ! 2;
+	snd = snd * -16.dbamp;
+	snd = snd * Env.linen(0.05, \duration.kr(1.0) - 0.05, 0.05, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\sidechainFx, {
@@ -106,33 +139,23 @@ SynthDef(\sidechainFx, {
 	env = Env.perc(0.01, 0.2, curve: 4).ar(gate: T2A.ar(\trigger.tr(1)));
 	snd = In.ar(\in.kr(0), 2);
 	snd = snd * (1 - (0.6 * env));
-	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5).linlin(-1, 1, 0, 1) * 2e-3);
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5).linlin(-1, 1, 0, 1) * 2e-3);
 	Out.ar(\out.kr(0), snd);
 }).add;
-)
-
-(
-SynthDef(\bass2, {
-	var snd, duration;
-	duration = \duration.kr(1);
-	snd = Pulse.ar(\freq.kr(58), 0.45);
-	snd = MoogFF.ar(snd, XLine.kr(420, 120, duration * 2), 0);
-	snd = (snd * 4.dbamp).tanh;
-	snd = snd * Env.linen(0.001, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * -15.dbamp * \amp.kr(1);
-	Out.ar(\out.kr(0), snd ! 2);
-}).add;
-SynthDef(\bass, {
-	var snd, freq, freqs;
-	freq = \freq.kr(58);
-	snd = SinOsc.ar(freq * [1, 2]);
-	snd = snd * [0, -10].dbamp;
-	snd = snd.sum;
-	snd = snd * (1 + (3 * Env.perc(0, 0.1).ar));
-	snd = snd.tanh;
-	snd = snd ! 2;
-	snd = snd * -12.dbamp;
-	snd = snd * Env.linen(0.05, \duration.kr(1.0) - 0.05, 0.05, curve: -4).ar(Done.freeSelf);
+SynthDef(\delayFx, {
+	var snd, fb, beat;
+	beat = \beat.kr(1);
+	snd = In.ar(\in.kr(0), 2);
+	snd = BHiShelf.ar(snd, 1200, 0.3, -5);
+	snd = BLowShelf.ar(snd, 500, 0.3, -5);
+	fb = snd;
+	fb = fb + LocalIn.ar(2);
+	fb = DelayC.ar(fb, 1.0, (beat * 1.5) - ControlDur.ir + (LFNoise2.ar(3 ! 2) * 2e-3));
+	fb = fb * -5.dbamp;
+	fb = LPF.ar(fb, 3000);
+	fb = HPF.ar(fb, 500);
+	LocalOut.ar(fb);
+	snd = snd + fb;
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -143,9 +166,11 @@ SynthDef(\bass, {
 
 (
 ~bassSidechainBus = Bus.audio(nil, 2);
+~delayBus = Bus.audio(nil, 2);
 )
 
 ~bassSidechainBus.index;
+~delayBus.index;
 
 
 
@@ -185,6 +210,7 @@ playParallel = { |synthDef, duration, args = #[], latency = 0.0|
 Routine({
 	var bassSidechainFx;
 	s.bind {
+		Synth.tail(nil, \sidechainFx, [in: ~delayBus, out: ~bassSidechainBus, beat: beat]);
 		bassSidechainFx = Synth.tail(nil, \sidechainFx, [in: ~bassSidechainBus, out: 0]);
 	};
 	loop {
@@ -198,6 +224,22 @@ Routine({
 			].do { |chord|
 				(root.midicps * chord.midiratio).do { |freq|
 					playParallel.(\keys, 8, [freq: freq, out: 0], latency: 0);
+				};
+				wait.(8);
+			};
+		};
+		fork {
+			[
+				[10, 7, 3, 0],
+				[0, 9, 2, 5],
+				[9, 5, 0, 3],
+				[7, 5, 2],
+			].do { |sequence|
+				fork {
+					sequence.do { |note|
+						playParallel.(\key2, 4, [freq: root.midicps * 1 * note.midiratio, out: ~delayBus], latency: 0.005);
+						wait.(0.5);
+					};
 				};
 				wait.(8);
 			};
@@ -233,15 +275,29 @@ Routine({
 					play.(\snare, 1, [\velocity: 0.8], latency: 0.005);
 				};
 			};
-			/*fork {
-				play.(\bass, 0.5, [freq: root, out: ~bassSidechainBus], latency: 0.01);
-				play.(\bass, 0.5, [freq: root, out: ~bassSidechainBus], latency: 0.01);
-				play.(\bass, 0.5, [freq: root, out: ~bassSidechainBus], latency: 0.01);
-				wait.(0.5);
-				wait.(1);
-				play.(\bass, 2, [freq: root, out: ~bassSidechainBus], latency: 0.01);
+			fork {
 				wait.(2);
-			};*/
+				play.(\bass, 0.75, [freq: (root -24).midicps, out: ~bassSidechainBus], latency: 0);
+				wait.(0.25);
+				play.(\bass, 0.75, [freq: (root -24).midicps, out: ~bassSidechainBus], latency: 0);
+				wait.(0.25);
+				wait.(2);
+				play.(\bass, 0.75, [freq: (root -24).midicps * 2.midiratio, out: ~bassSidechainBus], latency: 0);
+				wait.(0.25);
+				play.(\bass, 0.75, [freq: (root -24).midicps, out: ~bassSidechainBus], latency: 0);
+				wait.(0.25);
+
+				wait.(2);
+				play.(\bass, 0.75, [freq: (root -24).midicps, out: ~bassSidechainBus], latency: 0);
+				wait.(0.25);
+				play.(\bass, 0.75, [freq: (root -24).midicps, out: ~bassSidechainBus], latency: 0);
+				wait.(0.25);
+				wait.(2);
+				play.(\bass, 0.75, [freq: (root -24).midicps * -5.midiratio, out: ~bassSidechainBus], latency: 0);
+				wait.(0.25);
+				play.(\bass, 0.75, [freq: (root -24).midicps, out: ~bassSidechainBus], latency: 0);
+				wait.(0.25);
+			};
 			play.(\kick, 3.5);
 			s.bind { bassSidechainFx.set(\trigger, 1) };
 			play.(\kick, 0.5, [velocity: 0.5]);

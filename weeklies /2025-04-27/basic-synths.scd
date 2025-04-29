@@ -6,13 +6,14 @@
 SynthDef(\square, {
 	var snd, freq;
 	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
-	snd = SinOsc.ar(\vibRate.kr(6), 0, \vibDepth.kr(4), freq);
+	snd = SinOsc.ar(\vibRate.kr(6), 0, \vibDepth.kr(3), freq);
 	snd = Pulse.ar(snd, 0.5);
-	snd = MoogFF.ar(snd, Env.perc(0.01, 2).kr.range(100, 9e3), 2);
-	snd = snd * (SinOsc.ar(7).range(1, 0.8));
+	snd = MoogFF.ar(snd, Env.perc(0.01, 1).kr.range(4e2, 9e3), 2);
+	snd = snd * (SinOsc.ar(8, 0, 0.1, 0.9)); // (mul: 0.1, add: 0.9) = range: 0.8-1
 	snd = snd * Env.perc(\atk.kr(0.01), \rel.kr(2)).ar;
 	snd = snd * Env.linen(\atk.kr(0.01), \duration.kr(2), 0.1).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.3));
+	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
@@ -20,3 +21,22 @@ SynthDef(\square, {
 ////////////////////////////////////////////////////////
 // Routines
 ////////////////////////////////////////////////////////
+
+(
+var s, beat, root;
+s = Server.default;
+beat = 60 / 130;
+root = 58;
+Routine({
+	loop {
+		[14, 7, 0, 0, -5, 2, 12 ].do { |degree|
+			Synth(\square, [
+				freq: (root + degree).midicps,
+				duration: beat,
+				bend: [0, -7, 7].wchoose([0.8, 0.1, 0.1]);
+			]);
+			(beat/2).wait;
+		};
+	};
+}).play;
+)

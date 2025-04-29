@@ -15,8 +15,10 @@ SynthDef(\square, {
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.3));
 	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 )
+
+Synth(\square, [freq: 330, duration: 1, bend: 0]);
 
 ////////////////////////////////////////////////////////
 // Routines
@@ -29,7 +31,7 @@ beat = 60 / 130;
 root = 58;
 Routine({
 	loop {
-		[14, 7, 0, 0, -5, 2, 12 ].do { |degree|
+		[14, 7, 0, 12, -5, 2, 0 ].do { |degree|
 			Synth(\square, [
 				freq: (root + degree).midicps,
 				duration: beat/2,

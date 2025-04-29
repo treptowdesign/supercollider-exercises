@@ -15,27 +15,29 @@ SynthDef(\square, {
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.3));
 	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 )
 
 
 Synth(\square, [freq: 330, duration: 1, bend: -7]);
 
 (
-SynthDef(\squareUnison, {
+SynthDef(\sawUnison, {
 	var snd, freq;
 	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
 	snd = SinOsc.ar(\vibRate.kr(6), 0, \vibDepth.kr(3), freq);
-	snd = (LFPulse.ar(snd * [0, 0.1, -0.12, 0.085, -0.02].midiratio, Rand(0, 2pi))).sum;
+	snd = LFSaw.ar(snd * [0, 0.1, -0.12, 0.086, -0.02].midiratio, Rand(0, 2pi));
 	snd = MoogFF.ar(snd, Env.perc(0.01, 1).kr.range(4e2, 1e4), 2);
-	snd = snd * (SinOsc.ar(8, 0, 0.1, 0.9)); // (mul: 0.1, add: 0.9) = range: 0.8-1
+	snd = snd * ({SinOsc.ar(Rand(2, 10), 0, 0.1, 0.9)} ! 5); // (mul: 0.1, add: 0.9) = range: 0.8-1
 	snd = snd * Env.perc(\atk.kr(0.01), \rel.kr(2)).ar;
 	snd = snd * Env.linen(\atk.kr(0.01), \duration.kr(2), 0.1).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.3));
+	snd = Splay.ar(snd, 1, \amp.kr(0.3), \pan.kr(0));
 	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 )
+
+Synth(\sawUnison, [freq: 220, duration: 1, bend: 0]);
 
 ////////////////////////////////////////////////////////
 // Routines

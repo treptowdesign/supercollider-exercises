@@ -32,11 +32,13 @@ root = 58;
 Routine({
 	loop {
 		[14, 7, 0, 12, -5, 2, 0 ].do { |degree|
-			Synth(\square, [
-				freq: (root + degree).midicps,
-				duration: beat/2,
-				bend: [0, -7, 7].wchoose([0.8, 0.1, 0.1]);
-			]);
+			s.bind {
+				Synth(\square, [
+					freq: (root + degree).midicps,
+					duration: beat/2,
+					bend: [0, -7, 7].wchoose([0.8, 0.1, 0.1]);
+				]);
+			};
 			(beat/2).wait;
 		};
 	};

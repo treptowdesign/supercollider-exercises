@@ -32,7 +32,7 @@ Routine({
 		[14, 7, 0, 0, -5, 2, 12 ].do { |degree|
 			Synth(\square, [
 				freq: (root + degree).midicps,
-				duration: beat,
+				duration: beat/2,
 				bend: [0, -7, 7].wchoose([0.8, 0.1, 0.1]);
 			]);
 			(beat/2).wait;

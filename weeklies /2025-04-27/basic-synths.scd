@@ -15,7 +15,7 @@ SynthDef(\square, {
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.3));
 	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 )
 
 Synth(\square, [freq: 330, duration: 1, bend: -7]);
@@ -53,7 +53,7 @@ Routine({
 	loop {
 		[14, 7, 0, 12, -5, 2, 0].do { |degree|
 			s.bind {
-				Synth(\squareUnison, [
+				Synth(\sawUnison, [
 					freq: (root + degree).midicps,
 					duration: beat/2,
 					bend: [0, -7, 7].wchoose([0.8, 0.1, 0.1]);

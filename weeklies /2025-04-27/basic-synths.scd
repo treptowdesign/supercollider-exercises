@@ -26,19 +26,53 @@ SynthDef(\sawUnison, {
 	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
 	snd = SinOsc.ar(\vibRate.kr(6), 0, \vibDepth.kr(3), freq);
 	snd = LFSaw.ar(snd * [0, 0.3, -0.32, 0.16, -0.11].midiratio, Rand(0.0, 1.0));
-	snd = MoogFF.ar(snd, Env.perc(0.01, 1).kr.range(4e2, 1e4), 2);
+	snd = MoogFF.ar(snd, Env.perc(0.01, 1).kr.range(4e2, 1e4), 0);
 	snd = snd * ({SinOsc.ar(Rand(2, 10), Rand(0.01, pi), 0.1, 0.9)} ! 5); // (mul: 0.1, add: 0.9) = range: 0.8-1
-	snd = snd * Env.perc(\atk.kr(0.01), \rel.kr(2)).ar;
-	snd = snd * Env.linen(\atk.kr(0.01), \duration.kr(2), 0.1).ar(Done.freeSelf);
+	snd = snd * Env.perc(\atk.kr(0.03), \rel.kr(2)).ar;
+	snd = snd * Env.linen(\atk.kr(0.03), \duration.kr(2), 0.1).ar(Done.freeSelf);
 	snd = Splay.ar(snd, 1, \amp.kr(0.3), \pan.kr(0));
 	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 )
 
 Synth(\sawUnison, [freq: 440, duration: 1, bend: 0]);
 
 {{SinOsc.ar(Rand(2, 10), Rand(0.01, pi), 0.1, 0.9)} ! 5}.plot(1);
+
+
+
+(
+SynthDef(\tri, {
+	var snd, voices, freq;
+	voices = 16;
+	freq = \freq.kr(440);
+	snd = Array.fill(voices, {
+		LFTri.ar(freq * (LFNoise2.ar(Rand(1.0, 8.0), 0.6).midiratio), Rand(0, 2));
+	});
+	snd = Splay.ar(snd, 1, \amp.kr(0.3));
+	snd = snd * Env.perc(0.01, 2).ar;
+	snd = snd * Env.linen(\atk.kr(0.03), \duration.kr(2), 0.1).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
+)
+
+(
+SynthDef(\sinUnison, {
+	var snd, voices, freq;
+	voices = 16;
+	freq = \freq.kr(440);
+	snd = Array.fill(voices, {
+		SinOsc.ar(freq * (LFNoise2.ar(Rand(1.0, 8.0), 1).midiratio), Rand(0, pi));
+	});
+	snd = Splay.ar(snd, 1, \amp.kr(0.3));
+	snd = snd * Env.perc(0.01, 2).ar;
+	snd = snd * Env.linen(\atk.kr(0.03), \duration.kr(2), 0.1).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
+)
+
+0.6.midiratio
 
 ////////////////////////////////////////////////////////
 // Routines
@@ -51,9 +85,9 @@ beat = 60 / 130;
 root = 58;
 Routine({
 	loop {
-		[14, 7, 0, 12, -5, 2, 0].do { |degree|
+		[14, 7, 0, 12, -5, 2, 0, 7].do { |degree|
 			s.bind {
-				Synth(\sawUnison, [
+				Synth(\tri, [
 					freq: (root + degree).midicps,
 					duration: beat/2,
 					bend: [0, -7, 7].wchoose([0.8, 0.1, 0.1]);

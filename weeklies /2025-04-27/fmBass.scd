@@ -43,16 +43,19 @@ SynthDef(\fmBass, {
 SynthDef(\fmBass, {
 	var freq, snd, env, modEnv;
 	freq = \freq.kr(50);
-	env = Env.perc(\atk.kr(0.01), \rel.kr(1)).ar;
-	modEnv = EnvGen.kr(Env.perc(0.01, 0.8), levelScale: \modIndex.kr(4));
-	snd = SinOsc.ar(freq * \modRatio.kr(2), 0, freq * modEnv);
+	env = Env.perc(\atk.kr(0.01), \rel.kr(0.8), curve: -4).ar;
+	modEnv = EnvGen.kr(Env.perc(0.01, 0.6), levelScale: \modIndex.kr(4));
+	snd = SinOsc.ar(freq * \modRatio.kr(1), 0, freq * modEnv);
 	snd = SinOsc.ar(freq + snd);
-	snd = Pan2.ar(snd * env, 0, \amp.kr(0.6));
-	snd = (snd * 4.dbamp).tanh;
-	snd = snd * Env.linen(0, \duration.kr(1), 0.1).ar(Done.freeSelf);
+	snd = Pan2.ar(snd * env, 0, \amp.kr(0.2));
+	snd = XFade2.ar(snd, (snd * 6.dbamp).tanh, 0.25);
+	snd = snd * (1 + (0.25 * Env.perc(0, 0.03).ar)) * SinOsc.ar(4, 0, 0.2, 0.8);
+	snd = snd * Env.linen(0, \duration.kr(1), 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
+
+{SinOsc.ar(8, 0, 0.2, 0.8)}.plot(1);
 
 
 (
@@ -62,7 +65,7 @@ beat = 60 / 130;
 root = 32;
 Routine({
 	loop {
-		[0, -5, 7, 12, 0, 2, 0].do { |degree|
+		[0, -5, 2, 0, -4, 0, 2, 0].do { |degree|
 			s.bind {
 				Synth(\fmBass, [
 					freq: (root + degree).midicps,

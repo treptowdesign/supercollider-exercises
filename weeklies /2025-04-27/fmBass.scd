@@ -49,7 +49,7 @@ SynthDef(\fmBass, {
 	snd = SinOsc.ar(freq + snd);
 	snd = Pan2.ar(snd * env, 0, \amp.kr(0.2));
 	snd = XFade2.ar(snd, (snd * 6.dbamp).tanh, 0.25);
-	snd = snd * (1 + (0.25 * Env.perc(0, 0.03).ar)) * SinOsc.ar(4, 0, 0.2, 0.8);
+	snd = snd * (1 + (0.25 * Env.perc(0, 0.03).ar)) * SinOsc.ar(10, 0, 0.2, 0.8);
 	snd = snd * Env.linen(0, \duration.kr(1), 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -69,8 +69,7 @@ Routine({
 			s.bind {
 				Synth(\fmBass, [
 					freq: (root + degree).midicps,
-					duration: beat/2,
-					bend: [0, -7, 7].wchoose([0.8, 0.1, 0.1]);
+					duration: beat/2
 				]);
 			};
 			(beat/2).wait;

@@ -57,7 +57,6 @@ SynthDef(\fmBass, {
 
 {SinOsc.ar(8, 0, 0.2, 0.8)}.plot(1);
 
-
 (
 var s, beat, root;
 s = Server.default;

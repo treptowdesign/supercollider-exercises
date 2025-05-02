@@ -73,6 +73,7 @@ SynthDef(\sinUnison, {
 )
 
 0.6.midiratio
+[80, 10, 10].normalizeSum
 
 ////////////////////////////////////////////////////////
 // Routines

@@ -106,14 +106,29 @@ SynthDef(\fmBass, {
 }).add;
 SynthDef(\square, {
 	var snd, freq;
-	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
-	snd = SinOsc.ar(\vibRate.kr(6), 0, \vibDepth.kr(3), freq);
+	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
+	snd = SinOsc.ar(\vibRate.kr(6), 0, \vibDepth.kr(2), freq);
 	snd = Pulse.ar(snd, 0.5);
-	snd = MoogFF.ar(snd, Env.perc(0.01, 1).kr.range(4e2, 9e3), 2);
-	snd = snd * (SinOsc.ar(8, 0, 0.1, 0.9)); // (mul: 0.1, add: 0.9) = range: 0.8-1
-	snd = snd * Env.perc(\atk.kr(0.001), \rel.kr(1)).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.2));
-	snd = Limiter.ar(LeakDC.ar(snd));
+	snd = Mix.fill(2, { |i|
+		DelayC.ar(snd, 0.03, SinOsc.kr(0.2 + (0.1 * i)).range(0.01,0.02))
+	});
+	snd = MoogFF.ar(snd, Env.perc(0.01, 0.5).kr.range(400, 7e3), Line.kr(1, 0, 0.2));
+	snd = snd * Env.perc(\atk.kr(0.001), \rel.kr(2), curve: -4).ar;
+	snd = snd * Env.linen(\atk.kr(0.001), \duration.kr(1), 0.1, curve: -4).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.15));
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\squareDecay, {
+	var snd, freq;
+	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
+	snd = SinOsc.ar(\vibRate.kr(6), 0, \vibDepth.kr(2), freq);
+	snd = Pulse.ar(snd, 0.5);
+	snd = Mix.fill(2, { |i|
+		DelayC.ar(snd, 0.03, SinOsc.kr(0.2 + (0.1 * i)).range(0.01,0.02))
+	});
+	snd = MoogFF.ar(snd, Env.perc(0.01, 0.5).kr.range(100, 7e3), Line.kr(1, 0, 0.2));
+	snd = snd * Env.perc(\atk.kr(0.01), \rel.kr(2), curve: -4).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.15));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\sawUnison, {
@@ -125,7 +140,6 @@ SynthDef(\sawUnison, {
 	snd = snd * ({SinOsc.ar(Rand(2, 10), Rand(0.01, pi), 0.1, 0.9)} ! 5); // (mul: 0.1, add: 0.9) = range: 0.8-1
 	snd = snd * Env.perc(\atk.kr(0.02), \rel.kr(2)).ar(Done.freeSelf);
 	snd = Splay.ar(snd, 1, \amp.kr(0.1), \pan.kr(0));
-	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -138,6 +152,9 @@ SynthDef(\sawUnison, {
 ~drumsBus = Bus.audio(nil, 2);
 )
 ~drumsBus.index;
+
+
+(60/124)/16 * 60
 
 //////////////////////////////////////////////
 // Routine
@@ -172,11 +189,12 @@ wait = { |duration|
 Routine({
 	loop {
 		fork {
-			play.(\square, 0.5, [freq: (root +1).midicps]);
+			play.(\square, 0.5, [freq: (root +1).midicps, bend: -12]);
 			play.(\square, 0.5, [freq: (root).midicps]);
-			play.(\square, 0.5, [freq: (root -5).midicps]);
+			play.(\square, 0.5, [freq: (root -5).midicps, bend: 7]);
 			play.(\square, 1.5, [freq: (root +1).midicps]);
-			play.(\square, 2, [freq: (root).midicps]);
+			play.(\squareDecay, 1.5, [freq: (root).midicps, rel: 2, vibDepth: 4, vibRate: (beat/4) * 60]);
+			wait.(0.5);
 
 			play.(\sawUnison, 2, [freq: (root -12 -5).midicps]);
 			play.(\sawUnison, 2, [freq: (root -12).midicps]);

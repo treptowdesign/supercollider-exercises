@@ -112,9 +112,9 @@ SynthDef(\square, {
 	snd = Mix.fill(2, { |i|
 		DelayC.ar(snd, 0.03, SinOsc.kr(0.2 + (0.1 * i)).range(0.01,0.02))
 	});
-	snd = MoogFF.ar(snd, Env.perc(0.01, 0.5).kr.range(400, 7e3), Line.kr(1, 0, 0.2));
-	snd = snd * Env.perc(\atk.kr(0.001), \rel.kr(2), curve: -4).ar;
-	snd = snd * Env.linen(\atk.kr(0.001), \duration.kr(1), 0.1, curve: -4).ar(Done.freeSelf);
+	snd = MoogFF.ar(snd, Env.perc(0.01, 0.5).kr.range(600, 6e3), Line.kr(1, 0, 0.5));
+	snd = snd * Env.perc(\atk.kr(0.01), \rel.kr(2), curve: -4).ar;
+	snd = snd * Env.linen(\atk.kr(0.01), \duration.kr(1), 0.1, curve: -4).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.15));
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -126,7 +126,7 @@ SynthDef(\squareDecay, {
 	snd = Mix.fill(2, { |i|
 		DelayC.ar(snd, 0.03, SinOsc.kr(0.2 + (0.1 * i)).range(0.01,0.02))
 	});
-	snd = MoogFF.ar(snd, Env.perc(0.01, 0.5).kr.range(100, 7e3), Line.kr(1, 0, 0.2));
+	snd = MoogFF.ar(snd, Env.perc(0.01, 0.5).kr.range(600, 6e3), Line.kr(1, 0, 0.5));
 	snd = snd * Env.perc(\atk.kr(0.01), \rel.kr(2), curve: -4).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.15));
 	Out.ar(\out.kr(0), snd);

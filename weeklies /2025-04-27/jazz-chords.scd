@@ -162,8 +162,9 @@ Routine({
 			// [ 5, 8, 12, 15 ]
 			// [ -2, 1, 5, 8 ]
 			// [ 1, 6, 8, 11 ]
-			play.(\lead, 0.5, [freq: (root + 0).midicps, out: ~sidechainBus]);
-			play.(\lead, 1.5, [freq: (root + 12).midicps, out: ~sidechainBus]);
+			play.(\lead, 0.5, [freq: (root + 2).midicps, out: ~sidechainBus]);
+			play.(\lead, 0.5, [freq: (root + 14).midicps, out: ~sidechainBus]);
+			play.(\lead, 1, [freq: (root + 7).midicps, out: ~sidechainBus]);
 			play.(\lead, 0.5, [freq: (root + 10).midicps, out: ~sidechainBus]);
 			play.(\lead, 1, [freq: (root + -2).midicps, out: ~sidechainBus]);
 			play.(\lead, 0.5, [freq: (root + -5).midicps, out: ~sidechainBus]);

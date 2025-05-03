@@ -8,7 +8,7 @@ SynthDef(\key, {
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
 	snd = snd * 200 * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
-	snd = HPF.ar(snd, 80) + HPF.ar(PinkNoise.ar(0.15), 300);
+	snd = HPF.ar(snd, 80) + HPF.ar(PinkNoise.ar(0.1), 300);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.15));
 	snd = snd * Env.perc(0.01, \rel.kr(3.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
@@ -40,10 +40,10 @@ SynthDef(\lead, {
 	snd = Splay.ar(snd);
 	snd = snd + SinOsc.ar(freq / 2, 0, 0.4);
 	snd = snd + ({ PinkNoise.ar(0.18)} ! 2);
-	snd = RLPF.ar(snd, (LFNoise2.ar(2) + Env.perc(0.05, 0.3).ar).linexp(-1, 1, 500, 6000), 0.2);
+	snd = RLPF.ar(snd, (LFNoise2.ar(2) + Env.perc(0.05, 0.3).ar).linexp(-1, 1, 500, 7000), 0.3);
 	snd = snd.tanh;
 	snd = snd + PitchShift.ar(snd, 0.2, 0.5);
-	snd = snd * -18.dbamp;
+	snd = snd * -16.dbamp;
 	snd = snd * Env.perc(0.01,  \rel.kr(4)).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -163,8 +163,8 @@ Routine({
 			// [ -2, 1, 5, 8 ]
 			// [ 1, 6, 8, 11 ]
 			play.(\lead, 0.5, [freq: (root + 0).midicps, out: ~sidechainBus]);
-			play.(\lead, 1.5, [freq: (root + 10).midicps, out: ~sidechainBus]);
-			play.(\lead, 0.5, [freq: (root + 7).midicps, out: ~sidechainBus]);
+			play.(\lead, 1.5, [freq: (root + 12).midicps, out: ~sidechainBus]);
+			play.(\lead, 0.5, [freq: (root + 10).midicps, out: ~sidechainBus]);
 			play.(\lead, 1, [freq: (root + -2).midicps, out: ~sidechainBus]);
 			play.(\lead, 0.5, [freq: (root + -5).midicps, out: ~sidechainBus]);
 

@@ -122,14 +122,13 @@ SynthDef(\perc, {
 SynthDef(\hatSoft, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = CombC.ar(snd, 0.25, 1 / 100, 1);
+	snd = CombC.ar(snd, 0.25, 1 / 60, 1);
 	snd = FreqShift.ar(snd, -30);
 	snd = BPF.ar(snd, [12240, 5230, 8832] * XLine.ar(0.9, 1.2, 0.1), 0.3).sum;
 	snd = HPF.ar(snd, 4e3);
 	snd = snd * Env.perc(0.05, 0.03, curve: 4).ar(Done.freeSelf);
-	snd = snd ! 2;
-	snd = snd * -30.dbamp;
-	Out.ar(\out.kr(0), snd);
+	snd = snd * -34.dbamp;
+	Out.ar(\out.kr(0), snd ! 2);
 }).add;
 SynthDef(\hat, {
 	var snd;
@@ -139,7 +138,7 @@ SynthDef(\hat, {
 	snd = snd + BPF.ar(Hasher.ar(Sweep.ar) * Env.perc(0.01, 0.03).ar * -15.dbamp, 8320, 0.3);
 	snd = snd * Env.perc(0.01, 0.1, curve: -8).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0)) * 3.dbamp;
-	snd = snd * -18.dbamp;
+	snd = snd * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\sidechainFx, {
@@ -156,7 +155,7 @@ SynthDef(\drumsFx, {
 	snd = In.ar(\in.kr(0), 2);
 	snd = BLowShelf.ar(snd, 200, 0.3, -3);
 	snd = BHiShelf.ar(snd, 3200, 0.3, -3);
-	snd = (snd * 10.dbamp).tanh;
+	snd = (snd * 4.dbamp).tanh;
 	snd = BLowShelf.ar(snd, 200, 0.3, 3);
 	snd = BHiShelf.ar(snd, 3200, 0.3, 3);
 	// snd = snd + GVerb.ar(snd.sum * -40.dbamp, 10, 10);
@@ -305,10 +304,10 @@ Routine({
 		};
 
 		[
-			(0 + [-12, 2, 7, 10]),
-			(5 + [-12, 3, 7, -2]),
-			(-2 + [-12, 3, 7, 10]),
-			(1 + [-12, 5, 7, 10]),
+			(0 + [0, 2, 7, 10]),
+			(5 + [0, 3, 7, -2]),
+			(-2 + [0, 3, 7, 10]),
+			(1 + [0, 3, 7, 10]),
 		].do { |chord|
 			chord.do { |degree|
 				s.bind { Synth(\key, [
@@ -348,8 +347,15 @@ Scale.phrygian.degrees; // [ 0, 1, 3, 5, 7, 8, 10 ]
 (-2 + [0, 3, 7, 10]);
 
 (
-var root = 58 + 12;
+var root = 58;
 [-12, 2, 7, 10].do{ |degree|
+	Synth(\key, [freq: (root + degree).midicps]);
+};
+)
+
+(
+var root = 58;
+[0, 2, 7, 10].do{ |degree|
 	Synth(\key, [freq: (root + degree).midicps]);
 };
 )

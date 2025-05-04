@@ -4,12 +4,13 @@
 (
 SynthDef(\key, {
 	var snd, freq;
-	freq = \freq.kr(440) * (LFNoise2.ar(3) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
-	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
+	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.2).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
+	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.3), 100);
 	snd = snd * 200 * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
-	snd = HPF.ar(snd, 80) + HPF.ar(PinkNoise.ar(0.1), 300);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.15));
+	snd = HPF.ar(snd, 100) + HPF.ar(PinkNoise.ar(0.1), 300);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.06));
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 10, 3, 1);
 	snd = snd * Env.perc(0.01, \rel.kr(3.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -46,6 +47,17 @@ SynthDef(\lead, {
 	snd = snd * -16.dbamp;
 	snd = snd * Env.perc(0.01,  \rel.kr(4)).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\ping, {
+	var snd, freq;
+	freq = \freq.kr(440);
+	snd = LFTri.ar(freq);
+	snd = LPF.ar(snd, XLine.ar(3000, 100, 0.3));
+	snd = snd * (1 + Env.perc(0, 0.02).ar);
+	snd = snd * -16.dbamp;
+	snd = snd ! 2;
+	snd = snd * Env.perc(0.005, 1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\kick, {
@@ -92,7 +104,31 @@ SynthDef(\snare, {
 	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [63e-3, 74e-3]) * -15.dbamp);
 	snd = snd * velocity.sqrt;
 	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.015), 0.2 * velocity, curve: -4).ar(Done.freeSelf);
-	snd = snd * -17.dbamp;
+	snd = snd * -15.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\perc, {
+	var snd;
+	snd = SinOsc.ar(920 * (1.5 ** [0, 1, 1.5])).sum;
+	snd = snd * (1 + (4 * Env.perc(0, 0.01).ar));
+	snd = snd * Env.perc(0.001, 0.08).ar;
+	snd = snd + GVerb.ar(snd * -25.dbamp, 20);
+	snd = snd * Env.perc(0.0, 1).ar(Done.freeSelf);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
+	snd = snd * \amp.kr(1);
+	snd = snd * -18.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\hatSoft, {
+	var snd;
+	snd = Hasher.ar(Sweep.ar);
+	snd = CombC.ar(snd, 0.25, 1 / 100, 1);
+	snd = FreqShift.ar(snd, -30);
+	snd = BPF.ar(snd, [12240, 5230, 8832] * XLine.ar(0.9, 1.2, 0.1), 0.3).sum;
+	snd = HPF.ar(snd, 4e3);
+	snd = snd * Env.perc(0.05, 0.03, curve: 4).ar(Done.freeSelf);
+	snd = snd ! 2;
+	snd = snd * -30.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hat, {
@@ -103,15 +139,45 @@ SynthDef(\hat, {
 	snd = snd + BPF.ar(Hasher.ar(Sweep.ar) * Env.perc(0.01, 0.03).ar * -15.dbamp, 8320, 0.3);
 	snd = snd * Env.perc(0.01, 0.1, curve: -8).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0)) * 3.dbamp;
-	snd = snd * -20.dbamp;
+	snd = snd * -18.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\sidechainFx, {
 	var snd, trigger;
 	trigger = T2A.ar(\trigger.tr(1));
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * (1 - (0.8 * Env.perc(0.01, 0.2, curve: 4).ar(gate: trigger)));
-	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5).linlin(-1, 1, 0, 1) * 2e-3);
+	snd = snd * (1 - (1 * Env.perc(0.01, 0.3, curve: 2).ar(gate: trigger)));
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5).linlin(-1, 1, 0, 1) * 2e-3);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\drumsFx, {
+	var snd, trigger;
+	trigger = T2A.ar(\trigger.tr(0));
+	snd = In.ar(\in.kr(0), 2);
+	snd = BLowShelf.ar(snd, 200, 0.3, -3);
+	snd = BHiShelf.ar(snd, 3200, 0.3, -3);
+	snd = (snd * 10.dbamp).tanh;
+	snd = BLowShelf.ar(snd, 200, 0.3, 3);
+	snd = BHiShelf.ar(snd, 3200, 0.3, 3);
+	// snd = snd + GVerb.ar(snd.sum * -40.dbamp, 10, 10);
+	snd = snd * -5.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\delayFx, {
+	var snd, fb, beat;
+	beat = \beat.kr(1);
+	snd = In.ar(\in.kr(0), 2);
+	snd = BHiShelf.ar(snd, 1200, 0.3, -5);
+	snd = BLowShelf.ar(snd, 500, 0.3, -5);
+	fb = snd;
+	fb = fb + LocalIn.ar(2);
+	// fb = DelayC.ar(fb, 1.0, (beat) - ControlDur.ir + (LFNoise2.ar(3 ! 2) * 1e-3));
+	fb = DelayC.ar(fb, 1.0, (beat) - ControlDur.ir + (LFNoise2.ar(3 ! 2) * 1e-3));
+	fb = fb * -5.dbamp;
+	fb = LPF.ar(fb, 3000);
+	fb = HPF.ar(fb, 500);
+	LocalOut.ar(fb);
+	snd = snd + fb;
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -124,11 +190,15 @@ SynthDef(\sidechainFx, {
 (
 ~sidechainBus = Bus.audio(nil, 2);
 ~drumsBus = Bus.audio(nil, 2);
+~delayBus = Bus.audio(nil, 2);
 )
+
+
 
 
 ~drumsBus.index;
 ~sidechainBus.index;
+~delayBus.index;
 
 
 //////////////////////////////////////////////////////
@@ -143,6 +213,8 @@ root = 58;
 Routine({
 	var sidechainFx, duck, play;
 	sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~sidechainBus, out: 0]);
+	Synth.tail(nil, \drumsFx, [in: ~drumsBus, out: 0]);
+	Synth.tail(nil, \delayFx, [in: ~delayBus, out: 0, beat: beat/2]);
 
 	duck = {
 		s.bind { sidechainFx.set(\trigger, 1) };
@@ -158,51 +230,63 @@ Routine({
 
 	loop {
 		fork {
-			// [ 0, 2, 7, 10 ]
-			// [ 5, 8, 12, 15 ]
-			// [ -2, 1, 5, 8 ]
-			// [ 1, 6, 8, 11 ]
-			play.(\lead, 0.5, [freq: (root + 2).midicps, out: ~sidechainBus]);
-			play.(\lead, 0.5, [freq: (root + 14).midicps, out: ~sidechainBus]);
-			play.(\lead, 1, [freq: (root + 7).midicps, out: ~sidechainBus]);
-			play.(\lead, 0.5, [freq: (root + 10).midicps, out: ~sidechainBus]);
-			play.(\lead, 1, [freq: (root + -2).midicps, out: ~sidechainBus]);
-			play.(\lead, 0.5, [freq: (root + -5).midicps, out: ~sidechainBus]);
-
-			play.(\lead, 4, [freq: (root + -7).midicps, out: ~sidechainBus]);
-			// play.(\lead, 2, [freq: (root + 0).midicps, out: ~sidechainBus]);
-
-			play.(\lead, 4, [freq: (root + -2).midicps, out: ~sidechainBus]);
-
-			play.(\lead, 1, [freq: (root + 1).midicps, out: ~sidechainBus]);
-			play.(\lead, 1, [freq: (root + -4).midicps, out: ~sidechainBus]);
-			play.(\lead, 1, [freq: (root + 8).midicps, out: ~sidechainBus]);
-			play.(\lead, 1, [freq: (root + 1).midicps, out: ~sidechainBus]);
-
+			var leadRoot = root;
+			[
+				// [ 0, 2, 7, 10 ]
+				(freq: 2, length: 0.5),
+				(freq: 14, length: 0.5),
+				(freq: 7, length: 1),
+				(freq: 10, length: 0.5),
+				(freq: -2, length: 1),
+				(freq: -5, length: 0.5),
+				// [ 5, 8, 12, 15 ]
+				(freq: -7, length: 4),
+				// [ -2, 1, 5, 8 ]
+				(freq: -2, length: 4),
+				// [ 1, 6, 8, 11 ]
+				(freq: 1, length: 1),
+				(freq: -4, length: 1),
+				(freq: 8, length: 1),
+				(freq: 1, length: 1),
+			].do { |note|
+				play.(\lead, note[\length], [freq: (leadRoot + note[\freq]).midicps, out: ~sidechainBus]);
+			};
 		};
 		fork {
 			3.do {
-				play.(\hat, 1);
-				3.do { play.(\hat, 0.25); };
+				play.(\hat, 1, [out: ~drumsBus]);
+				3.do { play.(\hat, 0.25, [out: ~drumsBus]); };
 				(beat/4).wait;
-				play.(\hat, 1);
-				2.do { play.(\hat, 0.5); };
+				play.(\hat, 1, [out: ~drumsBus]);
+				2.do { play.(\hat, 0.5, [out: ~drumsBus]); };
 			};
 			4.do {
-				play.(\hat, 0.5, [pan: -0.3]);
-				play.(\hat, 0.5, [pan: 0.3]);
+				play.(\hat, 0.5, [pan: -0.3, out: ~drumsBus]);
+				play.(\hat, 0.5, [pan: 0.3, out: ~drumsBus]);
 			}
 		};
 		fork {
 			4.do {
+				(beat * 0.5).wait;
+				play.(\hatSoft, 0.5, [out: ~drumsBus]);
+				play.(\perc, 1, [out: ~delayBus]);
+				(beat * 1).wait;
+				play.(\hatSoft, 1, [out: ~drumsBus]);
+			};
+		};
+		fork {
+			4.do {
 				duck.();
-				play.(\kick, 1.5);
+				play.(\kick, 1.5, [out: ~drumsBus]);
+				// (beat * 1.5).wait;
 				duck.();
-				play.(\kick, 0.5, [velocity: 0.6]);
-				play.(\snare, 0.5);
-				play.(\snare, 0.5, [velocity: 0.8], latency: 0);
+				play.(\kick, 0.5, [velocity: 0.6, out: ~drumsBus]);
+				// (beat * 0.5).wait;
+				play.(\snare, 0.5, [out: ~drumsBus]);
+				play.(\snare, 0.5, [velocity: 0.8, out: ~drumsBus], latency: 0);
 				duck.();
-				play.(\kick, 1, [velocity: 0.8]);
+				play.(\kick, 1, [velocity: 0.8, out: ~drumsBus]);
+				// (beat * 1).wait;
 			};
 		};
 		fork {
@@ -264,7 +348,7 @@ Scale.phrygian.degrees; // [ 0, 1, 3, 5, 7, 8, 10 ]
 (-2 + [0, 3, 7, 10]);
 
 (
-var root = 58;
+var root = 58 + 12;
 [-12, 2, 7, 10].do{ |degree|
 	Synth(\key, [freq: (root + degree).midicps]);
 };

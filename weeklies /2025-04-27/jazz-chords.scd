@@ -116,7 +116,7 @@ SynthDef(\perc, {
 	snd = snd * Env.perc(0.0, 1).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -18.dbamp;
+	snd = snd * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hatSoft, {
@@ -268,6 +268,11 @@ Routine({
 			4.do {
 				(beat * 0.5).wait;
 				play.(\hatSoft, 0.5, [out: ~drumsBus]);
+				if( 0.5.coin, {
+					play.(\perc, 1, [out: ~delayBus]);
+				}, {
+					(beat * 1).wait;
+				});
 				play.(\perc, 1, [out: ~delayBus]);
 				(beat * 1).wait;
 				play.(\hatSoft, 1, [out: ~drumsBus]);

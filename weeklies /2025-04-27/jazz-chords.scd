@@ -6,11 +6,11 @@ SynthDef(\key, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.2).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.3), 100);
-	snd = snd * 200 * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(3, 0, 30, 230) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + HPF.ar(PinkNoise.ar(0.1), 300);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.06));
-	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 10, 3, 1);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.1));
+	// snd = snd + GVerb.ar(snd.mean * -10.dbamp, 10, 3, 1);
 	snd = snd * Env.perc(0.01, \rel.kr(3.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -41,7 +41,7 @@ SynthDef(\lead, {
 	snd = Splay.ar(snd);
 	snd = snd + SinOsc.ar(freq / 2, 0, 0.4);
 	snd = snd + ({ PinkNoise.ar(0.18)} ! 2);
-	snd = RLPF.ar(snd, (LFNoise2.ar(2) + Env.perc(0.05, 0.3).ar).linexp(-1, 1, 500, 7000), 0.3);
+	snd = RLPF.ar(snd, (LFNoise2.ar(2) + Env.perc(0.05, 0.3).ar).linexp(-1, 1, 500, 7000), 0.4);
 	snd = snd.tanh;
 	snd = snd + PitchShift.ar(snd, 0.2, 0.5);
 	snd = snd * -16.dbamp;
@@ -116,7 +116,7 @@ SynthDef(\perc, {
 	snd = snd * Env.perc(0.0, 1).ar(Done.freeSelf);
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = snd * \amp.kr(1);
-	snd = snd * -20.dbamp;
+	snd = snd * -24.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hatSoft, {
@@ -229,7 +229,7 @@ Routine({
 
 	loop {
 		fork {
-			var leadRoot = root;
+			var leadRoot = root + 0;
 			[
 				// [ 0, 2, 7, 10 ]
 				(freq: 2, length: 0.5),
@@ -242,7 +242,7 @@ Routine({
 				(freq: -7, length: 4),
 				// [ -2, 1, 5, 8 ]
 				(freq: -2, length: 4),
-				// [ 1, 6, 8, 11 ]
+				// [ 1, 4, 8, 11 ]
 				(freq: 1, length: 1),
 				(freq: -4, length: 1),
 				(freq: 8, length: 1),
@@ -268,13 +268,8 @@ Routine({
 			4.do {
 				(beat * 0.5).wait;
 				play.(\hatSoft, 0.5, [out: ~drumsBus]);
-				if( 0.5.coin, {
-					play.(\perc, 1, [out: ~delayBus]);
-				}, {
-					(beat * 1).wait;
-				});
-				play.(\perc, 1, [out: ~delayBus]);
-				(beat * 1).wait;
+				(beat * 1.5).wait;
+				play.(\perc, 0.5, [out: ~delayBus]);
 				play.(\hatSoft, 1, [out: ~drumsBus]);
 			};
 		};

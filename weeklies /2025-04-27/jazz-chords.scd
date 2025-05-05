@@ -248,7 +248,7 @@ Routine({
 				(freq: 8, length: 1),
 				(freq: 1, length: 1),
 			].do { |note|
-				play.(\lead, note[\length], [freq: (leadRoot + note[\freq]).midicps, out: ~sidechainBus]);
+				// play.(\lead, note[\length], [freq: (leadRoot + note[\freq]).midicps, out: ~sidechainBus]);
 			};
 		};
 		fork {

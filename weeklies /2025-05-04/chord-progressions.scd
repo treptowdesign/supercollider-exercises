@@ -3,7 +3,7 @@ SynthDef(\keyWip, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 280) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 240) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.2), 300), 4000);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.06));
@@ -32,23 +32,23 @@ SynthDef(\kick, {
 SynthDef(\snare, {
 	var snd, velocity;
 	velocity = \velocity.kr(1.0);
-	snd = SinOsc.ar(220 * XLine.ar(1.1, 1, 0.02) * [1, 2.4, 7.4]);
+	snd = SinOsc.ar(220 * XLine.ar(1.1, 1, 0.03) * [1, 2.4, 8.4]);
 	snd = snd * Env.perc(0.01, [0.1, 0.02, 0.03] * velocity, curve: -7).ar;
 	snd = snd * [0, -5, -10].dbamp;
 	snd = snd.sum;
 	snd = snd * -4.dbamp;
-	snd = snd + (SinOsc.ar(XLine.ar(3300, 200, 0.02)) * Env.perc(0.001, 0.05).ar);
+	snd = snd + (SinOsc.ar(XLine.ar(2400, 200, 0.02)) * Env.perc(0.001, 0.05).ar);
 	snd = snd + (SinOsc.ar(XLine.ar(5300, 100, 0.02)) * Env.perc(0.001, 0.02).ar * -10.dbamp);
 	snd = snd + (BPF.ar(WhiteNoise.ar, 2234, 0.2) * Env.perc(0.02, 0.07).ar * 5.dbamp);
 	snd = snd + (BPF.ar(WhiteNoise.ar, 3234, 0.2) * Env.perc(0.01, 0.05).delay(0.02).ar * 5.dbamp);
-	// snd = snd + (BPF.ar(WhiteNoise.ar, 7234, 0.4) * Env.perc(0.001, 0.05).ar * -10.dbamp);
+	snd = snd + (BPF.ar(WhiteNoise.ar, 7234, 0.4) * Env.perc(0.001, 0.05).ar * -10.dbamp);
 	snd = snd * velocity;
 	snd = snd.tanh;
 	snd = LeakDC.ar(snd);
 	snd = snd * (1 + Env.perc(0, 0.02).ar);
 	snd = snd * Line.ar(0, 1, velocity.linlin(0, 1, 0.02, 0));
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -28.dbamp, 0.2, [30e-3, 45e-3]), 200), 1000);
-	snd = snd * \amp.kr(0.4);
+	snd = snd * \amp.kr(0.3);
 	snd = snd * Env.linen(0.0, 0.5, 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -59,7 +59,7 @@ SynthDef(\hat, {
 	snd = snd.sum;
 	snd = snd + PinkNoise.ar;
 	snd = snd * Env.perc(0.01, 0.03).ar;
-	snd = BPF.ar(snd, [9234, 5234, 6824], 0.1) * 13.dbamp;
+	snd = BPF.ar(snd, [10234, 7234, 6824], 0.1) * 13.dbamp;
 	snd = snd.sum;
 	3.do { snd = HPF.ar(snd, 3e3); };
 	snd = snd + (SinOsc.ar(XLine.ar(9300, 3000, 0.01)) * Env.perc(0.001, 0.01).ar * -7.dbamp);

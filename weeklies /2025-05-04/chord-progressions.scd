@@ -3,7 +3,7 @@ SynthDef(\keyWip, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 240) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 220) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.2), 300), 4000);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.06));
@@ -37,11 +37,11 @@ SynthDef(\snare, {
 	snd = snd * [0, -5, -10].dbamp;
 	snd = snd.sum;
 	snd = snd * -4.dbamp;
-	snd = snd + (SinOsc.ar(XLine.ar(2400, 200, 0.02)) * Env.perc(0.001, 0.05).ar);
-	snd = snd + (SinOsc.ar(XLine.ar(5300, 100, 0.02)) * Env.perc(0.001, 0.02).ar * -10.dbamp);
+	snd = snd + (SinOsc.ar(XLine.ar(2500, 200, 0.02)) * Env.perc(0.001, 0.05).ar);
+	snd = snd + (SinOsc.ar(XLine.ar(4100, 100, 0.02)) * Env.perc(0.001, 0.02).ar * -10.dbamp);
 	snd = snd + (BPF.ar(WhiteNoise.ar, 2234, 0.2) * Env.perc(0.02, 0.07).ar * 5.dbamp);
-	snd = snd + (BPF.ar(WhiteNoise.ar, 3234, 0.2) * Env.perc(0.01, 0.05).delay(0.02).ar * 5.dbamp);
-	snd = snd + (BPF.ar(WhiteNoise.ar, 7234, 0.4) * Env.perc(0.001, 0.05).ar * -10.dbamp);
+	snd = snd + (BPF.ar(WhiteNoise.ar, 3234, 0.2) * Env.perc(0.01, 0.05).delay(0.01).ar * 5.dbamp);
+	snd = snd + (BPF.ar(WhiteNoise.ar, 6234, 0.4) * Env.perc(0.001, 0.05).ar * -15.dbamp);
 	snd = snd * velocity;
 	snd = snd.tanh;
 	snd = LeakDC.ar(snd);
@@ -95,6 +95,7 @@ Routine({
 				(beat).wait;
 			};
 		};
+		// Hats
 		fork {
 			4.do {
 				(beat * 0.5).wait;
@@ -108,7 +109,7 @@ Routine({
 		};
 		// Chord Progression
 		[
-			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: -5), // iv 11 (5 == 4th/11th)
+			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: -5), // iv 11 (root, 4th/11th, 10th, 2nd/9th)
 			(notes: (10 + [-8, -2, 0, 7]), length: 2, bend: 0), // VII (3rd, 10th, root, 5th)
 			(notes: (0 + [0, 3, 7, 14]), length: 1.5, bend: 0), // i add9 (14 == 9th)
 			(notes: (0 + [0, 10, 15, 19]), length: 2, bend: 0), // i7

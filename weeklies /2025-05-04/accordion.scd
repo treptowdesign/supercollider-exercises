@@ -44,9 +44,9 @@ SynthDef(\lead, {
 	// snd = snd.tanh;
 	snd = snd + PitchShift.ar(snd, 0.2, 0.5);
 	// snd = XFade2.ar(snd, BRF.ar(snd, SinOsc.ar(Line.ar(8, 1, 2), pi).linexp(-1, 1, 400, 9000)), 1);
-	snd = LPF.ar(snd, XLine.ar(1000, 6000, \duration.kr(4) * 0.25));
+	snd = LPF.ar(snd, XLine.ar(800, 6000, \duration.kr(4) * 0.1));
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-4);
-	snd = snd * -28.dbamp;
+	snd = snd * -24.dbamp;
 	snd = snd * Env.perc(0.01,  \rel.kr(3)).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -61,12 +61,12 @@ SynthDef(\kick, {
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 5220, 0.4) * Env.perc(0.05, 0.1).ar * -30.dbamp);
 	snd = snd * velocity.sqrt;
 	snd = BLowShelf.ar(snd, 300, 0.3, -5);
-	snd = (snd * 8.dbamp).tanh;
+	snd = (snd * 4.dbamp).tanh;
 	snd = BLowShelf.ar(snd, 300, 0.3, 5);
 	snd = snd * velocity.sqrt;
 	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [30e-3, 54e-3]) * -15.dbamp);
 	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.005), 0.3 * velocity).ar(Done.freeSelf);
-	snd = snd * -10.dbamp;
+	snd = snd * -12.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\snare, {
@@ -119,7 +119,7 @@ SynthDef(\sidechainFx, {
 SynthDef(\reverbFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 20, 4, 0.6);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 10, 4, 0.6);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )

@@ -39,7 +39,7 @@ SynthDef(\saw, {
 	snd = Splay.ar(snd) * -10.dbamp;
 	snd = snd * Env.perc(0.05, 2).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
-	snd = snd * \amp.kr(-22.dbamp);
+	snd = snd * \amp.kr(-20.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\kick, {
@@ -57,7 +57,7 @@ SynthDef(\kick, {
 	snd = snd * velocity.sqrt;
 	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [30e-3, 54e-3]) * -15.dbamp);
 	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.005), 0.3 * velocity).ar(Done.freeSelf);
-	snd = snd * -16.dbamp;
+	snd = snd * -14.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\snare, {

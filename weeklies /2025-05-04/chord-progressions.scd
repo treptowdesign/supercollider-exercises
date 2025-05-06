@@ -1,9 +1,9 @@
 (
-SynthDef(\keyWip, {
+SynthDef(\keys, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 220) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 260) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.2), 300), 4000);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.06));
@@ -116,7 +116,7 @@ Routine({
 			(notes: (10 + [-12, 0, 7]), length: 0.5, bend: 0), // vii (just root and 5th)
 		].do { |chord|
 			chord[\notes].do { |degree|
-				s.bind { Synth(\keyWip, [
+				s.bind { Synth(\keys, [
 					freq: (root + degree).midicps,
 					duration: (beat * chord[\length]),
 					bend: chord[\bend]
@@ -124,8 +124,7 @@ Routine({
 			};
 			(beat * chord[\length]).wait;
 		};
-	};
-
+	}; // end loop {}
 }).play;
 )
 

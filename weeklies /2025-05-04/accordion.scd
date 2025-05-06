@@ -1,9 +1,9 @@
 (
-SynthDef(\keyWip, {
+SynthDef(\keys, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 210) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 240) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.15), 300), 4000);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.08));
@@ -27,8 +27,25 @@ SynthDef(\sub, {
 	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 1e-3);
 	hi = hi * 5.dbamp;
 	snd = (snd * 2).tanh + hi;
-	snd = snd * -16.dbamp;
+	snd = snd * -14.dbamp;
 	snd = snd * Env.linen(0.0, duration, 0.02, curve: -4).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\lead, {
+	var snd, freq;
+	freq = \freq.kr(110);
+	snd = Pulse.ar(freq * (LFNoise2.ar(6 ! 6) * 0.1).midiratio, [0.6, 0.2, 0.5, 0.3, 0.5, 0.4]);
+	snd = Splay.ar(snd);
+	snd = snd + SinOsc.ar(freq / 2, 0, 0.4);
+	snd = snd + ({ PinkNoise.ar(0.18)} ! 2);
+	snd = RLPF.ar(snd, (LFNoise2.ar(2) + Env.perc(0.05, 0.3).ar).linexp(-1, 1, 600, 7000), 0.4);
+	// snd = RLPF.ar(snd, (Env.perc(0.05, 0.3).ar).linexp(-1, 1, 600, 8000), 0.5);
+	snd = snd.tanh;
+	snd = snd + PitchShift.ar(snd, 0.2, 0.5);
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-4);
+	snd = snd * -24.dbamp;
+	snd = snd * Env.perc(0.01,  \rel.kr(4)).ar;
+	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\kick, {
@@ -44,10 +61,10 @@ SynthDef(\kick, {
 	snd = (snd * 8.dbamp).tanh;
 	snd = BLowShelf.ar(snd, 300, 0.3, 5);
 	snd = snd * velocity.sqrt;
-	// snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [30e-3, 54e-3]) * -15.dbamp);
+	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [30e-3, 54e-3]) * -15.dbamp);
 	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.005), 0.3 * velocity).ar(Done.freeSelf);
 	snd = snd * -10.dbamp;
-	Out.ar(\out.kr(0), snd ! 2);
+	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\snare, {
 	var snd, velocity;
@@ -158,16 +175,37 @@ Routine({
 	loop {
 		// Kick
 		fork {
-			[2, 2, 0.5, 1, 2, 0.5].do { |length|
+			[4, 0.5, 1, 2, 0.5].do { |length|
 				duck.();
 				play.(\kick, length);
 				// wait.(length);
 			};
 		};
+		// Sub
 		fork {
-			play.(\sub, 2, [freq: (root - 24 + 10).midicps, out: ~sidechainBus]);
-			play.(\sub, 2, [freq: (root - 24 + 2).midicps, out: ~sidechainBus]);
-			play.(\sub, 4, [freq: (root - 24 + 12).midicps, out: ~sidechainBus]);
+			2.do {
+				play.(\sub, 0.5 * 0.75, [freq: (root - 24 + 12).midicps, out: ~sidechainBus]);
+				wait.(0.5 * 0.25);
+				play.(\sub, 0.5 * 0.75, [freq: (root - 24 + 0).midicps, out: ~sidechainBus]);
+				wait.(0.5 * 0.25);
+				play.(\sub, 0.5 * 0.75, [freq: (root - 24 + 12).midicps, out: ~sidechainBus]);
+				wait.(0.5 * 0.25);
+				play.(\sub, 0.5 * 0.75, [freq: (root - 24 + 0).midicps, out: ~sidechainBus]);
+				wait.(0.5 * 0.25);
+				wait.(2);
+			};
+		};
+		// Lead
+		fork {
+			[
+				(degree: 7, length: 2),
+				(degree: 2, length: 2),
+				(degree: 2, length: 1.5),
+				(degree: 3, length: 2),
+				(degree: 5, length: 0.5),
+			].do { |note|
+				play.(\lead, note[\length], [freq: (root + 12 + note[\degree]).midicps]);
+			};
 		};
 		// Snare
 		fork {
@@ -187,15 +225,15 @@ Routine({
 		};
 		// Chord Progression
 		[
-			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: -5), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
+			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: 0), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
 			(notes: (10 + [-8, -2, 0, 7]), length: 2, bend: 0), // VII (3rd, 10th, root, 5th)
 			(notes: (0 + [0, 3, 7, 14]), length: 1.5, bend: 0), // i add9 (root, 3rd, 5th & 2nd/9th)
 			(notes: (0 + [0, 10, 15, 19]), length: 2, bend: 0), // i7 (regular 7chord, 3rd & 5th shifted up)
 			(notes: (10 + [-12, 0, 7]), length: 0.5, bend: 0), // vii (just root and 5th)
 		].do { |chord|
 			chord[\notes].do { |degree, index|
-				playParallel.(\keyWip, chord[\length], [freq: (root + degree).midicps, bend: chord[\bend], out: 0]);
-				// playParallel.(\keyWip, chord[\length], [freq: (root + degree).midicps, bend: 0], latency: index.linlin(0, 3, 0, 0.12));
+				playParallel.(\keys, chord[\length], [freq: (root + degree).midicps, bend: chord[\bend], out: 0]);
+				// playParallel.(\keys, chord[\length], [freq: (root + degree).midicps, bend: 0], latency: index.linlin(0, 3, 0, 0.12));
 			};
 			wait.(chord[\length]);
 		};
@@ -244,23 +282,23 @@ Scale.aeolian.degrees; // [ 0, 2, 3, 5, 7, 8, 10 ];
 )
 
 ((5 + [0, 5, 10, 14]).do { |degree|
-	Synth(\keyWip, [ freq: (~chordRoot + degree).midicps]);
+	Synth(\keys, [ freq: (~chordRoot + degree).midicps]);
 })
 
 ((10 + [-8, -2, 0, 7]).do { |degree|
-	Synth(\keyWip, [ freq: (~chordRoot + degree).midicps]);
+	Synth(\keys, [ freq: (~chordRoot + degree).midicps]);
 })
 
 ((0 + [0, 3, 7, 14]).do { |degree|
-	Synth(\keyWip, [ freq: (~chordRoot + degree).midicps]);
+	Synth(\keys, [ freq: (~chordRoot + degree).midicps]);
 })
 
 ((0 + [0, 10, 15, 19]).do { |degree|
-	Synth(\keyWip, [ freq: (~chordRoot + degree).midicps]);
+	Synth(\keys, [ freq: (~chordRoot + degree).midicps]);
 })
 
 ((10 + [-12, 0, 7]).do { |degree|
-	Synth(\keyWip, [ freq: (~chordRoot + degree).midicps]);
+	Synth(\keys, [ freq: (~chordRoot + degree).midicps]);
 })
 
 
@@ -274,19 +312,19 @@ Scale.aeolian.degrees; // [ 0, 2, 3, 5, 7, 8, 10 ];
 )
 
 ((0 + [-12, 2, 7, 10]).do { |degree|
-	Synth(\keyWip, [ freq: (~chordRoot + degree).midicps]);
+	Synth(\keys, [ freq: (~chordRoot + degree).midicps]);
 })
 
 ((-2 + [-12, 3, 7, 10]).do { |degree|
-	Synth(\keyWip, [ freq: (~chordRoot + degree).midicps]);
+	Synth(\keys, [ freq: (~chordRoot + degree).midicps]);
 })
 
 ((0 + [0, 14, 7, 10]).do { |degree|
-	Synth(\keyWip, [ freq: (~chordRoot + degree).midicps]);
+	Synth(\keys, [ freq: (~chordRoot + degree).midicps]);
 })
 
 ((-2 + [0, 15, 7, 10]).do { |degree|
-	Synth(\keyWip, [ freq: (~chordRoot + degree).midicps]);
+	Synth(\keys, [ freq: (~chordRoot + degree).midicps]);
 })
 
 

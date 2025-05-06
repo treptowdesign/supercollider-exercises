@@ -7,7 +7,7 @@ SynthDef(\keys, {
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.3), 300), 4000);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.05));
-	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 3e-3);
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.perc(0.01, \rel.kr(4.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -24,7 +24,7 @@ SynthDef(\sub, {
 	snd = snd * 5.dbamp;
 	hi = HPF.ar((snd * 10).tanh * -5.dbamp, 6000);
 	hi = hi * (1 + (BPF.ar({ WhiteNoise.ar } ! 2, 3200, 0.5) * 5.dbamp));
-	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 1e-3);
+	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
 	hi = hi * 5.dbamp;
 	snd = (snd * 2).tanh + hi;
 	snd = snd * -16.dbamp;
@@ -38,16 +38,16 @@ SynthDef(\saw, {
 	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.5) } ! count) * 0.2).midiratio, { Rand(0.0, 1.0) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
-	snd = snd * Env.perc(0.05, 2).ar;
-	snd = snd * Env.linen(0.1, \duration.kr(4), 0.1).ar(Done.freeSelf);
-	snd = snd * \amp.kr(-16.dbamp);
+	snd = snd * Env.perc(0.05, 3).ar;
+	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
+	snd = snd * \amp.kr(-14.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1);
 	snd = SinOsc.ar(50 * ((Env.perc(0, 0.06).ar * [30, 10, 24, 20]) + (Env.perc(0, 0.02).ar * 10)).midiratio * [1, 1.4, 2.4, 3.8]);
-	snd = snd * Env.perc(0.0, 0.3 * [1, 0.5, 0.2, 0.1]).ar(Done.none);
+	snd = snd * Env.perc(0.0, 0.4 * [1, 0.5, 0.2, 0.1]).ar(Done.none);
 	snd = snd * [0, -5, -6, -5].dbamp;
 	snd = snd.sum;
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 5220, 0.4) * Env.perc(0.05, 0.1).ar * -30.dbamp);
@@ -56,9 +56,9 @@ SynthDef(\kick, {
 	snd = (snd * 4.dbamp).tanh;
 	snd = BLowShelf.ar(snd, 300, 0.3, 5);
 	snd = snd * velocity.sqrt;
-	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [30e-3, 54e-3]) * -25.dbamp);
-	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.005), 0.3 * velocity).ar(Done.freeSelf);
-	snd = snd * -14.dbamp;
+	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [30e-3, 54e-3]) * -26.dbamp);
+	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.005), 0.4 * velocity).ar(Done.freeSelf);
+	snd = snd * -12.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\snare, {
@@ -115,6 +115,9 @@ SynthDef(\reverbFx, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
+
+
+
 
 ////////////////////////////////////////////////////////////////////
 // Bussing

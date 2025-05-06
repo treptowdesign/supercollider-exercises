@@ -6,7 +6,7 @@ SynthDef(\keys, {
 	snd = snd * SinOsc.ar(4, 0, 10, 180) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.15), 300), 4000);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.04));
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.05));
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.perc(0.01, \rel.kr(4.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
@@ -198,7 +198,7 @@ Routine({
 				(degree: 3, length: 2),
 				(degree: 5, length: 0.5),
 			].do { |note|
-				play.(\saw, note[\length], [freq: (root + 12 + note[\degree]).midicps, out: ~reverbBus]);
+				play.(\saw, note[\length], [freq: (root + 0 + note[\degree]).midicps, out: ~reverbBus]);
 			};
 		};
 		// Snare

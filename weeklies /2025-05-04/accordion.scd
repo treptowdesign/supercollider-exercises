@@ -43,8 +43,8 @@ SynthDef(\lead, {
 	// snd = RLPF.ar(snd, (Env.perc(0.05, 0.3).ar).linexp(-1, 1, 600, 8000), 0.5);
 	// snd = snd.tanh;
 	snd = snd + PitchShift.ar(snd, 0.2, 0.5);
-	snd = XFade2.ar(snd, BRF.ar(snd, SinOsc.ar(Line.ar(8, 1, 2), pi).linexp(-1, 1, 400, 9000)), 1);
-	snd = LPF.ar(snd, XLine.ar(7000, 4000, 0.8));
+	// snd = XFade2.ar(snd, BRF.ar(snd, SinOsc.ar(Line.ar(8, 1, 2), pi).linexp(-1, 1, 400, 9000)), 1);
+	snd = LPF.ar(snd, XLine.ar(1000, 6000, \duration.kr(4) * 0.25));
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-4);
 	snd = snd * -28.dbamp;
 	snd = snd * Env.perc(0.01,  \rel.kr(3)).ar;
@@ -119,7 +119,7 @@ SynthDef(\sidechainFx, {
 SynthDef(\reverbFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd + GVerb.ar(snd.mean * -20.dbamp, 10, 4, 0.6);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 20, 4, 0.6);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -207,7 +207,7 @@ Routine({
 				(degree: 3, length: 2),
 				(degree: 5, length: 0.5),
 			].do { |note|
-				play.(\lead, note[\length], [freq: (root + 12 + note[\degree]).midicps]);
+				play.(\lead, note[\length], [freq: (root + 12 + note[\degree]).midicps, out: ~reverbBus]);
 			};
 		};
 		// Snare
@@ -228,14 +228,14 @@ Routine({
 		};
 		// Chord Progression
 		[
-			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: 0), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
+			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: -5), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
 			(notes: (10 + [-8, -2, 0, 7]), length: 2, bend: 0), // VII (3rd, 10th, root, 5th)
 			(notes: (0 + [0, 3, 7, 14]), length: 1.5, bend: 0), // i add9 (root, 3rd, 5th & 2nd/9th)
 			(notes: (0 + [0, 10, 15, 19]), length: 2, bend: 0), // i7 (regular 7chord, 3rd & 5th shifted up)
 			(notes: (10 + [-12, 0, 7]), length: 0.5, bend: 0), // vii (just root and 5th)
 		].do { |chord|
 			chord[\notes].do { |degree, index|
-				playParallel.(\keys, chord[\length], [freq: (root + degree).midicps, bend: chord[\bend], out: 0]);
+				playParallel.(\keys, chord[\length], [freq: (root + degree).midicps, bend: chord[\bend], rel: 3, out: ~reverbBus]);
 				// playParallel.(\keys, chord[\length], [freq: (root + degree).midicps, bend: 0], latency: index.linlin(0, 3, 0, 0.12));
 			};
 			wait.(chord[\length]);

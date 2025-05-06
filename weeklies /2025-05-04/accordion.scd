@@ -3,7 +3,7 @@ SynthDef(\keys, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 240) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 180) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.15), 300), 4000);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.08));
@@ -34,17 +34,20 @@ SynthDef(\sub, {
 SynthDef(\lead, {
 	var snd, freq;
 	freq = \freq.kr(110);
-	snd = Pulse.ar(freq * (LFNoise2.ar(6 ! 6) * 0.1).midiratio, [0.6, 0.2, 0.5, 0.3, 0.5, 0.4]);
+	// snd = Pulse.ar(freq * (LFNoise2.ar(6 ! 6) * 0.1).midiratio, [0.6, 0.2, 0.5, 0.3, 0.5, 0.4]);
+	snd = LFSaw.ar(freq * (LFNoise2.ar(6 ! 5) * 0.1).midiratio, {Rand(0.0, 1.0)} ! 5);
 	snd = Splay.ar(snd);
-	snd = snd + SinOsc.ar(freq / 2, 0, 0.4);
-	snd = snd + ({ PinkNoise.ar(0.18)} ! 2);
-	snd = RLPF.ar(snd, (LFNoise2.ar(2) + Env.perc(0.05, 0.3).ar).linexp(-1, 1, 600, 7000), 0.4);
+	// snd = snd + SinOsc.ar(freq / 2, 0, 0.4) + ({ PinkNoise.ar(0.3)} ! 2);
+	// snd = RLPF.ar(snd, (LFNoise2.ar(4) + Env.perc(0.05, 0.3).ar).linexp(-1, 1, 600, 7000), 0.4);
+	// snd = RLPF.ar(snd, (SinOsc.ar(2) + Env.perc(0.01, 0.6).ar).linexp(-1, 1, 800, 6000), 0.8);
 	// snd = RLPF.ar(snd, (Env.perc(0.05, 0.3).ar).linexp(-1, 1, 600, 8000), 0.5);
-	snd = snd.tanh;
+	// snd = snd.tanh;
 	snd = snd + PitchShift.ar(snd, 0.2, 0.5);
-	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-4);
-	snd = snd * -24.dbamp;
-	snd = snd * Env.perc(0.01,  \rel.kr(4)).ar;
+	snd = XFade2.ar(snd, BRF.ar(snd, SinOsc.ar(Line.ar(8, 1, 2), pi).linexp(-1, 1, 400, 9000)), 1);
+	snd = LPF.ar(snd, XLine.ar(7000, 4000, 0.8));
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-4);
+	snd = snd * -28.dbamp;
+	snd = snd * Env.perc(0.01,  \rel.kr(3)).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;

@@ -39,7 +39,7 @@ SynthDef(\saw, {
 	snd = Splay.ar(snd) * -10.dbamp;
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
 	snd = snd * Env.perc(0.05, 2).ar;
-	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
+	snd = snd * Env.linen(0.1, \duration.kr(4), 0.1).ar(Done.freeSelf);
 	snd = snd * \amp.kr(-16.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;

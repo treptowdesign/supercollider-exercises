@@ -3,7 +3,7 @@ SynthDef(\keyWip, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 230) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 210) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.15), 300), 4000);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.08));
@@ -164,13 +164,11 @@ Routine({
 				// wait.(length);
 			};
 		};
-		/*fork {
+		fork {
 			play.(\sub, 2, [freq: (root - 24 + 10).midicps, out: ~sidechainBus]);
 			play.(\sub, 2, [freq: (root - 24 + 2).midicps, out: ~sidechainBus]);
-			play.(\sub, 0.5, [freq: (root - 24 + 0).midicps, out: ~sidechainBus]);
-			play.(\sub, 3, [freq: (root - 24 + 0).midicps, out: ~sidechainBus]);
-			play.(\sub, 0.5, [freq: (root - 24 + 5).midicps, out: ~sidechainBus]);
-		};*/
+			play.(\sub, 4, [freq: (root - 24 + 12).midicps, out: ~sidechainBus]);
+		};
 		// Snare
 		fork {
 			4.do {

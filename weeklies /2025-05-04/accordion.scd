@@ -3,11 +3,11 @@ SynthDef(\keys, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 180) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 100) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.15), 300), 4000);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.05));
-	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 3e-3);
 	snd = snd * Env.perc(0.01, \rel.kr(4.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -141,8 +141,9 @@ Routine({
 	var wait, playParallel, play;
 	var sidechainFx, duck;
 
-	sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~sidechainBus, out: 0]);
 	Synth.tail(nil, \reverbFx, [in: ~reverbBus, out: 0]);
+	sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~sidechainBus, out: 0]);
+
 
 	duck = {
 		s.bind { sidechainFx.set(\trigger, 1) };
@@ -163,8 +164,6 @@ Routine({
 		playParallel.(synthDef, duration, args, latency);
 		wait.(duration);
 	};
-
-
 
 	loop {
 		// Kick

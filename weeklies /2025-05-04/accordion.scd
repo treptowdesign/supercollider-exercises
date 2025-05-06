@@ -3,10 +3,11 @@ SynthDef(\keys, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 160) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 200) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
+	// snd = snd.tanh;
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.3), 300), 4000);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.05));
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.04));
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.perc(0.01, \rel.kr(4.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
@@ -222,7 +223,7 @@ Routine({
 		};
 		// Chord Progression
 		[
-			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: 0), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
+			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: -7), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
 			(notes: (10 + [-8, -2, 0, 7]), length: 2, bend: 0), // VII (3rd, 10th, root, 5th)
 			(notes: (0 + [0, 3, 7, 14]), length: 1.5, bend: 0), // i add9 (root, 3rd, 5th & 2nd/9th)
 			(notes: (0 + [0, 10, 15, 19]), length: 2, bend: 0), // i7 (regular 7chord, 3rd & 5th shifted up)
@@ -230,7 +231,7 @@ Routine({
 		].do { |chord|
 			chord[\notes].do { |degree, index|
 				playParallel.(\keys, chord[\length], [freq: (root + degree).midicps, bend: chord[\bend], rel: 3, out: ~reverbBus]);
-				// playParallel.(\keys, chord[\length], [freq: (root + degree).midicps, bend: 0], latency: index.linlin(0, 3, 0, 0.12));
+				// playParallel.(\keys, chord[\length], [freq: (root + degree).midicps, bend: 0, out: ~reverbBus], latency: index.linlin(0, 3, 0, 0.12));
 			};
 			wait.(chord[\length]);
 		};

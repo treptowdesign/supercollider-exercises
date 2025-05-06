@@ -39,6 +39,7 @@ SynthDef(\saw, {
 	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.5) } ! count) * 0.2).midiratio, { Rand(0.0, 1.0) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
+	2.do { snd = HPF.ar(snd, 450); };
 	snd = snd * Env.perc(0.05, 3).ar * (1 + Env.perc(0, 0.03).ar);
 	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
 	snd = snd * \amp.kr(-16.dbamp);
@@ -200,7 +201,7 @@ Routine({
 				(degree: 3, length: 2),
 				(degree: 5, length: 0.5),
 			].do { |note|
-				play.(\saw, note[\length], [freq: (root + 0 + note[\degree]).midicps, out: ~reverbBus]);
+				play.(\saw, note[\length], [freq: (root + 12 + note[\degree]).midicps, out: ~reverbBus]);
 			};
 		};
 		// Snare
@@ -221,7 +222,7 @@ Routine({
 		};
 		// Chord Progression
 		[
-			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: -7), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
+			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: 0), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
 			(notes: (10 + [-8, -2, 0, 7]), length: 2, bend: 0), // VII (3rd, 10th, root, 5th)
 			(notes: (0 + [0, 3, 7, 14]), length: 1.5, bend: 0), // i add9 (root, 3rd, 5th & 2nd/9th)
 			(notes: (0 + [0, 10, 15, 19]), length: 2, bend: 0), // i7 (regular 7chord, 3rd & 5th shifted up)

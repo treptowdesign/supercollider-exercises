@@ -39,10 +39,10 @@ SynthDef(\saw, {
 	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.5) } ! count) * 0.2).midiratio, { Rand(0.0, 1.0) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
-	2.do { snd = HPF.ar(snd, 450); };
+	3.do { snd = HPF.ar(snd, 600); };
 	snd = snd * Env.perc(0.05, 3).ar * (1 + Env.perc(0, 0.03).ar);
 	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
-	snd = snd * \amp.kr(-16.dbamp);
+	snd = snd * \amp.kr(-12.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\kick, {

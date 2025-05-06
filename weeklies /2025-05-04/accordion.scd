@@ -6,7 +6,7 @@ SynthDef(\keys, {
 	snd = snd * SinOsc.ar(4, 0, 10, 180) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.15), 300), 4000);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.08));
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.04));
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.perc(0.01, \rel.kr(4.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
@@ -31,24 +31,15 @@ SynthDef(\sub, {
 	snd = snd * Env.linen(0.0, duration, 0.02, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
-SynthDef(\lead, {
-	var snd, freq;
-	freq = \freq.kr(110);
-	// snd = Pulse.ar(freq * (LFNoise2.ar(6 ! 6) * 0.1).midiratio, [0.6, 0.2, 0.5, 0.3, 0.5, 0.4]);
-	snd = LFSaw.ar(freq * (LFNoise2.ar(6 ! 5) * 0.1).midiratio, {Rand(0.0, 1.0)} ! 5);
-	snd = Splay.ar(snd);
-	// snd = snd + SinOsc.ar(freq / 2, 0, 0.4) + ({ PinkNoise.ar(0.3)} ! 2);
-	// snd = RLPF.ar(snd, (LFNoise2.ar(4) + Env.perc(0.05, 0.3).ar).linexp(-1, 1, 600, 7000), 0.4);
-	// snd = RLPF.ar(snd, (SinOsc.ar(2) + Env.perc(0.01, 0.6).ar).linexp(-1, 1, 800, 6000), 0.8);
-	// snd = RLPF.ar(snd, (Env.perc(0.05, 0.3).ar).linexp(-1, 1, 600, 8000), 0.5);
-	// snd = snd.tanh;
-	snd = snd + PitchShift.ar(snd, 0.2, 0.5);
-	// snd = XFade2.ar(snd, BRF.ar(snd, SinOsc.ar(Line.ar(8, 1, 2), pi).linexp(-1, 1, 400, 9000)), 1);
-	snd = LPF.ar(snd, XLine.ar(800, 6000, \duration.kr(4) * 0.1));
-	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-4);
-	snd = snd * -24.dbamp;
-	snd = snd * Env.perc(0.01,  \rel.kr(3)).ar;
+SynthDef(\saw, {
+	var snd, count, freq;
+	count = 10;
+	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
+	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.5) }! count) * 0.3).midiratio, { Rand(0.0, 1.0) } ! count);
+	snd = Splay.ar(snd) * -10.dbamp;
+	snd = snd * Env.perc(0.05, 2).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
+	snd = snd * \amp.kr(-20.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\kick, {
@@ -119,7 +110,7 @@ SynthDef(\sidechainFx, {
 SynthDef(\reverbFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 10, 4, 0.6);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 20, 3, 0.2);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -207,7 +198,7 @@ Routine({
 				(degree: 3, length: 2),
 				(degree: 5, length: 0.5),
 			].do { |note|
-				play.(\lead, note[\length], [freq: (root + 12 + note[\degree]).midicps, out: ~reverbBus]);
+				play.(\saw, note[\length], [freq: (root + 12 + note[\degree]).midicps, out: ~reverbBus]);
 			};
 		};
 		// Snare
@@ -228,7 +219,7 @@ Routine({
 		};
 		// Chord Progression
 		[
-			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: -5), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
+			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: 0), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
 			(notes: (10 + [-8, -2, 0, 7]), length: 2, bend: 0), // VII (3rd, 10th, root, 5th)
 			(notes: (0 + [0, 3, 7, 14]), length: 1.5, bend: 0), // i add9 (root, 3rd, 5th & 2nd/9th)
 			(notes: (0 + [0, 10, 15, 19]), length: 2, bend: 0), // i7 (regular 7chord, 3rd & 5th shifted up)

@@ -3,11 +3,11 @@ SynthDef(\keys, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 350) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 320) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = (snd * 2.dbamp).tanh;
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.3), 300), 4000);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.06));
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.05));
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.perc(0.01, \rel.kr(4.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
@@ -67,7 +67,7 @@ SynthDef(\kick, {
 SynthDef(\rim, {
 	var snd, duration;
 	duration = \duration.kr(1.0);
-	snd = SinOsc.ar([1150, 890, 1020, 2230, 920] * XLine.ar(1.5, 1, 0.001));
+	snd = SinOsc.ar([1450, 890, 1020, 1930, 920] * XLine.ar(1.5, 1, 0.001));
 	snd = snd * Env.perc(0.001, [0.01, 0.06, 0.03, 0.01, 0.004]).ar;
 	snd = snd.sum;
 	snd = snd * -6.dbamp;
@@ -75,7 +75,7 @@ SynthDef(\rim, {
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 3120, 0.5) * Env.perc(0, 0.01).ar);
 	snd = snd * (1 + (10 * Env.perc(0, 0.01).ar));
 	snd = snd.tanh;
-	snd = snd + GVerb.ar(snd * -16.dbamp, 10, 3, 0.5);
+	snd = snd + GVerb.ar(snd * -16.dbamp, 10, 1, 0.5);
 	snd = snd * -30.dbamp * \amp.kr(1);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -115,7 +115,7 @@ SynthDef(\hat, {
 	3.do { snd = HPF.ar(snd, 3e3); };
 	snd = snd + (SinOsc.ar(XLine.ar(9300, 3000, 0.01)) * Env.perc(0.001, 0.01).ar * -7.dbamp);
 	snd = snd * velocity;
-	snd = snd * 2.dbamp;
+	snd = snd * -2.dbamp;
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.16));
 	snd = snd * Env.linen(0.0, 0.5, 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -130,7 +130,7 @@ SynthDef(\sidechainFx, {
 SynthDef(\reverbFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 20, 4, 0.2);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 30, 2, 0.2);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -228,21 +228,21 @@ Routine({
 		fork {
 			4.do {
 				play.(\rim, 0.5, [amp: 0.8, out: ~sidechainBus]);
-				play.(\rim, 0.5, [amp: 1, out: ~sidechainBus], latency: 0.01);
+				play.(\rim, 0.5, [amp: 0.7, out: ~sidechainBus], latency: 0.02);
 				play.(\rim, 0.5, [amp: 0.7, out: ~sidechainBus]);
-				play.(\rim, 0.5, [amp: 0.2, out: ~sidechainBus], latency: 0.01);
-				play.(\rim, 0.5, [amp: 0.8, out: ~sidechainBus]);
-				play.(\rim, 0.5, [amp: 1, out: ~sidechainBus], latency: 0.01);
-				play.(\rim, 0.5, [amp: 0.8, out: ~sidechainBus]);
-				play.(\rim, 0.5, [amp: 0.2, out: ~sidechainBus], latency: 0.01);
+				play.(\rim, 0.5, [amp: 0.2, out: ~sidechainBus], latency: 0.02);
+				play.(\rim, 0.5, [amp: 0.7, out: ~sidechainBus]);
+				play.(\rim, 0.5, [amp: 0.8, out: ~sidechainBus], latency: 0.02);
+				play.(\rim, 0.5, [amp: 0.7, out: ~sidechainBus]);
+				play.(\rim, 0.5, [amp: 0.2, out: ~sidechainBus], latency: 0.02);
 			};
 		};
 		// Hats
 		fork {
 			4.do {
-				play.(\hat, 1);
+				play.(\hat, 1, [out: ~reverbBus]);
 				wait.(1);
-				play.(\hat, 1);
+				play.(\hat, 1, [out: ~reverbBus]);
 				wait.(1);
 			};
 		};

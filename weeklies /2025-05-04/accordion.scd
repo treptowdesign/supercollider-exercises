@@ -3,14 +3,15 @@ SynthDef(\keys, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(0.4), 100);
-	snd = snd * SinOsc.ar(4, 0, 10, 300) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(4, 0, 10, 350) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	snd = (snd * 2.dbamp).tanh;
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.3), 300), 4000);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.05));
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.06));
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.perc(0.01, \rel.kr(4.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
+	snd = BLowShelf.ar(snd, 250, 0.5, -5);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\sub, {
@@ -36,10 +37,10 @@ SynthDef(\saw, {
 	var snd, count, freq;
 	count = 10;
 	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
-	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.5) } ! count) * 0.2).midiratio, { Rand(0.0, 1.0) } ! count);
+	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.5) } ! count) * 0.2).midiratio, { Rand(0.0, 2.0) } ! count);
 	snd = Splay.ar(snd) * -10.dbamp;
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
-	3.do { snd = HPF.ar(snd, 600); };
+	3.do { snd = HPF.ar(snd, 800); };
 	snd = snd * Env.perc(0.05, 3).ar * (1 + Env.perc(0, 0.03).ar);
 	snd = snd * Env.linen(0.01, \duration.kr(4), 0.1).ar(Done.freeSelf);
 	snd = snd * \amp.kr(-12.dbamp);
@@ -61,6 +62,22 @@ SynthDef(\kick, {
 	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [0.03, 0.045]) * -26.dbamp);
 	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.005), 0.4 * velocity).ar(Done.freeSelf);
 	snd = snd * -12.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\rim, {
+	var snd, duration;
+	duration = \duration.kr(1.0);
+	snd = SinOsc.ar([1150, 890, 1020, 2230, 920] * XLine.ar(1.5, 1, 0.001));
+	snd = snd * Env.perc(0.001, [0.01, 0.06, 0.03, 0.01, 0.004]).ar;
+	snd = snd.sum;
+	snd = snd * -6.dbamp;
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 9120, 0.5) * Env.perc(0, 0.001).ar);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 3120, 0.5) * Env.perc(0, 0.01).ar);
+	snd = snd * (1 + (10 * Env.perc(0, 0.01).ar));
+	snd = snd.tanh;
+	snd = snd + GVerb.ar(snd * -16.dbamp, 10, 3, 0.5);
+	snd = snd * -30.dbamp * \amp.kr(1);
+	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\snare, {
@@ -172,9 +189,16 @@ Routine({
 	loop {
 		// Kick
 		fork {
-			[4, 0.5, 1, 2, 0.5].do { |length|
+			[
+				// 4, 0.5, 0.5, 2.5, 0.5
+				(length: 4, velocity: 1, latency: 0),
+				(length: 1, velocity: 0.9, latency: 0),
+				(length: 0.5, velocity: 0.8, latency: 0.002),
+				(length: 2, velocity: 1, latency: 0),
+				(length: 0.5, velocity: 0.9, latency: 0.002),
+			].do { |hit|
 				duck.();
-				play.(\kick, length);
+				play.(\kick, hit[\length], [velocity: hit[\velocity]], latency: hit[\latency]);
 				// wait.(length);
 			};
 		};
@@ -185,11 +209,41 @@ Routine({
 				wait.(0.5 * 0.25);
 				play.(\sub, 0.5 * 0.75, [freq: (root - 24 + 0).midicps, out: ~sidechainBus]);
 				wait.(0.5 * 0.25);
-				play.(\sub, 0.5 * 0.75, [freq: (root - 24 + 12).midicps, out: ~sidechainBus]);
+				play.(\sub, 0.5 * 0.75, [freq: (root - 24 + 15).midicps, out: ~sidechainBus]);
 				wait.(0.5 * 0.25);
 				play.(\sub, 0.5 * 0.75, [freq: (root - 24 + 0).midicps, out: ~sidechainBus]);
 				wait.(0.5 * 0.25);
 				wait.(2);
+			};
+		};
+
+		// Snare
+		fork {
+			4.do {
+				wait.(1);
+				play.(\snare, 1);
+			};
+		};
+		// Rims
+		fork {
+			4.do {
+				play.(\rim, 0.5, [amp: 0.8, out: ~sidechainBus]);
+				play.(\rim, 0.5, [amp: 1, out: ~sidechainBus], latency: 0.01);
+				play.(\rim, 0.5, [amp: 0.7, out: ~sidechainBus]);
+				play.(\rim, 0.5, [amp: 0.2, out: ~sidechainBus], latency: 0.01);
+				play.(\rim, 0.5, [amp: 0.8, out: ~sidechainBus]);
+				play.(\rim, 0.5, [amp: 1, out: ~sidechainBus], latency: 0.01);
+				play.(\rim, 0.5, [amp: 0.8, out: ~sidechainBus]);
+				play.(\rim, 0.5, [amp: 0.2, out: ~sidechainBus], latency: 0.01);
+			};
+		};
+		// Hats
+		fork {
+			4.do {
+				play.(\hat, 1);
+				wait.(1);
+				play.(\hat, 1);
+				wait.(1);
 			};
 		};
 		// Lead
@@ -201,23 +255,7 @@ Routine({
 				(degree: 3, length: 2),
 				(degree: 5, length: 0.5),
 			].do { |note|
-				play.(\saw, note[\length], [freq: (root + 12 + note[\degree]).midicps, out: ~reverbBus]);
-			};
-		};
-		// Snare
-		fork {
-			4.do {
-				wait.(1);
-				play.(\snare, 1);
-			};
-		};
-		// Hats
-		fork {
-			4.do {
-				wait.(0.5);
-				play.(\hat, 0.25);
-				play.(\hat, 0.75, [velocity: 0.5], latency: 0.01);
-				play.(\hat, 0.5);
+				 play.(\saw, note[\length], [freq: (root + 12 + note[\degree]).midicps, out: ~reverbBus]);
 			};
 		};
 		// Chord Progression

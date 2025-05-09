@@ -54,6 +54,10 @@ SynthDef(\chordFx, {
 	snd = snd + fb;*/
 	// SIDECHAIN
 	snd = snd * (1 - (0.6 * Env.perc(0.01, 0.2, curve: 2).ar(gate: trigger)));
+	// CHORUS
+	/*snd = Mix.fill(2, { |i|
+		DelayC.ar(snd, 0.03, SinOsc.kr(0.1 + (0.1 * i)).range(0.001,0.003))
+	}).tanh;*/
 	// STEREO/CHORUS
 	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
 	Out.ar(\out.kr(0), snd);

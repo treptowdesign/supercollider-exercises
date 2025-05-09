@@ -114,22 +114,6 @@ SynthDef(\hat, {
 	snd = snd * Env.linen(0.0, 0.5, 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
-SynthDef(\rim, {
-	var snd, duration;
-	duration = \duration.kr(1.0);
-	snd = SinOsc.ar(240 * [1, 1.2, 3.6, 4.15, 4.5] * XLine.ar(1.8, 1, 0.001));
-	snd = snd * Env.perc(0.001, [0.01, 0.06, 0.03, 0.01, 0.004]).ar;
-	snd = snd.sum;
-	snd = snd * -5.dbamp;
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 7120, 0.5) * Env.perc(0, 0.001).ar);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 3120, 0.5) * Env.perc(0, 0.01).ar);
-	snd = snd * (1 + (10 * Env.perc(0, 0.01).ar));
-	snd = snd.tanh;
-	snd = snd + GVerb.ar(snd * -16.dbamp, 20, 1, 0.5);
-	snd = snd * -25.dbamp * \amp.kr(1);
-	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	Out.ar(\out.kr(0), snd);
-}).play;
 // FX
 SynthDef(\chordFx, {
 	var snd, trigger, fb, beat;
@@ -248,18 +232,18 @@ Routine({
 				wait.(1);
 			};
 		};
-		// Rims
+		// FM
 		/*fork {
 			4.do {
-				play.(\rim, 0.5, [amp: 0.8, out: ~sidechainBus]);
-				play.(\rim, 0.5, [amp: 0.7, out: ~sidechainBus], latency: 0.01);
-				play.(\rim, 0.5, [amp: 0.3, out: ~sidechainBus]);
-				play.(\rim, 0.5, [amp: 0.2, out: ~sidechainBus], latency: 0.01);
+				play.(\fm, 0.5, [out: ~sidechainBus]);
+				play.(\fm, 0.5, [out: ~sidechainBus], latency: 0.01);
+				play.(\fm, 0.5, [out: ~sidechainBus]);
+				play.(\fm, 0.5, [out: ~sidechainBus], latency: 0.01);
 
-				play.(\rim, 0.5, [amp: 0.7, out: ~sidechainBus]);
-				play.(\rim, 0.5, [amp: 0.8, out: ~sidechainBus], latency: 0.01);
-				play.(\rim, 0.5, [amp: 0.7, out: ~sidechainBus]);
-				play.(\rim, 0.5, [amp: 0.3, out: ~sidechainBus], latency: 0.01);
+				play.(\fm, 0.5, [out: ~sidechainBus]);
+				play.(\fm, 0.5, [out: ~sidechainBus], latency: 0.01);
+				play.(\fm, 0.5, [out: ~sidechainBus]);
+				play.(\fm, 0.5, [out: ~sidechainBus], latency: 0.01);
 			};
 		};*/
 		// Sub

@@ -11,11 +11,6 @@ SynthDef(\fmKeys, {
 	snd = SinOsc.ar(freq + snd);
 	snd = HPF.ar(snd, 100) + LPF.ar(HPF.ar(PinkNoise.ar(0.2), 200), 4000);
 	snd = Pan2.ar(snd, \pan.kr(0), (\amp.kr(1) * 0.2));
-	// snd = BHiShelf.ar(snd, 1200, 0.3, -2);
-	/*snd = BLowShelf.ar(snd, 500, 0.3, -5);
-	snd = (snd * 2.dbamp).tanh * -2.dbamp;
-	snd = BLowShelf.ar(snd, 500, 0.3, 3);*/
-	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
 	snd = snd * Env.perc(0.01, \rel.kr(3.0), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -52,14 +47,14 @@ SynthDef(\sub, {
 	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
 	hi = hi * 5.dbamp;
 	snd = (snd * 2).tanh + hi;
-	snd = snd * -20.dbamp;
+	snd = snd * -16.dbamp;
 	snd = snd * Env.linen(0.0, duration, 0.02, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1);
-	snd = SinOsc.ar(50 * ((Env.perc(0, 0.06).ar * [30, 10, 24, 20]) + (Env.perc(0, 0.02).ar * 10)).midiratio * [1, 1.4, 2.4, 3.8]);
+	snd = SinOsc.ar(50 * ((Env.perc(0, 0.06).ar * [30, 10, 15, 20]) + (Env.perc(0, 0.02).ar * 10)).midiratio * [1, 1.4, 2.4, 3.8]);
 	snd = snd * Env.perc(0.0, 0.4 * [1, 0.5, 0.2, 0.1]).ar(Done.none);
 	snd = snd * [0, -5, -6, -5].dbamp;
 	snd = snd.sum;
@@ -69,9 +64,9 @@ SynthDef(\kick, {
 	snd = (snd * 6.dbamp).tanh;
 	snd = BLowShelf.ar(snd, 300, 0.3, 5);
 	snd = snd * velocity.sqrt;
-	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [0.03, 0.045]) * -26.dbamp);
+	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [0.03, 0.045]) * -20.dbamp);
 	snd = snd * Env.perc(velocity.linexp(0, 1, 0.1, 0.005), 0.3 * velocity).ar(Done.freeSelf);
-	snd = snd * -10.dbamp;
+	snd = snd * -12.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\snare, {
@@ -129,7 +124,7 @@ SynthDef(\hatSoft, {
 	snd = HPF.ar(snd, 5e3);
 	snd = snd * Env.perc(0.05, 0.03, curve: 4).ar(Done.freeSelf);
 	snd = snd ! 2;
-	snd = snd * -45.dbamp;
+	snd = snd * -42.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 // FX
@@ -150,7 +145,7 @@ SynthDef(\chordFx, {
 	// STEREO/CHORUS
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 4e-3);
 	// REVERB
-	snd = snd + GVerb.ar(snd * -6.dbamp, 10, 4, 0.8);
+	snd = snd + GVerb.ar(snd * -6.dbamp, 20, 2, 0.8);
 	// SIDECHAIN
 	snd = snd * (1 - (0.6 * Env.perc(0.01, 0.2, curve: 2).ar(gate: trigger)));
 	// CHORUS
@@ -196,8 +191,8 @@ Routine({
 	var wait, playParallel, play;
 	var sidechainFx, duck;
 
-	Synth.tail(nil, \chordFx, [in: ~fxBus, out: 0, beat: beat/2]);
-	sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~sidechainBus, out: 0, beat: beat/2]);
+	Synth.tail(nil, \chordFx, [in: ~fxBus, out: 0, beat: beat/4]);
+	sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~sidechainBus, out: 0]);
 
 	duck = {
 		s.bind { sidechainFx.set(\trigger, 1) };
@@ -251,7 +246,7 @@ Routine({
 			};
 		};
 		// SoftHat
-		/*fork {
+		fork {
 			4.do {
 				wait.(0.5);
 				play.(\hatSoft, 0.5, [out: ~fxBus]);
@@ -262,9 +257,14 @@ Routine({
 				wait.(0.5);
 				play.(\hatSoft, 0.5, [out: ~fxBus]);
 			};
-		};*/
+		};
 		// Sub
 		fork {
+			// [ 5, 10, 3, 7 ]
+			// [ 2, 8, 10, 5 ]
+			// [ 0, 3, 7, 2 ]
+			// [ 0, 10, 3, 7 ]
+			// [ 10, 10, 5 ]
 			play.(\sub, 2, [freq: (root -12 + 5).midicps, out: ~sidechainBus]);
 			play.(\sub, 2, [freq: (root -12 + 2).midicps, out: ~sidechainBus]);
 			play.(\sub, 3.5, [freq: (root -12 + 0).midicps, out: ~sidechainBus]);
@@ -272,18 +272,19 @@ Routine({
 		};
 		// Chord Progression
 		[
-			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: 0), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
-			(notes: (10 + [-8, -2, 0, 7]), length: 2, bend: 0), // VII (3rd, 10th, root, 5th)
+			(notes: (5 + [-12, 5, 10, 14]), length: 2, bend: -5), // iv 11/sus4 add9 (root, 4th/11th, 10th, 2nd/9th)
+			(notes: (10 + [-8, -2, 0, 7]), length: 2, bend: 5), // VII (3rd, 10th, root, 5th)
 			(notes: (0 + [0, 3, 7, 14]), length: 1.5, bend: 0), // i add9 (root, 3rd, 5th & 2nd/9th)
-			(notes: (0 + [0, 10, 15, 19]), length: 2, bend: 0), // i7 (regular 7chord, 3rd & 5th shifted up)
-			(notes: (10 + [-12, 0, 7]), length: 0.5, bend: 0), // vii (just root and 5th)
+			(notes: (0 + [0, 10, 15, 19]), length: 2, bend: -5), // i7 (regular 7chord, 3rd & 5th shifted up)
+			(notes: (10 + [-12, 0, 7]), length: 0.5, bend: 5), // vii (just root and 5th)
 		].do { |chord|
 			chord[\notes].do { |degree, index|
 				playParallel.(\fmKeys, chord[\length], [
 					freq: (root + 12 + degree).midicps,
 					bend: chord[\bend],
 					rel: 3,
-					amp: 0.14 * (1 / (index + 1)).sqrt,
+					amp: 0.12 * (1 / (index + 1)).sqrt,
+					// amp: 0.12,
 					out: ~fxBus
 				]);
 			};
@@ -295,9 +296,17 @@ Routine({
 )
 
 
+'- - - - - - - - - -'.postln;
+(5 + [-12, 5, 10, 14])  % 12;
+(10 + [-8, -2, 0, 7]) % 12;
+(0 + [0, 3, 7, 14]) % 12;
+(0 + [0, 10, 15, 19]) % 12;
+(10 + [-12, 0, 7])% 12;
 
 
 
+(1 / (1..4)).sqrt;
+((1..4)).sqrt;
 
 
 

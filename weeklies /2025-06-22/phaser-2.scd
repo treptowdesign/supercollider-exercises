@@ -10,7 +10,7 @@ SynthDef(\source, {
 }).add;
 SynthDef(\sourceSaw, {
 	var snd;
-	snd = Saw.ar(\freq.kr(440) * ([0, 0.75] * LFNoise2.ar(2).unipolar).midiratio).sum;
+	snd = Saw.ar(\freq.kr(440) * ([0, 0.4] * LFNoise2.ar(2).unipolar).midiratio).sum;
 	snd = snd * Env.perc(0.01, \rel.kr(2)).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), 0.1);
 	Out.ar(\out.kr(0), snd);
@@ -41,12 +41,25 @@ SynthDef(\phaser, {
 SynthDef(\phaser2, {
     var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.5, 0, 1e-4, 1e-4), 0) * -3.dbamp;
-	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.75, 0.25pi, 2e-4, 2e-4), 0) * -3.dbamp;
-	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.55, 0.1, 1e-4, 1e-4), 0) * -3.dbamp;
-	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.66, 0.65pi, 2e-4, 2e-4), 0) * -3.dbamp;
-	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(1, 0.5pi, 3e-4, 3e-4), 0) * -3.dbamp;
-	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.25, 0.35pi, 2.5e-4, 2.5e-4), 0) * -3.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.5, 0, 1e-4, 1e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.75, 0.25pi, 2e-4, 2e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.55, 0.1, 1e-4, 1e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.66, 0.65pi, 2e-4, 2e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(1, 0.5pi, 3e-4, 3e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.25, 0.35pi, 2.5e-4, 2.5e-4), 0) * -4.dbamp;
+	snd = snd * 0.dbamp;
+    Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\phaser22, {
+    var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.15, 0, 1e-4, 1e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, LFNoise2.ar(0.275, 2e-4, 2e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.255, 0.1, 1e-4, 1e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, LFNoise2.ar(0.166, 2e-4, 2e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.95, 0.5pi, 3e-4, 3e-4), 0) * -4.dbamp;
+	snd = snd + AllpassC.ar(snd, 0.1, SinOsc.ar(0.325, 0.35pi, 2.5e-4, 2.5e-4), 0) * -4.dbamp;
+	snd = snd * 0.dbamp;
     Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\phaser3, { // mix in original signal on every stage
@@ -164,7 +177,6 @@ Synth.tail(nil, \phaser4, [in: ~fxBus, mix: 0]);
 
 
 
-
 (
 ~fxBus = Bus.audio(nil, 2);
 ~fxBus2 = Bus.audio(nil, 2);
@@ -253,14 +265,14 @@ Routine({
 (
 var s, beat, root, scale, play;
 s = Server.default;
-beat = 60 / 148;
-root = 50;
+beat = 60 / 102;
+root = 52;
 scale = Scale.choose.degrees.postln;
 play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
-Synth.tail(nil, \phaser7, [in: ~fxBus, mix: 0]);
+Synth.tail(nil, \phaser22, [in: ~fxBus, mix: 0]);
 Routine({
 	loop {
 		[
@@ -272,7 +284,7 @@ Routine({
 					var note, length, pan;
 					pan = rrand(-1.0, 1.0);
 					length = [0.5, 1, 2, 4].choose;
-					note = (root + deg + (12 * (-2..2).choose)).midicps;
+					note = (root + deg + (12 * (-1..2).choose)).midicps;
 					play.(\sourceUnison, length, [freq: note, rel: (beat * length * 16), pan: pan, out: ~fxBus]);
 				}
 			}
@@ -290,8 +302,8 @@ Routine({
 					var note, length, pan;
 					pan = 0;
 					length = [0.5, 1, 2, 4].choose;
-					note = (root + deg + (12 * (-2..2).choose)).midicps;
-					play.(\sourceSaw, length, [freq: note, rel: (beat * length * 16), pan: pan, out: ~fxBus]);
+					note = (root + deg + (12 * -1)).midicps;
+					play.(\sourceSin, length, [freq: note, rel: (beat * length * 16), pan: pan, out: ~fxBus]);
 				}
 			}
 		};

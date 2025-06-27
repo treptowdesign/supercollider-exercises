@@ -107,7 +107,7 @@ Routine({
 					var note, length, pan;
 					pan = rrand(-1.0, 1.0);
 					length = [0.5, 1, 2, 4].choose;
-					note = (root + deg + (12 * (-1..2).choose)).midicps;
+					note = (root + deg + (12 * (-2..2).choose)).midicps;
 					play.(\sourcePulse, length, [freq: note, rel: (beat * length * 16), pan: pan, out: ~fxBus]);
 				}
 			}

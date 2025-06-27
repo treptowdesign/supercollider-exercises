@@ -6,7 +6,7 @@
 (
 SynthDef(\sourceSaw, {
 	var snd;
-	snd = Saw.ar(\freq.kr(440) * ([0, 0.3, 0.6] * LFNoise2.ar(2).unipolar).midiratio).sum;
+	snd = Saw.ar(\freq.kr(440) * ([0, 0.3, 0.7] * LFNoise2.ar(2).unipolar).midiratio).sum;
 	snd = snd * Env.perc(0.01, \rel.kr(2)).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), 0.1);
 	Out.ar(\out.kr(0), snd);
@@ -150,37 +150,39 @@ var modAmt = 1e-4;
 (
 var s, beat, root, scale, play;
 s = Server.default;
-beat = 60 / 118;
+beat = 60 / 138;
 root = 52;
-scale = [0, 5, 7];
+scale = Scale.aeolian.degrees;
 play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
 Synth.tail(nil, \fx3noise, [
-	in: ~fxBus, mix: 0.25, amp: 0,
-	modDelay: 1e-4, modSpeed: 1
+	in: ~fxBus, mix: 0, amp: 0,
+	modDelay: 1e-4, modSpeed: 0.5
 ]);
 Routine({
 	loop {
 		[
 			[0, 3, 7, 10],
-			[1, 5, 8, 0]
+			[1, 5, 8, 0],
 		].do { |noteArr|
+			noteArr.postln;
 			4.do {
 				noteArr.scramble.do { |deg|
 					var note, length, rel, pan;
-					pan = rrand(-1.0, 1.0);
+					pan = rrand(-0.65, 0.65);
 					length = [0.5, 1, 2, 4].choose;
 					rel = (beat * length * 16);
 					note = (root + deg + (12 * (-2..2).choose)).midicps;
-					play.(\sourceSaw, length, [freq: note, rel: rel, pan: 0, out: ~fxBus]);
+					play.(\sourceSaw, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
 				}
 			}
 		};
 	};
 }).play;
 )
+
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 // Patterns

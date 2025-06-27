@@ -62,6 +62,19 @@ SynthDef(\phaser22, {
 	snd = snd * 0.dbamp;
     Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\phaser23, {
+    var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = XFade2.ar(snd, AllpassC.ar(snd, 0.1, SinOsc.ar(0.15, 0, 1e-4, 1e-4), 0), 0);
+	snd = XFade2.ar(snd, AllpassC.ar(snd, 0.1, LFNoise2.ar(0.275, 2e-4, 2e-4), 0), 0);
+	snd = XFade2.ar(snd, AllpassC.ar(snd, 0.1, SinOsc.ar(0.255, 0.1, 1e-4, 1e-4), 0), 0);
+	snd = XFade2.ar(snd, AllpassC.ar(snd, 0.1, LFNoise2.ar(0.166, 2e-4, 2e-4), 0), 0);
+	snd = XFade2.ar(snd, AllpassC.ar(snd, 0.1, SinOsc.ar(0.95, 0.5pi, 3e-4, 3e-4), 0), 0);
+	snd = XFade2.ar(snd, AllpassC.ar(snd, 0.1, SinOsc.ar(0.325, 0.35pi, 2.5e-4, 2.5e-4), 0), 0);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 30, 6, 0.2);
+	snd = snd * \amp.kr(0).dbamp;
+    Out.ar(\out.kr(0), snd);
+}).add;
 SynthDef(\phaser3, { // mix in original signal on every stage
     var snd;
 	snd = In.ar(\in.kr(0), 2);
@@ -272,7 +285,7 @@ play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
-Synth.tail(nil, \phaser22, [in: ~fxBus, mix: 0]);
+Synth.tail(nil, \phaser23, [in: ~fxBus, mix: 0, amp: -10]);
 Routine({
 	loop {
 		[

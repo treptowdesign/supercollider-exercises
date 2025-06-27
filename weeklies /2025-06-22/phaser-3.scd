@@ -114,7 +114,7 @@ Routine({
 		};
 	};
 }).play;
-Routine({
+/*Routine({
 	loop {
 		[
 			[0, 3, 7, 10],
@@ -131,5 +131,5 @@ Routine({
 			}
 		};
 	};
-}).play;
+}).play;*/
 )

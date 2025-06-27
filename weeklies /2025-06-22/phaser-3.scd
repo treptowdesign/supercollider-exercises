@@ -35,7 +35,8 @@ SynthDef(\fx, {
 	snd = XFade2.ar(snd, AllpassC.ar(snd, 0.1, LFNoise2.ar(0.166, 2e-4, 2e-4), 0), 0);
 	snd = XFade2.ar(snd, AllpassC.ar(snd, 0.1, SinOsc.ar(0.95, 0.5pi, 3e-4, 3e-4), 0), 0);
 	snd = XFade2.ar(snd, AllpassC.ar(snd, 0.1, SinOsc.ar(0.325, 0.35pi, 2.5e-4, 2.5e-4), 0), 0);
-	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 30, 6, 0.2);
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 10, 3, 0.1);
 	snd = snd * \amp.kr(0).dbamp;
     Out.ar(\out.kr(0), snd);
 }).add;
@@ -67,17 +68,17 @@ var s, beat, root, scale, play;
 s = Server.default;
 beat = 60 / 102;
 root = 52;
-scale = Scale.choose.degrees.postln;
+scale = [0, 5, 7];
 play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
-Synth.tail(nil, \fx, [in: ~fxBus, mix: 0, amp: -10]);
+Synth.tail(nil, \fx, [in: ~fxBus, mix: 0, amp: -16]);
 Routine({
 	loop {
 		[
-			[0,3,7,10],
-			[1,5,8,0]
+			[0, 3, 7, 10],
+			[1, 5, 8, 0]
 		].do { |noteArr|
 			4.do {
 				noteArr.scramble.do { |deg|
@@ -91,11 +92,29 @@ Routine({
 		};
 	};
 }).play;
+/*Routine({
+	loop {
+		[
+			[0, 3, 7, 10],
+			[1, 5, 8, 0]
+		].do { |noteArr|
+			4.do {
+				noteArr.scramble.do { |deg|
+					var note, length, pan;
+					pan = rrand(-1.0, 1.0);
+					length = [0.5, 1, 2, 4].choose;
+					note = (root + deg + (12 * (-1..2).choose)).midicps;
+					play.(\sourceSaw, length, [freq: note, rel: (beat * length * 16), pan: pan, out: ~fxBus]);
+				}
+			}
+		};
+	};
+}).play;*/
 Routine({
 	loop {
 		[
-			[0,3,7,10],
-			[1,5,8,0]
+			[0, 3, 7, 10],
+			[1, 5, 8, 0]
 		].do { |noteArr|
 			4.do {
 				noteArr.scramble.do { |deg|

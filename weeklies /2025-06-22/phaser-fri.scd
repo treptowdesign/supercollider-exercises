@@ -24,7 +24,7 @@ SynthDef(\sourceSin, {
 	// snd = SinOsc.ar(\freq.kr(440) * ([0, 0.1] * LFNoise2.ar(2).unipolar).midiratio).sum;
 	snd = SinOsc.ar(\freq.kr(440));
 	snd = snd * Env.perc(0.01, \rel.kr(8)).ar(Done.freeSelf);
-	snd = snd.tanh;
+	snd = (snd * 0.dbamp).tanh;
 	snd = Pan2.ar(snd, \pan.kr(0), 0.1);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -105,11 +105,11 @@ SynthDef(\fx3noise, {
 	snd = In.ar(\in.kr(0), 2);
 	stages.do { |i|
 		var wet;
-		wet = AllpassC.ar(snd, 0.2, mod.(i + 1).lag(0.02), 0);
+		wet = AllpassC.ar(snd, 0.2, mod.(i + 1).lag(0.01), 0);
 		snd = XFade2.ar(snd, wet, mix);
 	};
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
-	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 30, 6, 0.2);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 30, 4, 0.2);
 	snd = snd * \amp.kr(0).dbamp * -5.dbamp;
     Out.ar(\out.kr(0), snd);
 }).add;
@@ -143,38 +143,58 @@ var modAmt = 1e-4;
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
+// Chords
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+(
+var root;
+root = 52;
+Synth.tail(nil, \fx3noise, [
+	in: ~fxBus, mix: 0, amp: 0,
+	modDelay: 1e-4, modSpeed: 0.1
+]);
+[0, 3, 7, 10].do {|note|
+	Synth(\sourceSin, [freq: (root + note + (12 * 1)).midicps, out: ~fxBus]);
+};
+)
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 // Patterns
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
 (
-var s, beat, root, scale, play;
+var s, beat, root, scale, play, splitScale;
 s = Server.default;
-beat = 60 / 138;
+beat = 60 / 102;
 root = 52;
-scale = Scale.aeolian.degrees;
+scale = Scale.phrygian.degrees;
+splitScale = { |scale|
+    var s1, s2;
+    s1 = [0, 2, 4, 6].collect { |i| scale.wrapAt(i) };
+    s2 = [1, 3, 5, 0].collect { |i| scale.wrapAt(i) };
+    [s1, s2]
+};
 play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
-Synth.tail(nil, \fx3noise, [
-	in: ~fxBus, mix: 0, amp: 0,
-	modDelay: 1e-4, modSpeed: 0.5
-]);
+Synth.tail(nil, \fx3noise, [in: ~fxBus, mix: 0, amp: 0, modDelay: 7e-5, modSpeed: 0.5]);
 Routine({
 	loop {
-		[
-			[0, 3, 7, 10],
-			[1, 5, 8, 0],
-		].do { |noteArr|
+		splitScale.(scale).do { |noteArr|
 			noteArr.postln;
 			4.do {
 				noteArr.scramble.do { |deg|
-					var note, length, rel, pan;
-					pan = rrand(-0.65, 0.65);
+					var note, octave, length, rel, panRange, pan;
+					octave = (-2..2).choose;
+					panRange = octave.linlin(-2, 2, 0.0, 1.0);
+					pan = rrand(-1 * panRange, panRange);
 					length = [0.5, 1, 2, 4].choose;
-					rel = (beat * length * 16);
-					note = (root + deg + (12 * (-2..2).choose)).midicps;
+					rel = (beat * length * [4, 8, 16].choose);
+					note = (root + deg + (12 * octave)).midicps;
 					play.(\sourceSaw, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
 				}
 			}
@@ -182,6 +202,7 @@ Routine({
 	};
 }).play;
 )
+
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////

@@ -168,9 +168,9 @@ Synth.tail(nil, \fx3noise, [
 (
 var s, beat, root, scale, play, splitScale;
 s = Server.default;
-beat = 60 / 102;
+beat = 60 / 118;
 root = 52;
-scale = Scale.phrygian.degrees;
+scale = Scale.aeolian.degrees;
 splitScale = { |scale|
     var s1, s2;
     s1 = [0, 2, 4, 6].collect { |i| scale.wrapAt(i) };
@@ -181,7 +181,7 @@ play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
-Synth.tail(nil, \fx3noise, [in: ~fxBus, mix: 0, amp: 0, modDelay: 7e-5, modSpeed: 0.5]);
+Synth.tail(nil, \fx3noise, [in: ~fxBus, mix: 0, amp: 0, modDelay: 1e-4, modSpeed: 0.5]);
 Routine({
 	loop {
 		splitScale.(scale).do { |noteArr|

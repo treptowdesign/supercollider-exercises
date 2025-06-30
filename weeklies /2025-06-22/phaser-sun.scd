@@ -33,9 +33,9 @@ SynthDef(\sourceSaw, {
 }).add;*/
 SynthDef(\phaser8stage, {
     var snd, wet, lfo, mod, modDelay;
-	lfo = SinOsc.ar(\modSpeed.kr(1), 0);
+	lfo = { |rate, phase=0| SinOsc.ar(rate, phase); };
 	modDelay = \modDelay.kr(1e-4);
-	mod = lfo.range( modDelay / 64, modDelay).lag(1e-6);
+	mod = lfo.(\modSpeed.kr(1)).range( modDelay / 64, modDelay).lag(1e-6);
 	snd = In.ar(\in.kr(0), 2);
 	wet = LPF.ar(HPF.ar(snd, \hpf.kr(20)), \lpf.kr(2e4));
 	8.do { wet = AllpassL.ar(wet, 0.02, mod, \fb.kr(0)); };
@@ -99,7 +99,7 @@ play = { |synthDef, duration, args = #[]|
 Synth.tail(nil, \phaser8stage, [
 	in: ~fxBus, out: ~fxBusMaster,
 	mix: 0, amp: 0, lpf: 20e3, hpf: 20,
-	modDelay: 1e-4, modSpeed: 0.1, fb: 3e-5
+	modDelay: 1e-4, modSpeed: 0.5, fb: 2e-5
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({
@@ -115,7 +115,7 @@ Routine({
 					length = [0.5, 1, 2, 4].choose;
 					rel = (beat * length * [4, 8, 16].choose);
 					note = (root + deg + (12 * octave)).midicps;
-					play.(\sourcePulse, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
+					play.(\sourceSaw, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
 				}
 			}
 		};

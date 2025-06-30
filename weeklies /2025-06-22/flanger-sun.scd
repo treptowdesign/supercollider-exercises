@@ -77,7 +77,7 @@ play = { |synthDef, duration, args = #[]|
 };
 Synth.tail(nil, \flanger, [
 	in: ~fxBus, out: ~fxBusMaster,
-	mix: 0, amp: 0, modDelay: 1e-3, modSpeed: 0.5, fb: 5e-4
+	mix: 0, amp: 0, modDelay: 1e-3, modSpeed: 0.5, fb: 5e-5
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({
@@ -93,7 +93,7 @@ Routine({
 					length = [0.5, 1, 2, 4].choose;
 					rel = (beat * length * [4, 8, 16].choose);
 					note = (root + deg + (12 * octave)).midicps;
-					play.(\sourcePulse, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
+					play.(\sourceSaw, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
 				}
 			}
 		};

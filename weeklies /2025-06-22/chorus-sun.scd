@@ -108,7 +108,7 @@ Routine({
 					length = [0.5, 1, 2, 4].choose;
 					rel = (beat * length * [4, 8, 16].choose);
 					note = (root + deg + (12 * octave)).midicps;
-					play.(\sourcePulse, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
+					play.(\sourceSaw, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
 				}
 			}
 		};

@@ -23,3 +23,17 @@ SynthDef(\ring, {
 
 
 {800 * Env.perc(0.001, 1).kr}.plot(1)
+
+
+(
+x = {
+    MoogFF.ar(
+        in: Pulse.ar([40, 121], [0.3, 0.7]),
+        freq: SinOsc.kr(
+			LFNoise0.kr(0.42).range(0.001, 2.2)
+		).range(30, 4200),
+        gain: 0.75 * 4
+	)
+}.play(s);
+)
+

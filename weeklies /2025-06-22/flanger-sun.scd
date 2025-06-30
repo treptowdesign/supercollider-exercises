@@ -12,26 +12,14 @@ SynthDef(\sourceSaw, {
 	snd = Pan2.ar(snd, \pan.kr(0), 0.1);
 	Out.ar(\out.kr(0), snd);
 }).add;
-/*SynthDef(\phaser, {
-    var snd, wet, mod, modDelay, modSpeed;
-	modDelay = \modDelay.kr(1e-4);
-	modSpeed = \modSpeed.kr(0.5);
-	mod = SinOsc.ar(modSpeed, 0, modDelay, modDelay).lag(0.02);
+SynthDef(\flanger, {
+    var snd, wet, mod;
+	mod = SinOsc.ar(\modSpeed.kr(0.25), 0).range(1e-4, \modDelay.kr(3e-3));
 	snd = In.ar(\in.kr(0), 2);
 	wet = LPF.ar(HPF.ar(snd, \hpf.kr(20)), \lpf.kr(2e4));
-	8.do { wet = AllpassC.ar(wet, 0.1, mod, \fb.kr(0)); };
+	wet = CombC.ar(wet, 0.03, mod, \fb.kr(0));
 	snd = XFade2.ar(snd, wet, \mix.kr(0));
-	snd = snd * \amp.kr(0).dbamp;
-    Out.ar(\out.kr(0), snd);
-}).add;*/
-SynthDef(\phaser8stage, {
-    var snd, wet, mod, modDelay, modSpeed;
-	mod = SinOsc.ar(\modSpeed.kr(0.5), 0).range(1e-8, \modDelay.kr(1e-4));
-	snd = In.ar(\in.kr(0), 2);
-	wet = LPF.ar(HPF.ar(snd, \hpf.kr(20)), \lpf.kr(2e4));
-	8.do { wet = AllpassC.ar(wet, 0.1, mod, \fb.kr(0)); };
-	snd = XFade2.ar(snd, wet, \mix.kr(0));
-	snd = snd * \amp.kr(0).dbamp;
+	snd = Limiter.ar(snd * \amp.kr(0).dbamp);
     Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\masterFx, {
@@ -42,6 +30,7 @@ SynthDef(\masterFx, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
+
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -59,7 +48,7 @@ SynthDef(\masterFx, {
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
-// Pattern
+// Flanger Pattern
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
@@ -79,9 +68,9 @@ play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
-Synth.tail(nil, \phaser8stage, [
-	in: ~fxBus, out: ~fxBusMaster,
-	mix: 0, amp: 0, modDelay: 1e-3, modSpeed: 1, fb: 0.3
+Synth.tail(nil, \flanger, [
+	in: ~fxBus, out: 0,
+	mix: 0, amp: 0, modDelay: 1e-3, modSpeed: 0.25, fb: 0.0005
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({

@@ -113,6 +113,19 @@ SynthDef(\fx3noise, {
 	snd = snd * \amp.kr(0).dbamp * -5.dbamp;
     Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\fxSoloAp, {
+    var snd, wet, mod, modDelay, modSpeed;
+	modDelay = \modDelay.kr(1e-4);
+	modSpeed = \modSpeed.kr(0.5);
+	mod = SinOsc.ar(modSpeed, 0, modDelay, modDelay);
+	snd = In.ar(\in.kr(0), 2);
+	wet = AllpassC.ar(snd, 0.1, mod.lag(0.02), \fb.kr(0));
+	snd = XFade2.ar(snd, wet, \mix.kr(0));
+	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
+	// snd = snd + GVerb.ar(snd.mean * -10.dbamp, 30, 6, 0.2);
+	snd = snd * \amp.kr(0).dbamp;
+    Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 (
@@ -151,17 +164,18 @@ var modAmt = 1e-4;
 var root;
 root = 52;
 Synth.tail(nil, \fx3noise, [
-	in: ~fxBus, mix: 0, amp: 0,
+	in: ~fxBus, mix: 0, amp: -8,
 	modDelay: 1e-4, modSpeed: 0.1
 ]);
 [0, 3, 7, 10].do {|note|
-	Synth(\sourceSin, [freq: (root + note + (12 * 1)).midicps, out: ~fxBus]);
+	Synth(\sourceSin, [freq: (root + note + (12 * 0)).midicps, out: ~fxBus]);
 };
 )
 
+
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
-// Patterns
+// Patterns \fx3noise
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
@@ -181,7 +195,7 @@ play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
-Synth.tail(nil, \fx3noise, [in: ~fxBus, mix: 0, amp: 0, modDelay: 1e-4, modSpeed: 0.5]);
+Synth.tail(nil, \fx3noise, [in: ~fxBus, mix: 0, amp: 0, modDelay: 5e-5, modSpeed: 0.25]);
 Routine({
 	loop {
 		splitScale.(scale).do { |noteArr|

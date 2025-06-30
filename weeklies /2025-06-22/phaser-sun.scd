@@ -1,0 +1,105 @@
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// Synths
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+(
+SynthDef(\sourceSaw, {
+	var snd;
+	// snd = Saw.ar(\freq.kr(440) * ([0, 0.3, 0.7] * LFNoise2.ar(2).unipolar).midiratio).sum;
+	snd = Saw.ar(\freq.kr(440));
+	snd = snd * Env.perc(0.01, \rel.kr(2)).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0), 0.1);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\phaser8stage, {
+    var snd, wet, mod, modDelay, modSpeed;
+	modDelay = \modDelay.kr(1e-4);
+	modSpeed = \modSpeed.kr(0.5);
+	mod = SinOsc.ar(modSpeed, 0, modDelay, modDelay).lag(0.02);
+	snd = In.ar(\in.kr(0), 2);
+	wet = LPF.ar(HPF.ar(snd, 20), 2e4);
+	8.do { wet = AllpassC.ar(wet, 0.1, mod, \fb.kr(0)); };
+	snd = XFade2.ar(snd, wet, \mix.kr(0));
+	snd = snd * \amp.kr(0).dbamp;
+    Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\masterFx, {
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 30, 6, 0.2);
+	Out.ar(\out.kr(0), snd);
+}).add;
+)
+
+{SinOsc.ar(2, 0, 0.5, 0.5)}.plot(1);
+{SinOsc.ar(2, 0, 1e-4, 1e-4)}.plot(1);
+{SinOsc.ar(2, 0, 1e-4, 1e-4).range(0, 1)}.plot(1);
+{LFNoise2.kr(8, 1e-4, 1e-4)}.plot(1);
+
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// Routing
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+(
+~fxBus = Bus.audio(nil, 2);
+~fxBusMaster = Bus.audio(nil, 2);
+)
+
+~fxBus.index;
+~fxBusMaster.index;
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+// Pattern
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+(
+var s, beat, root, scale, play, splitScale;
+s = Server.default;
+beat = 60 / 138;
+root = 52;
+scale = Scale.aeolian.degrees;
+splitScale = { |scale|
+    var s1, s2;
+    s1 = [0, 2, 4, 6].collect { |i| scale.wrapAt(i) };
+    s2 = [1, 3, 5, 0].collect { |i| scale.wrapAt(i) };
+    [s1, s2]
+};
+play = { |synthDef, duration, args = #[]|
+	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
+	(duration * beat).wait;
+};
+Synth.tail(nil, \phaser8stage, [
+	in: ~fxBus, out: 0,
+	mix: 0, amp: 0, modDelay: 1e-5, modSpeed: 1, fb: 0
+]);
+Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
+Routine({
+	loop {
+		splitScale.(scale).do { |noteArr|
+			noteArr.postln;
+			4.do {
+				noteArr.scramble.do { |deg|
+					var note, octave, length, rel, panRange, pan;
+					octave = (-2..2).choose;
+					panRange = octave.linlin(-2, 2, 0.0, 1.0);
+					pan = rrand(-1 * panRange, panRange);
+					length = [0.5, 1, 2, 4].choose;
+					rel = (beat * length * [4, 8, 16].choose);
+					note = (root + deg + (12 * octave)).midicps;
+					play.(\sourceSaw, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
+				}
+			}
+		};
+	};
+}).play;
+)
+
+
+1e-5;

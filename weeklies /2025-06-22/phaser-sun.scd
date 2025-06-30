@@ -32,11 +32,13 @@ SynthDef(\sourceSaw, {
     Out.ar(\out.kr(0), snd);
 }).add;*/
 SynthDef(\phaser8stage, {
-    var snd, wet, mod, modDelay, modSpeed;
-	mod = SinOsc.ar(\modSpeed.kr(0.5), 0).range(1e-8, \modDelay.kr(1e-4));
+    var snd, wet, mod, modDelay, modSpeed, speedMod;
+	speedMod = SinOsc.ar(\modSpeed.kr(1), pi).range(1, 2);
+	mod = SinOsc.ar(\modSpeed.kr(1) * speedMod, 0).range(\modDelay.kr(1e-4) / 4, \modDelay.kr(1e-4));
 	snd = In.ar(\in.kr(0), 2);
-	wet = LPF.ar(HPF.ar(snd, \hpf.kr(20)), \lpf.kr(2e4));
-	8.do { wet = AllpassC.ar(wet, 0.1, mod, \fb.kr(0)); };
+	// wet = LPF.ar(HPF.ar(snd, \hpf.kr(20)), \lpf.kr(2e4));
+	wet = snd;
+	8.do { wet = AllpassL.ar(wet, 0.2, mod, \fb.kr(0)); };
 	snd = XFade2.ar(snd, wet, \mix.kr(0));
 	snd = snd * \amp.kr(0).dbamp;
     Out.ar(\out.kr(0), snd);
@@ -50,6 +52,15 @@ SynthDef(\masterFx, {
 }).add;
 )
 
+
+1e-10;
+
+0.00000001;
+
+{SinOsc.ar(4, 0).abs.range(0, 1e-6)}.plot(1);
+{SinOsc.ar(4, 0).linlin(-1, 1, 0, 1e-6)}.plot(1);
+
+{SinOsc.ar(4, 0).range(1, 2)}.plot(1);
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 // Routing
@@ -88,7 +99,7 @@ play = { |synthDef, duration, args = #[]|
 };
 Synth.tail(nil, \phaser8stage, [
 	in: ~fxBus, out: 0,
-	mix: 0, amp: 0, modDelay: 1e-4, modSpeed: 0.5, fb: 0
+	mix: 0, amp: 0, modDelay: 6e-5, modSpeed: 1, fb: 0
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({

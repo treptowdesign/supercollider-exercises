@@ -4,6 +4,13 @@
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 (
+SynthDef(\sourcePulse, {
+	var snd;
+	snd = Pulse.ar(\freq.kr(440));
+	snd = snd * Env.perc(0.01, \rel.kr(2)).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0), 0.1);
+	Out.ar(\out.kr(0), snd);
+}).add;
 SynthDef(\sourceSaw, {
 	var snd;
 	// snd = Saw.ar(\freq.kr(440) * ([0, 0.3, 0.7] * LFNoise2.ar(2).unipolar).midiratio).sum;
@@ -69,7 +76,7 @@ play = { |synthDef, duration, args = #[]|
 	(duration * beat).wait;
 };
 Synth.tail(nil, \chorus, [
-	in: ~fxBus, out: 0,
+	in: ~fxBus, out: ~fxBusMaster,
 	mix: -0.5, amp: 0, modDelay: 1e-3, modSpeed: 1
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
@@ -86,7 +93,7 @@ Routine({
 					length = [0.5, 1, 2, 4].choose;
 					rel = (beat * length * [4, 8, 16].choose);
 					note = (root + deg + (12 * octave)).midicps;
-					play.(\sourceSaw, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
+					play.(\sourcePulse, length, [freq: note, rel: rel, pan: pan, out: ~fxBus]);
 				}
 			}
 		};

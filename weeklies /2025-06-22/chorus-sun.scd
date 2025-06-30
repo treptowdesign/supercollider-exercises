@@ -29,6 +29,19 @@ SynthDef(\chorus, {
 	snd = Limiter.ar(snd * \amp.kr(0).dbamp);
     Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\chorus2, {
+    var snd, wet, wet2, mod, mod2;
+	mod = SinOsc.ar(\modSpeed.kr(0.25), 0).range(0, \modDelay.kr(3e-3));
+	mod2 = SinOsc.ar(\modSpeed2.kr(0.1), 0).range(0, \modDelay2.kr(1e-3));
+	snd = In.ar(\in.kr(0), 2);
+	wet = LPF.ar(HPF.ar(snd, \hpf.kr(20)), \lpf.kr(2e4));
+	wet2 = LPF.ar(HPF.ar(snd, \hpf.kr(20)), \lpf.kr(2e4));
+	wet = DelayC.ar(wet, 0.03, mod);
+	wet2 = DelayC.ar(wet2, 0.03, mod2);
+	snd = XFade2.ar(snd, wet + wet2, \mix.kr(0));
+	snd = Limiter.ar(snd * \amp.kr(0).dbamp);
+    Out.ar(\out.kr(0), snd);
+}).add;
 SynthDef(\masterFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
@@ -75,9 +88,10 @@ play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
-Synth.tail(nil, \chorus, [
-	in: ~fxBus, out: ~fxBusMaster,
-	mix: -0.5, amp: 0, modDelay: 1e-3, modSpeed: 1
+Synth.tail(nil, \chorus2, [
+	in: ~fxBus, out: 0,
+	mix: -0.5, amp: 0,
+	modDelay: 4e-3, modSpeed: 0.5, modDelay2: 1e-3, modSpeed2: 0.1
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({

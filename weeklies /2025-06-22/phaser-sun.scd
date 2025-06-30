@@ -45,7 +45,7 @@ SynthDef(\masterFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
-	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 30, 6, 0.2);
+	snd = snd + GVerb.ar(snd.mean * -10.dbamp, 20, 5, 0.2);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -87,8 +87,8 @@ play = { |synthDef, duration, args = #[]|
 	(duration * beat).wait;
 };
 Synth.tail(nil, \phaser8stage, [
-	in: ~fxBus, out: ~fxBusMaster,
-	mix: 0, amp: 0, modDelay: 1e-6, modSpeed: 1, fb: 0.9
+	in: ~fxBus, out: 0,
+	mix: 0, amp: 0, modDelay: 1e-4, modSpeed: 0.5, fb: 0
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({

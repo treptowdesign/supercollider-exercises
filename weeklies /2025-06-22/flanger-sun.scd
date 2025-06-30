@@ -76,8 +76,8 @@ play = { |synthDef, duration, args = #[]|
 	(duration * beat).wait;
 };
 Synth.tail(nil, \flanger, [
-	in: ~fxBus, out: ~fxBusMaster,
-	mix: 0, amp: 0, modDelay: 3e-3, modSpeed: 1, fb: 0.0005
+	in: ~fxBus, out: 0,
+	mix: 0, amp: 0, modDelay: 1e-3, modSpeed: 1, fb: 5e-4
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({

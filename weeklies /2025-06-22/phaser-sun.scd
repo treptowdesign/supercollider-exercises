@@ -81,7 +81,7 @@ play = { |synthDef, duration, args = #[]|
 };
 Synth.tail(nil, \phaser8stage, [
 	in: ~fxBus, out: ~fxBusMaster,
-	mix: 0, amp: 0, modDelay: 1e-3, modSpeed: 1, fb: 0.3
+	mix: 0, amp: 0, modDelay: 1e-5, modSpeed: 1, fb: 0.75
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({

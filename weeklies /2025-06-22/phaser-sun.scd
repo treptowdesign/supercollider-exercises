@@ -32,14 +32,14 @@ SynthDef(\sourceSaw, {
     Out.ar(\out.kr(0), snd);
 }).add;*/
 SynthDef(\phaser8stage, {
-    var snd, wet, lfo, mod, modDelay, modSpeed;
+    var snd, wet, lfo, mod, modDelay;
 	lfo = SinOsc.ar(\modSpeed.kr(1), 0);
-	mod = lfo.range(\modDelay.kr(1e-4) / 64, \modDelay.kr(1e-4)).lag(0.02);
+	modDelay = \modDelay.kr(1e-4);
+	mod = lfo.range( modDelay / 64, modDelay).lag(1e-6);
 	snd = In.ar(\in.kr(0), 2);
 	wet = LPF.ar(HPF.ar(snd, \hpf.kr(20)), \lpf.kr(2e4));
 	8.do { wet = AllpassL.ar(wet, 0.02, mod, \fb.kr(0)); };
 	snd = XFade2.ar(snd, wet, \mix.kr(0));
-	// snd = snd + SinOsc.ar(lfo.range(100, 1000), 0, 0.3);
 	snd = snd * \amp.kr(0).dbamp;
     Out.ar(\out.kr(0), snd);
 }).add;
@@ -52,7 +52,7 @@ SynthDef(\masterFx, {
 }).add;
 )
 
-(1e-4) / 16
+(1e-4) / 64
 1e-10;
 0.00000001;
 
@@ -97,9 +97,9 @@ play = { |synthDef, duration, args = #[]|
 	(duration * beat).wait;
 };
 Synth.tail(nil, \phaser8stage, [
-	in: ~fxBus, out: 0,
-	mix: 0, amp: 0, lpf: 18e3, hpf: 80,
-	modDelay: 1e-4, modSpeed: 0.65, fb: 5e-5
+	in: ~fxBus, out: ~fxBusMaster,
+	mix: 0, amp: 0, lpf: 20e3, hpf: 20,
+	modDelay: 1e-4, modSpeed: 0.1, fb: 3e-5
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({

@@ -89,9 +89,10 @@ play = { |synthDef, duration, args = #[]|
 	(duration * beat).wait;
 };
 Synth.tail(nil, \chorus2, [
-	in: ~fxBus, out: 0,
+	in: ~fxBus, out: ~fxBusMaster,
 	mix: -0.5, amp: 0,
-	modDelay: 4e-3, modSpeed: 0.5, modDelay2: 1e-3, modSpeed2: 0.1
+	modDelay: 6e-3, modSpeed: 0.85,
+	modDelay2: 2e-3, modSpeed2: 2.15
 ]);
 Synth.tail(nil, \masterFx, [in: ~fxBusMaster]);
 Routine({

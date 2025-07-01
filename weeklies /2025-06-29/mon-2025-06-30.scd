@@ -111,11 +111,11 @@ SynthDef(\sourceFm, {|amp=0.1, cRatio=2, mRatio=4, index=3|
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1.0);
-	snd = SinOsc.ar(50 * (Env.perc(0, 0.25).ar * 10).midiratio * XLine.ar(3, 1, 0.02) * [1, 3.4]);
+	snd = SinOsc.ar(50 * (Env.perc(0, 0.25).ar * 8).midiratio * XLine.ar(3, 1, 0.02) * [1, 3.4]);
 	snd = snd * Env.perc(0.01, [0.4, 0.1] * velocity, curve: -7).ar;
 	snd = snd * [0, -10].dbamp;
 	snd = snd.sum;
-	snd = snd + (SinOsc.ar(XLine.ar(1300, 200, 0.02)) * Env.perc(0.002, 0.03).ar);
+	snd = snd + (SinOsc.ar(XLine.ar(1100, 200, 0.02)) * Env.perc(0.002, 0.03).ar);
 	snd = snd + (SinOsc.ar(XLine.ar(3000, 100, 0.01)) * Env.perc(0.002, 0.01).ar);
 	snd = snd + (BPF.ar(WhiteNoise.ar, 3234, 0.7) * Env.perc(0.001, 0.01).ar * -10.dbamp);
 	snd = snd + (BPF.ar(WhiteNoise.ar, 6234, 0.7) * Env.perc(0.001, 0.02).delay(0.01).ar * -10.dbamp);
@@ -144,7 +144,7 @@ SynthDef(\hat, {
 	};
 	snd = snd + (SinOsc.ar(XLine.ar(10300, 3000, 0.01)) * Env.perc(0.001, 0.01).ar * -7.dbamp);
 	snd = snd * velocity;
-	snd = snd * 2.dbamp;
+	snd = snd * -6.dbamp;
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * Env.linen(0.0, 0.5, 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -159,7 +159,7 @@ SynthDef(\clap, {
 	snd = snd.tanh;
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -28.dbamp, 0.2, [30e-3, 42e-3]), 200), 1000);
 	snd = snd + GVerb.ar(snd.mean * -24.dbamp, 20, 3, 0.4);
-	snd = snd * Env.linen(0.0, 0.5, 1).ar(Done.freeSelf);
+	snd = snd * Env.linen(0.0, 0.5, 1).ar(Done.freeSelf) * -6.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\fxDelay, {
@@ -170,19 +170,25 @@ SynthDef(\fxDelay, {
 	wet = DelayN.ar(wet, delayTime, delayTime - ControlDur.ir) * -8.dbamp;
 	LocalOut.ar(wet);
 	snd = snd + (wet * 0.dbamp); // <- wet/dry mix
-	snd = snd + GVerb.ar(snd * -24.dbamp, 20, 4, 0.4) * -6.dbamp;
+	Limiter.ar(snd);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\fxMaster, {
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = snd + GVerb.ar(snd * -20.dbamp, 20, 4, 0.2) * -6.dbamp;
 	Limiter.ar(snd);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
 
-([0, 0.1].midiratio)
-
 (
 ~fxBus = Bus.audio(nil, 2);
+~masterxBus = Bus.audio(nil, 2);
 )
 
 ~fxBus.index;
+~masterxBus.index;
 
 (
 var s, beat, root, scale, play;
@@ -194,7 +200,8 @@ play = { |synthDef, duration, args = #[]|
 	s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 	(duration * beat).wait;
 };
-Synth.tail(nil, \fxDelay, [in: ~fxBus, delayTime: beat/2]);
+Synth.tail(nil, \fxDelay, [in: ~fxBus, out: ~masterxBus, delayTime: beat/2]);
+Synth.tail(nil, \fxMaster, [in: ~masterxBus]);
 /*Routine({
 	loop {
 		[0, 7, 0, 1, 0, 5, 7, 10].do { |deg|
@@ -232,10 +239,10 @@ Routine({
 Routine({
 	loop {
 		if(0.5.coin, {
-			play.(\kick, 0.5, [out: ~fxBus]);
-			play.(\kick, 0.5, [out: ~fxBus]);
+			play.(\kick, 0.5, [out: ~masterxBus]);
+			play.(\kick, 0.5, [out: ~masterxBus]);
 		}, {
-			play.(\kick, 1, [out: ~fxBus]);
+			play.(\kick, 1, [out: ~masterxBus]);
 		});
 		play.(\hat, 0.25, [out: ~fxBus]);
 		play.(\hat, 0.25, [out: ~fxBus]);
@@ -244,7 +251,7 @@ Routine({
 		play.(\hat, 0.25, [out: ~fxBus]);
 		play.(\hat, 0.25, [out: ~fxBus]);
 		if(0.5.coin, {
-			play.(\kick, 0.5, [out: ~fxBus]);
+			play.(\kick, 0.5, [out: ~masterxBus]);
 		}, {
 			play.(\hat, 0.5, [out: ~fxBus]);
 		});

@@ -94,7 +94,7 @@ SynthDef(\fmBass, {|cRatio=1, mRatio=3, index=2|
 /////////////////////////////////////////////////////////////
 
 (
-SynthDef(\sourceFm, {|amp=0.1, cRatio=2, mRatio=4, index=3|
+SynthDef(\sourceFm, {|amp=0.2, cRatio=2, mRatio=4, index=2|
 	var snd, mod, env, lfo, freq;
 	freq = \freq.kr(110) * ([0, 0.1].midiratio);
 	env = Env.perc(0, 1, curve: -2).ar.linlin(0, 1, 1, index);
@@ -103,7 +103,7 @@ SynthDef(\sourceFm, {|amp=0.1, cRatio=2, mRatio=4, index=3|
 	snd = SinOsc.ar((freq * cRatio) + mod);
 	snd = snd.sum;
 	snd = Mix([snd, (snd * 2.dbamp).tanh]);
-	snd = XFade2.ar(snd, CombC.ar(snd, 0.02, lfo.(2, 0, 3e-4), 0), \flangerMix.kr(0));
+	snd = XFade2.ar(snd, CombC.ar(snd, 0.02, lfo.(2, 0, 6e-4), 0), \flangerMix.kr(0));
 	snd = Limiter.ar(snd);
 	snd = snd * Env.perc(0.01, 2).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd * amp ! 2);
@@ -111,12 +111,12 @@ SynthDef(\sourceFm, {|amp=0.1, cRatio=2, mRatio=4, index=3|
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1.0);
-	snd = SinOsc.ar(50 * (Env.perc(0, 0.25).ar * 8).midiratio * XLine.ar(3, 1, 0.02) * [1, 3.4]);
+	snd = SinOsc.ar(50 * (Env.perc(0, 0.25).ar * 10).midiratio * XLine.ar(3, 1, 0.02) * [1, 3.4]);
 	snd = snd * Env.perc(0.01, [0.4, 0.1] * velocity, curve: -7).ar;
 	snd = snd * [0, -10].dbamp;
 	snd = snd.sum;
-	snd = snd + (SinOsc.ar(XLine.ar(1100, 200, 0.02)) * Env.perc(0.002, 0.03).ar);
-	snd = snd + (SinOsc.ar(XLine.ar(3000, 100, 0.01)) * Env.perc(0.002, 0.01).ar);
+	snd = snd + (SinOsc.ar(XLine.ar(900, 200, 0.02)) * Env.perc(0.002, 0.03).ar);
+	snd = snd + (SinOsc.ar(XLine.ar(1500, 100, 0.01)) * Env.perc(0.002, 0.01).ar);
 	snd = snd + (BPF.ar(WhiteNoise.ar, 3234, 0.7) * Env.perc(0.001, 0.01).ar * -10.dbamp);
 	snd = snd + (BPF.ar(WhiteNoise.ar, 6234, 0.7) * Env.perc(0.001, 0.02).delay(0.01).ar * -10.dbamp);
 	snd = snd * 5.dbamp;
@@ -124,9 +124,9 @@ SynthDef(\kick, {
 	snd = snd + 0.1;
 	snd = snd.tanh;
 	snd = LeakDC.ar(snd);
-	snd = snd * -10.dbamp;
+	snd = snd * -12.dbamp;
 	snd = snd * (1 + Env.perc(0, 0.02).ar);
-	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -40.dbamp, 0.2, [30e-3, 45e-3]), 200), 1000);
+	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -30.dbamp, 0.2, [30e-3, 45e-3]), 200), 1000);
 	snd = snd * Env.linen(0.0, 0.5, 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -158,8 +158,8 @@ SynthDef(\clap, {
 	snd = Pan2.ar(snd, 0);
 	snd = snd.tanh;
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -28.dbamp, 0.2, [30e-3, 42e-3]), 200), 1000);
-	snd = snd + GVerb.ar(snd.mean * -24.dbamp, 20, 3, 0.4);
-	snd = snd * Env.linen(0.0, 0.5, 1).ar(Done.freeSelf) * -6.dbamp;
+	snd = snd + GVerb.ar(snd.mean * -18.dbamp, 20, 3, 0.4);
+	snd = snd * Env.linen(0.0, 0.5, 1).ar(Done.freeSelf) * -2.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\fxDelay, {
@@ -167,7 +167,7 @@ SynthDef(\fxDelay, {
 	delayTime = \delayTime.kr(0.3);
 	snd = In.ar(\in.kr(0), 2);
 	wet = snd + (LocalIn.ar(2)); // <- feedback control
-	wet = DelayN.ar(wet, delayTime, delayTime - ControlDur.ir) * -8.dbamp;
+	wet = DelayN.ar(wet, delayTime, delayTime - ControlDur.ir) * -12.dbamp;
 	LocalOut.ar(wet);
 	snd = snd + (wet * 0.dbamp); // <- wet/dry mix
 	Limiter.ar(snd);
@@ -176,7 +176,7 @@ SynthDef(\fxDelay, {
 SynthDef(\fxMaster, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd + GVerb.ar(snd * -20.dbamp, 20, 4, 0.2) * -6.dbamp;
+	snd = snd + GVerb.ar(snd * -20.dbamp, 25, 4, 0.6) * -6.dbamp;
 	Limiter.ar(snd);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -202,7 +202,7 @@ play = { |synthDef, duration, args = #[]|
 };
 Synth.tail(nil, \fxDelay, [in: ~fxBus, out: ~masterxBus, delayTime: beat/2]);
 Synth.tail(nil, \fxMaster, [in: ~masterxBus]);
-/*Routine({
+Routine({
 	loop {
 		[0, 7, 0, 1, 0, 5, 7, 10].do { |deg|
 			var note, octave, length, rel, panRange, pan;
@@ -213,25 +213,25 @@ Synth.tail(nil, \fxMaster, [in: ~masterxBus]);
 			rel = (beat * length * [4, 8, 16].choose);
 			note = (root + deg + (12 * octave)).midicps;
 			play.(\sourceFm, length, [
-				freq: note, rel: rel, pan: pan, out: ~fxBus,
-				flangerMix: octave.linlin(-2, 1, -1, 0)
+				freq: note, rel: rel, amp: 0.06, pan: pan, out: ~fxBus,
+				index: 5, flangerMix: octave.linlin(-2, 1, -1, 0)
 			]);
 		}
 	};
-}).play;*/
+}).play;
 Routine({
 	loop {
 		[0, 7, 0, 1, 0, 5, 7, 10].do { |deg|
 			var note, octave, length, rel, panRange, pan;
-			octave = (-2..-1).choose;
+			octave = -2; // (-2..-1).choose;
 			panRange = octave.linlin(-2, 2, 0.0, 1.0);
 			pan = rrand(-1 * panRange, panRange);
 			length = [1].choose;
 			rel = (beat * length * [4, 8, 16].choose);
 			note = (root + deg + (12 * octave)).midicps;
 			play.(\sourceFm, length, [
-				freq: note, rel: rel, pan: pan, out: ~fxBus,
-				flangerMix: octave.linlin(-2, 1, -1, 0)
+				freq: note, rel: rel, amp: 0.08, pan: pan, out: ~fxBus,
+				flangerMix: -1
 			]);
 		}
 	};

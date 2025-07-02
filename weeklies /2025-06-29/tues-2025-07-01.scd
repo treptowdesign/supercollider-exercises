@@ -25,7 +25,7 @@ SynthDef(\keys2, {
 SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1.0);
-	snd = SinOsc.ar(50 * (Env.perc(0, 0.25).ar * 8).midiratio * XLine.ar(3, 1, 0.02) * [1, 3.5]);
+	snd = SinOsc.ar(50 * (Env.perc(0, 0.25).ar * 8).midiratio * XLine.ar(3, 1, 0.02) * [1, 2.4]);
 	snd = snd * Env.perc(0.01, [0.4, 0.1] * velocity, curve: -7).ar;
 	snd = snd * [0, -10].dbamp;
 	snd = snd.sum;
@@ -38,7 +38,7 @@ SynthDef(\kick, {
 	snd = snd + 0.1;
 	snd = snd.tanh;
 	snd = LeakDC.ar(snd);
-	snd = snd * -8.dbamp;
+	snd = snd * -12.dbamp;
 	snd = snd * (1 + Env.perc(0, 0.02).ar);
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -40.dbamp, 0.2, [30e-3, 45e-3]), 200), 1000);
 	snd = snd * Env.linen(0.0, 0.5, 0.01).ar(Done.freeSelf);
@@ -117,6 +117,29 @@ SynthDef(\fxReverb, {
 	snd = XFade2.ar(snd, wet, \mix.kr(0), \amp.kr(1));
     Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\fxDrums, {
+	var snd, compressed;
+	snd = In.ar(\in.kr(0), 2);
+	snd = BLowShelf.ar(snd, 200, 0.3, -3);
+	snd = BHiShelf.ar(snd, 3200, 0.3, -3);
+	snd = (snd * 4.dbamp).tanh;
+	snd = BLowShelf.ar(snd, 200, 0.3, 3);
+	snd = BHiShelf.ar(snd, 3200, 0.3, 3);
+	compressed = Compander.ar(
+        snd,              // input signal
+        snd,              // control signal
+        thresh: 0.5,            // threshold level
+        slopeBelow: 1,          // ratio below threshold
+        slopeAbove: 0.3,        // ratio above threshold (0.3 = strong compression)
+        clampTime: 0.01,        // attack time
+        relaxTime: 0.1          // release time
+    );
+	snd = XFade2.ar(snd, LeakDC.ar(((snd + 0.1) * 2.dbamp).tanh), 0);
+	snd = XFade2.ar(snd, compressed,  \mix.kr(0), \amp.kr(1));
+	snd = snd + GVerb.ar(snd * -24.dbamp, 10, 3, 0.6) * -6.dbamp;
+	snd = snd * -8.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 (
@@ -124,6 +147,7 @@ SynthDef(\fxReverb, {
 ~fxBus2 = Bus.audio(nil, 2);
 ~fxBus3 = Bus.audio(nil, 2);
 ~fxBus4 = Bus.audio(nil, 2);
+~fxBus5 = Bus.audio(nil, 2);
 ~masterxBus = Bus.audio(nil, 2);
 )
 
@@ -131,6 +155,7 @@ SynthDef(\fxReverb, {
 ~fxBus2.index;
 ~fxBus3.index;
 ~fxBus4.index;
+~fxBus5.index;
 
 // weeklies/2025-04-20/drum-rack.scd
 
@@ -150,11 +175,11 @@ play = { |synthDef, duration, args = #[]|
 	wait.(duration);
 };
 Synth.tail(nil, \fxPhaser, [
-	in: ~fxBus, out: ~fxBus2, mix: -0.5, amp: 1,
+	in: ~fxBus, out: ~fxBus2, mix: -0.1, amp: 1,
 	delay: 1e-4, speed: 0.2, fb: 0
 ]);
 Synth.tail(nil, \fxChorus, [
-	in: ~fxBus2, out: ~fxBus3, mix: -0.5, amp: 1,
+	in: ~fxBus2, out: ~fxBus3, mix: -0.8, amp: 1,
 	modSpeed: 1.2, modDelay: 3e-3, modSpeed2: 1, modDelay2: 1e-4
 ]);
 Synth.tail(nil, \fxDelay, [in: ~fxBus4, out: ~fxBus3, delayTime: beat/2]);
@@ -162,11 +187,22 @@ Synth.tail(nil, \fxReverb, [
 	in: ~fxBus3, out: 0, mix: -0.2, amp: 0.8,
 	gain: -15, size: 20, revtime: 3, damp: 0.65
 ]);
+Synth.tail(nil, \fxDrums, [
+	in: ~fxBus5, out: 0, mix: -1, amp: 1
+]);
 Routine({
-	var chordsOut, oct;
+	var chordsOut, oct, loopIndex;
 	chordsOut = ~fxBus;
 	oct = (12 * 0);
+	loopIndex = 0;
 	loop {
+		// loopIndex
+		if(loopIndex % 2 == 0, {
+			oct = (12 * 0);
+		}, {
+			oct = (12 * 1);
+		});
+		// song loop
 		fork {
 			8.do {
 				play.(\hat, 1, [out: ~fxBus4]);
@@ -177,25 +213,25 @@ Routine({
 		};
 		fork {
 			4.do {
-				play.(\kick, 0.5, [out: 0]);
-				play.(\kick, 0.5, [out: 0, velocity: 0.7]);
+				play.(\kick, 0.5, [out: ~fxBus5]);
+				play.(\kick, 0.5, [out: ~fxBus5, velocity: 0.7]);
 				wait.(1);
-				play.(\clap, 1, [out: 0]);
+				play.(\clap, 1, [out: ~fxBus5]);
 				wait.(0.5);
-				play.(\kick, 0.5, [out: 0, velocity: 0.7]);
+				play.(\kick, 0.5, [out: ~fxBus5, velocity: 0.7]);
 			};
 		};
 		// i
 		(0 + [0, 3, 7, 10]).postln.do { |deg|
-			playP.(\keys2, 4, [freq: (root + deg + oct).midicps, out: chordsOut, bend: -7]);
+			playP.(\keys2, 4, [freq: (root + deg + oct).midicps, out: chordsOut, bend: -5]);
 		};
 		wait.(2);
-		(0 + [-5, 3]).do { |deg|
+		(0 + [7, 3]).do { |deg|
 			play.(\keys2, 1, [freq: (root + deg + oct).midicps, out: chordsOut]);
 		};
 		// bII
 		(1 + [0, 4, 7, 11]).postln.do { |deg|
-			playP.(\keys2, 4, [freq: (root + deg + oct).midicps, out: chordsOut, bend: -7]);
+			playP.(\keys2, 4, [freq: (root + deg + oct).midicps, out: chordsOut, bend: -5]);
 		};
 		wait.(2);
 		(1 + [4, 7]).do { |deg|
@@ -203,7 +239,7 @@ Routine({
 		};
 		// iv
 		(5 + [0, 3, 7, 10]).postln.do { |deg|
-			playP.(\keys2, 4, [freq: (root + deg + oct).midicps, out: chordsOut, bend: -7]);
+			playP.(\keys2, 4, [freq: (root + deg + oct).midicps, out: chordsOut, bend: -5]);
 		};
 		wait.(2);
 		(5 + [3, 7]).do { |deg|
@@ -211,12 +247,14 @@ Routine({
 		};
 		// v
 		(7 + [0, 3, 7, 10 - 12]).postln.do { |deg|
-			playP.(\keys2, 4, [freq: (root + deg + oct).midicps, out: chordsOut, bend: -7]);
+			playP.(\keys2, 4, [freq: (root + deg + oct).midicps, out: chordsOut, bend: -5]);
 		};
 		wait.(2);
 		(7 + [10 - 12, 7]).do { |deg|
 			play.(\keys2, 1, [freq: (root + deg + oct).midicps, out: chordsOut]);
 		};
+		// loopIndex
+		loopIndex = ((loopIndex + 1) % 10).postln;
 	};
 }).play;
 )

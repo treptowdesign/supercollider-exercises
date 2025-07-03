@@ -153,10 +153,10 @@ SynthDef(\sub, {
 }).add;
 SynthDef(\keys, {
 	var snd, freq, wet;
-	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(4, 1, 0.01);
+	freq = \freq.kr(440) * (LFNoise2.ar(4) * 0.1).midiratio * XLine.ar(2, 1, 0.01);
 	freq = freq * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	snd = SinOsc.ar(freq) + HPF.ar(PinkNoise.ar(1), 200);
-	snd = snd * SinOsc.ar(LFNoise2.ar(0.5).range(1, 6), 0, 50, 160) * (1 + Env.perc(0, 0.1).ar);
+	snd = snd * SinOsc.ar(LFNoise2.ar(0.5).range(1, 6), 0, 50, 260) * (1 + Env.perc(0, 0.1).ar);
 	snd = SinOsc.ar(freq + snd);
 	wet = snd + 0.1;
 	wet = (snd * 14.dbamp).tanh;
@@ -170,6 +170,17 @@ SynthDef(\keys, {
 	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\saw, {
+	var snd, freq;
+	freq = \freq.kr(440) * (LFNoise2.ar(4) * [0, 0.1]).midiratio;
+	snd = Saw.ar(freq).sum;
+	snd = Pan2.ar(snd, 0, 0.2);
+	snd = LPF.ar(snd, 12e3);
+	snd = snd * Env.perc(0.001, \rel.kr(3.0), curve: -4).ar;
+	snd = snd * Env.linen(0.01, \duration.kr(4.0), 0.1).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
+
 // FX
 SynthDef(\fxPhaser, {
     var snd, wet, lfo, delay;
@@ -181,7 +192,7 @@ SynthDef(\fxPhaser, {
 	snd = XFade2.ar(snd, wet, \mix.kr(0), \amp.kr(1));
 
 	wet = GVerb.ar(snd.mean * \gain.kr(-15).dbamp, \size.kr(20), \revtime.kr(3), \damp.kr(0.7));
-	snd = XFade2.ar(snd, wet, -0.4, 1);
+	snd = XFade2.ar(snd, wet, 0, 1);
 
     Out.ar(\out.kr(0), snd);
 }).add;
@@ -224,8 +235,8 @@ Routine({
 	var sidechainFx, duck, wait, playParallel, play;
 
 	Synth.tail(nil, \fxPhaser, [
-		in: ~phaserBus, out: ~sidechainBus, mix: -0.8, amp: 1,
-		delay: 5e-4, speed: 0.5, fb: 0
+		in: ~phaserBus, out: ~sidechainBus, mix: -0.2, amp: 1,
+		delay: 8e-4, speed: 0.4, fb: 0
 	]);
 
 	sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~sidechainBus, out: 0]);
@@ -266,18 +277,18 @@ Routine({
 		fork {
 			var synthBus = ~phaserBus;
 			wait.(1);
-			play.(\keys, 1, [freq: (root).midicps, out: synthBus]);
-			play.(\keys, 0.5, [freq: (root + 12.neg).midicps, out: synthBus]);
-			play.(\keys, 0.5, [freq: (root + 5.neg).midicps, out: synthBus]);
-			play.(\keys, 0.5, [freq: (root + 2).midicps, out: synthBus]);
+			play.(\saw, 1, [freq: (root).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + 12.neg).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + 5.neg).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + 2).midicps, out: synthBus]);
 			wait.(0.5);
-			play.(\keys, 0.5, [freq: (root + 7).midicps, out: synthBus]);
-			play.(\keys, 0.5, [freq: (root + 3).midicps, out: synthBus]);
-			play.(\keys, 0.5, [freq: (root + 2.neg).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + 7).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + 3).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + 2.neg).midicps, out: synthBus]);
 			wait.(0.5);
-			play.(\keys, 0.5, [freq: (root + 3).midicps, out: synthBus]);
-			play.(\keys, 0.5, [freq: (root).midicps, out: synthBus]);
-			play.(\keys, 0.5, [freq: (root + 5.neg).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + 3).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + 5.neg).midicps, out: synthBus]);
 
 		};
 

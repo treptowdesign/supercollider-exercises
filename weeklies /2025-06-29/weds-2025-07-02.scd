@@ -116,7 +116,7 @@ SynthDef(\hat, {
 	snd = HPF.ar(snd, 900);
 	snd = snd + GVerb.ar(snd * -20.dbamp, 4, 3);
 	snd = snd * Env.linen(0, duration, 0.1, curve: -4).ar(Done.freeSelf);
-	snd = snd * -20.dbamp;
+	snd = snd * -22.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 /*SynthDef(\hatRand, {
@@ -265,11 +265,18 @@ Routine({
 	loop {
 		loopIndex.postln;
 		fork {
-			4.do {
+			2.do {
+				// wait.(0.5);
+				// play.(\hat, 0.5, latency: 0);
 				wait.(0.5);
-				play.(\hat, 0.5, latency: 0.01);
-				play.(\hat, 0.5, latency: 0.01);
-				play.(\hat, 0.5, latency: 0.01);
+				play.(\hat, 0.5, latency: 0);
+				play.(\hat, 1, latency: 0);
+				// play.(\hat, 0.5, latency: 0);
+				wait.(1);
+				play.(\hat, 0.25, latency: 0);
+				play.(\hat, 0.25, latency: 0);
+				play.(\hat, 0.25, latency: 0);
+				play.(\hat, 0.25, latency: 0);
 			};
 		};
 		fork {
@@ -305,7 +312,7 @@ Routine({
 			}, {
 				wait.(1);
 			});
-			play.(\clap, 1, latency: 0.01);
+			play.(\clap, 1, latency: 0);
 			if(0.25.coin, {
 				wait.(0.5);
 				playParallel.(\sub, 0.5, [freq: (root + 5 + -24).midicps, out: ~sidechainBus]);
@@ -321,23 +328,6 @@ Routine({
 
 }).play;
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

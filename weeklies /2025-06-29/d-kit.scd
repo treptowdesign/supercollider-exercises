@@ -1,15 +1,34 @@
 (
 SynthDef(\kick, {
 	var snd, wet;
-	snd = SinOsc.ar(60 * (1 + (4 * Env.perc(0, 0.06).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
+	snd = SinOsc.ar(50 * (1 + (4 * Env.perc(0, 0.06).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
 	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
-	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 8320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
+	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 6320, 0.2) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
 	wet = snd + 0.1;
-	wet = wet.clip2 + (wet.fold2 * -6.dbamp);
+	wet = wet.clip2 + (wet.fold2 * -8.dbamp);
 	wet = LeakDC.ar(wet);
 	snd = XFade2.ar(snd, wet, 0);
 	snd = snd * Env.perc(0.001, 0.4).ar;
-	snd = snd + (DelayC.ar(snd * -20.dbamp, 0.1, [0.03, 0.045]) * -14.dbamp);
+	snd = snd + (DelayC.ar(snd * -14.dbamp, 0.1, [0.03, 0.045]) * -14.dbamp);
+	snd = snd * Env.linen(0.0, 0.5, 0.1, curve: -4).ar(Done.freeSelf);
+	snd = snd * -6.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\kickAlt, {
+	var snd, wet;
+	snd = SinOsc.ar(50 * (1 + (4 * Env.perc(0, 0.06).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
+	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
+	wet = snd + 0.1;
+	wet = wet.clip2 + (wet.fold2 * -8.dbamp);
+	wet = LeakDC.ar(wet);
+	snd = XFade2.ar(snd, wet, 0.5);
+	snd = LPF.ar(snd, 1200);
+	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 6320, 0.2) * Env.perc(0.01, 0.02).ar) * -16.dbamp);
+	snd = snd * Env.perc(0.001, 0.4).ar;
+	snd = snd + (DelayC.ar(snd * -14.dbamp, 0.1, [0.03, 0.045]) * -14.dbamp);
 	snd = snd * Env.linen(0.0, 0.5, 0.1, curve: -4).ar(Done.freeSelf);
 	snd = snd * -6.dbamp;
 	Out.ar(\out.kr(0), snd);
@@ -67,19 +86,36 @@ SynthDef(\clap, {
 SynthDef(\hat, {
 	var snd, duration;
 	duration = \duration.kr(1.0);
-	snd = BPF.ar(Hasher.ar(Sweep.ar), 16320, 0.3) * 5.dbamp;
+	snd = BPF.ar(Hasher.ar(Sweep.ar), 14320, 0.3) * 5.dbamp;
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 12320, 0.1) * 3.dbamp);
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 9320, 0.1) * -3.dbamp);
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 13320, 0.05) * 3.dbamp);
 	snd = snd * (1 + Env.perc(0.0, 0.01).ar);
 	snd = snd * Env.perc(0.0, 0.1).ar;
-	snd = snd + GVerb.ar(snd, 7, 3);
+	snd = snd + GVerb.ar(snd * -10.dbamp, 6, 1);
 	snd = snd * Env.linen(0, duration, 0.005, curve: -4).ar(Done.freeSelf);
 	snd = snd * -10.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
 
+(
+SynthDef(\hatR, {
+	var snd, duration, randHz;
+	randHz = Rand(-0.4, 0.4).midiratio;
+	duration = \duration.kr(1.0);
+	snd = BPF.ar(WhiteNoise.ar, 14320 * randHz, 0.3) * 5.dbamp;
+	snd = snd + (BPF.ar(WhiteNoise.ar, 12320 * randHz, 0.1) * 3.dbamp);
+	snd = snd + (BPF.ar(WhiteNoise.ar, 9320 * randHz, 0.1) * -3.dbamp);
+	snd = snd + (BPF.ar(WhiteNoise.ar, 13320 * randHz, 0.05) * 3.dbamp);
+	snd = snd * (1 + Env.perc(0.0, 0.01).ar);
+	snd = snd * Env.perc(0.0, 0.1).ar;
+	snd = snd + GVerb.ar(snd * -10.dbamp, 6, 1);
+	snd = snd * Env.linen(0, duration, 0.005, curve: -4).ar(Done.freeSelf);
+	snd = snd * -10.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
 
 
 //////////////////////////////////////////////////////////////////////
@@ -93,7 +129,7 @@ SynthDef(\hat, {
 // Snare + GhostSnare (or velocity control)
 // Clap (velocity/scale control)
 // Hats, Open Hat(s), Ride/Cymbal
-// Toms, Percs, Glitches
+// Toms, Rims, Percs, Glitches
 
 
 

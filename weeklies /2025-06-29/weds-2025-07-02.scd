@@ -5,7 +5,7 @@
 (
 SynthDef(\kick, {
 	var snd, wet;
-	snd = SinOsc.ar(58 * (1 + (3 * Env.perc(0, 0.08).ar)) * (1 + (2 * Env.perc(0, 0.01).ar)));
+	snd = SinOsc.ar(46 * (1 + (3 * Env.perc(0, 0.08).ar)) * (1 + (2 * Env.perc(0, 0.01).ar)));
 	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
 	// snd = LPF.ar(snd, 1200);
 	wet = snd + 0.1;
@@ -16,7 +16,7 @@ SynthDef(\kick, {
 	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 8320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
 	snd = snd + (DelayC.ar(snd * -28.dbamp, 0.1, 0.034)) ! 2;
 	snd = snd * Env.linen(0.0, \duration.kr(0.5), 0.001, curve: -4).ar(Done.freeSelf);
-	snd = snd * -12.dbamp;
+	snd = snd * -18.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\ghostKick, {
@@ -106,15 +106,17 @@ SynthDef(\ride, {
 SynthDef(\hat, {
 	var snd, duration;
 	duration = \duration.kr(1.0);
-	snd = BPF.ar(Hasher.ar(Sweep.ar), 16320, 0.3) * 5.dbamp;
+	snd = BPF.ar(Hasher.ar(Sweep.ar), 15320, 0.3) * 5.dbamp;
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 12320, 0.1) * 3.dbamp);
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 9320, 0.1) * -3.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 13320, 0.05) * 3.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 11320, 0.05) * 3.dbamp);
 	snd = snd * (1 + Env.perc(0.0, 0.01).ar);
 	snd = snd * Env.perc(0.0, 0.11).ar;
+	snd = snd + (DelayC.ar(snd * -25.dbamp, 0.1, 0.02));
+	snd = HPF.ar(snd, 900);
 	snd = snd + GVerb.ar(snd * -20.dbamp, 4, 3);
 	snd = snd * Env.linen(0, duration, 0.1, curve: -4).ar(Done.freeSelf);
-	snd = snd * -18.dbamp;
+	snd = snd * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 /*SynthDef(\hatRand, {
@@ -147,7 +149,7 @@ SynthDef(\sub, {
 	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 1e-3);
 	hi = hi * 5.dbamp;
 	snd = (snd * 2).tanh + hi;
-	snd = snd * -6.dbamp;
+	snd = snd * -8.dbamp;
 	snd = snd * Env.linen(0.0, duration, 0.02, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -173,7 +175,7 @@ SynthDef(\keys, {
 SynthDef(\saw, {
 	var snd, freq;
 	freq = \freq.kr(440) * (LFNoise2.ar(4) * [0, 0.1]).midiratio;
-	snd = Saw.ar(freq).sum;
+	snd = Saw.ar(freq * Line.kr(\bend.kr(0), 0, 0.2).midiratio).sum;
 	snd = Pan2.ar(snd, 0, 0.2);
 	snd = LPF.ar(snd, 12e3);
 	snd = snd * Env.perc(0.001, \rel.kr(3.0), curve: -4).ar;
@@ -191,7 +193,7 @@ SynthDef(\fxPhaser, {
 	8.do { wet = AllpassL.ar(wet, 0.2, lfo.(\speed.kr(0.5), Rand(0.0, 0.5) * pi), \fb.kr(0)); };
 	snd = XFade2.ar(snd, wet, \mix.kr(0), \amp.kr(1));
 
-	wet = GVerb.ar(snd.mean * \gain.kr(-15).dbamp, \size.kr(20), \revtime.kr(3), \damp.kr(0.7));
+	wet = GVerb.ar(snd.mean * \gain.kr(-15).dbamp, \size.kr(20), \revtime.kr(8), \damp.kr(0.7));
 	snd = XFade2.ar(snd, wet, 0, 1);
 
     Out.ar(\out.kr(0), snd);
@@ -200,7 +202,7 @@ SynthDef(\sidechainFx, {
 	var snd, trigger;
 	trigger = T2A.ar(\trigger.tr(1));
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * (1 - (0.7 * Env.perc(0, 0.2, curve: 2).ar(gate: trigger)));
+	snd = snd * (1 - (0.9 * Env.perc(0, 0.2, curve: 2).ar(gate: trigger)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 
@@ -235,13 +237,11 @@ Routine({
 	var sidechainFx, duck, wait, playParallel, play;
 
 	Synth.tail(nil, \fxPhaser, [
-		in: ~phaserBus, out: ~sidechainBus, mix: -0.2, amp: 1,
-		delay: 8e-4, speed: 0.4, fb: 0
+		in: ~phaserBus, out: ~sidechainBus, mix: -0.3, amp: 1,
+		delay: 8e-4, speed: 0.3, fb: 0
 	]);
 
 	sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~sidechainBus, out: 0]);
-
-
 
 	duck = {
 		s.bind { sidechainFx.set(\trigger, 1) };
@@ -265,33 +265,31 @@ Routine({
 			4.do {
 				wait.(0.5);
 				play.(\hat, 0.5, latency: 0.01);
-				play.(\hat, 0.5, latency: 0.02);
-				play.(\hat, 0.5, latency: 0.02);
+				play.(\hat, 0.5, latency: 0.01);
+				play.(\hat, 0.5, latency: 0.01);
 			};
 		};
 		fork {
-			if(0.25.coin, {
-				play.(\ride, 4);
-			});
+			play.(\ride, 8);
 		};
 		fork {
-			var synthBus = ~phaserBus;
+			var oct, synthBus;
+			oct = (12 * -1);
+			synthBus = ~phaserBus;
 			wait.(1);
-			play.(\saw, 1, [freq: (root).midicps, out: synthBus]);
-			play.(\saw, 0.5, [freq: (root + 12.neg).midicps, out: synthBus]);
-			play.(\saw, 0.5, [freq: (root + 5.neg).midicps, out: synthBus]);
-			play.(\saw, 0.5, [freq: (root + 2).midicps, out: synthBus]);
+			play.(\saw, 1, [freq: (root + oct).midicps, out: synthBus, bend: -5]);
+			play.(\saw, 0.5, [freq: (root + oct + 12.neg).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + oct + 5.neg).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + oct + 2).midicps, out: synthBus]);
 			wait.(0.5);
-			play.(\saw, 0.5, [freq: (root + 7).midicps, out: synthBus]);
-			play.(\saw, 0.5, [freq: (root + 3).midicps, out: synthBus]);
-			play.(\saw, 0.5, [freq: (root + 2.neg).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + oct + 7).midicps, out: synthBus, bend: -5]);
+			play.(\saw, 0.5, [freq: (root + oct + 3).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + oct + 2.neg).midicps, out: synthBus]);
 			wait.(0.5);
-			play.(\saw, 0.5, [freq: (root + 3).midicps, out: synthBus]);
-			play.(\saw, 0.5, [freq: (root).midicps, out: synthBus]);
-			play.(\saw, 0.5, [freq: (root + 5.neg).midicps, out: synthBus]);
-
+			play.(\saw, 0.5, [freq: (root + oct + 3).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + oct).midicps, out: synthBus]);
+			play.(\saw, 0.5, [freq: (root + oct + 5.neg).midicps, out: synthBus]);
 		};
-
 		2.do {
 			playParallel.(\sub, 4, [freq: (root + -24).midicps, out: ~sidechainBus]);
 			duck.();

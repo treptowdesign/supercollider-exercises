@@ -5,7 +5,7 @@
 (
 SynthDef(\kick, {
 	var snd, wet;
-	snd = SinOsc.ar(46 * (1 + (3 * Env.perc(0, 0.1).ar)) * (1 + (2 * Env.perc(0, 0.01).ar)));
+	snd = SinOsc.ar(46 * (1 + (3 * Env.perc(0, 0.1).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
 	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
 	// snd = LPF.ar(snd, 1200);
 	wet = snd + 0.1;
@@ -16,7 +16,7 @@ SynthDef(\kick, {
 	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 8320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
 	snd = snd + (DelayC.ar(snd * -22.dbamp, 0.1, 0.02)) ! 2;
 	snd = snd * Env.linen(0.0, \duration.kr(0.5), 0.001, curve: -4).ar(Done.freeSelf);
-	snd = snd * -14.dbamp;
+	snd = snd * -12.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\ghostKick, {
@@ -146,11 +146,11 @@ SynthDef(\sub, {
 	snd = snd * 5.dbamp;
 	hi = HPF.ar((snd * 10).tanh * -5.dbamp, 6000);
 	hi = hi * (1 + (BPF.ar({ WhiteNoise.ar } ! 2, 3200, 0.5) * 5.dbamp));
-	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 3e-4);
+	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-4);
 	hi = hi * 2.dbamp;
 	snd = (snd * 2).tanh + hi;
 	snd = snd * -10.dbamp;
-	snd = snd * Env.linen(0.0, duration, 0.02, curve: -4).ar(Done.freeSelf);
+	snd = snd * Env.linen(0.0, duration * 0.8, 0.1, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\keys, {
@@ -209,7 +209,7 @@ SynthDef(\sidechainFx, {
 	var snd, trigger;
 	trigger = T2A.ar(\trigger.tr(1));
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * (1 - (0.9 * Env.perc(0, 0.2, curve: 2).ar(gate: trigger)));
+	snd = snd * (1 - (0.9 * Env.perc(0, 0.3, curve: 2).ar(gate: trigger)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 
@@ -241,7 +241,7 @@ beat = 60 / 118;
 root = 58;
 
 Routine({
-	var loopIndex, sidechainFx, duck, wait, playParallel, play;
+	var loopIndex, sidechainFx, duck, wait, playParallel, play, playKick;
 	loopIndex = 0;
 
 	Synth.tail(nil, \fxPhaser, [
@@ -259,15 +259,20 @@ Routine({
 	wait = { |duration=1|
 		(beat * duration).wait;
 	};
-	playParallel = { |synthDef, duration, args = #[], latency = 0.0|
+	playParallel = { |synthDef, duration, args = #[], latency = 0.0| // remove seperate duration param here...
 		fork {
 			latency.wait;
 			s.bind { Synth(synthDef, [duration: duration * beat] ++ args) };
 		};
 	};
 	play = { |synthDef, duration, args = #[], latency = 0.0|
-		playParallel.(synthDef, duration, args, latency);
+		playParallel.(synthDef, duration, [duration: duration * beat] ++ args, latency);
 		wait.(duration);
+	};
+
+	playKick = { |duration, args = #[], latency = 0.0|
+		duck.();
+		play.(\kick, duration, [duration: duration * beat] ++ args, latency);
 	};
 
 	loop {
@@ -311,27 +316,24 @@ Routine({
 			play.(\saw, 0.5, [freq: (root + oct + 5.neg).midicps, out: outBus]);
 		};
 		2.do {
-			playParallel.(\sub, 4, [freq: (root + -24).midicps, out: ~sidechainBus]);
-			duck.();
-			play.(\kick, 1);
+			// playParallel.(\sub, 4, [freq: (root + -24).midicps, out: ~sidechainBus]);
+			playKick.(1);
 			if(0.5.coin, {
 				wait.(0.5);
-				duck.();
-				play.(\kick, 0.5);
+				playKick.(0.5);
 			}, {
 				wait.(1);
 			});
 			play.(\snare, 1, latency: 0);
 			if(0.5.coin, {
 				wait.(0.5);
-				playParallel.(\sub, 0.5, [freq: (root + 5 + -24).midicps, out: ~sidechainBus]);
-				duck.();
-				play.(\kick, 0.5);
+				// playParallel.(\sub, 0.5, [freq: (root + 5 + -24).midicps, out: ~sidechainBus]);
+				playKick.(0.5);
 			}, {
-				if(0.5.coin, {
+				if(0.1.coin, {
 					wait.(0.5);
 					play.(\clap, 0.25, latency: 0);
-					play.(\clap, 0.25, latency: 0.006);
+					play.(\clap, 0.25, latency: 0.003);
 				}, {
 					wait.(0.5);
 					play.(\clap, 0.5, latency: 0);

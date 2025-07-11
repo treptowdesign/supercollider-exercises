@@ -2,9 +2,9 @@
 SynthDef(\kick, {
 	var snd;
 	snd = SinOsc.ar(Env.perc(0, 0.06).ar.linexp(0, 1, 60, 1000) * XLine.ar(1, 0.5, 0.5) * XLine.ar(3, 1, 0.01));
-	// snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 3000, 0.3) * Env.perc(0.001, 0.03).ar);
-	// snd = snd + (BPF.ar(Hasher.ar(Sweep.ar(Impulse.ar(79))), 1900, 0.3) * Env.perc(0.001, 0.13).delay([0.01, 0.02]).ar * 1.dbamp);
-	// snd = snd + (BPF.ar(Hasher.ar(Sweep.ar + [0, 1]), 9000, 0.5) * Env.perc(0.005, 0.07).delay(0.01).ar * -5.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 3000, 0.3) * Env.perc(0.001, 0.03).ar);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar(Impulse.ar(79))), 1900, 0.3) * Env.perc(0.001, 0.13).delay([0.01, 0.02]).ar * 1.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar + [0, 1]), 9000, 0.5) * Env.perc(0.005, 0.07).delay(0.01).ar * -5.dbamp);
 	snd = snd * (1 + (5 * Env.perc(0.0, 0.01).ar));
 	snd = snd * Env.perc(0.001, 1).ar;
 	snd = snd.tanh + (snd.fold2 * -30.dbamp);
@@ -15,6 +15,25 @@ SynthDef(\kick, {
 	// snd = snd ! 2;
 	snd = snd * Env.linen(0.0, 1, 0.1, curve: -4).ar(Done.freeSelf);
 	snd = snd * -10.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\kick, {
+	var snd, wet;
+	snd = SinOsc.ar(46 * (1 + (3 * Env.perc(0, 0.1).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
+	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
+	// snd = LPF.ar(snd, 1200);
+	wet = snd + 0.1;
+	wet = wet.clip2 + (wet.fold2 * -6.dbamp);
+	wet = LeakDC.ar(wet);
+	snd = XFade2.ar(snd, wet, 0);
+	snd = snd * Env.perc(0.001, 0.4).ar;
+	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 8320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
+	snd = snd + (DelayC.ar(snd * -22.dbamp, 0.1, 0.02)) ! 2;
+	snd = snd * Env.linen(0.0, \duration.kr(0.5), 0.001, curve: -4).ar(Done.freeSelf);
+	snd = snd * -12.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).play;
 )

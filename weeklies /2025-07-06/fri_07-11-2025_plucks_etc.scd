@@ -206,6 +206,71 @@ SynthDef(\vocal, {
 
 
 
+(
+SynthDef(\plkTst, { // BASS
+	var snd, wet, exciter, freq;
+	freq = \freq.kr(50);
+	exciter = SinOsc.ar(
+		Env.perc(0, 0.01).ar.linexp(0, 1, 50, 1000)
+	) * Env.perc(0, 0.01).ar;
+	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 20.0, 0.85);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1));
+
+	wet = ((snd + 0.1) * 8.dbamp).tanh;
+	wet = LeakDC.ar(wet);
+	snd = XFade2.ar(snd, wet, 0);
+
+	// snd = Latch.ar(snd, Impulse.ar(9330));
+
+	snd = snd * Env.linen(0.001, \duration.kr(4), 0.01).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).play;
+)
+
+(
+SynthDef(\plkTst, { // MID
+	var snd, wet, exciter, freq;
+	freq = \freq.kr(220);
+	exciter = SinOsc.ar(
+		Env.perc(0, 0.01).ar.linexp(0, 1, 50, 1000)
+	) * Env.perc(0, 0.01).ar;
+	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 20.0, 0.75);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1));
+
+	wet = ((snd + 0.1) * 8.dbamp).tanh;
+	wet = LeakDC.ar(wet);
+	snd = XFade2.ar(snd, wet, 0);
+
+	// snd = Latch.ar(snd, Impulse.ar(9330));
+
+	snd = snd * Env.linen(0.001, \duration.kr(4), 0.01).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).play;
+)
+
+(
+SynthDef(\plkTst, { // HIGH
+	var snd, wet, exciter, freq;
+	freq = \freq.kr(660);
+	exciter = SinOsc.ar(
+		Env.perc(0, 0.01).ar.linexp(0, 1, 50, 1000)
+	) * Env.perc(0, 0.01).ar;
+	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 20.0, 0.25);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1));
+
+	wet = ((snd + 0.1) * 8.dbamp).tanh;
+	wet = LeakDC.ar(wet);
+	snd = XFade2.ar(snd, wet, 0);
+
+	// snd = Latch.ar(snd, Impulse.ar(9330));
+
+	snd = snd * Env.linen(0.001, \duration.kr(4), 0.01).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).play;
+)
+
+
+
 
 
 

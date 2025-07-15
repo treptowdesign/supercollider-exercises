@@ -4,7 +4,7 @@ SynthDef(\guitar, {
 	var snd, wet, exciter, freq;
 	freq = \freq.kr(60);
 	exciter = SinOsc.ar(
-		Env.perc(0, 0.01).ar.linexp(0, 1, 50, 1800)
+		Env.perc(0, 0.01).ar.linexp(0, 1, 50, 2300)
 	) * Env.perc(0, 0.01).ar;
 	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 20.0, freq.linexp(50, 800, 0.9, 0.3));
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.3));
@@ -13,6 +13,14 @@ SynthDef(\guitar, {
 	snd = XFade2.ar(snd, wet, 0);
 	snd = snd * Env.linen(0.001, \duration.kr(4), 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).add;
+SynthDef(\blip, {
+	var snd;
+	snd = SinOsc.ar(Env([2300, 6520, 9930], [0.05, 0.05, 0.05], \hold).ar);
+	snd = snd ! 2;
+	snd = snd * Env.linen(0.0, 0.15, 0.0, curve: -4).ar(Done.freeSelf);
+	snd = snd * -25.dbamp;
+	Out.ar(\out.kr(0), snd);
 }).add;
 // DRUMS
 SynthDef(\kick, {
@@ -55,6 +63,23 @@ SynthDef(\snare, {
 	snd = LPF.ar(snd, \filter.kr(15e3));
 	snd = snd * Env.linen(0.0, \duration.kr(1.0), 0.01, curve: -4).ar(Done.freeSelf);
 	snd = snd * -14.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\clap, {
+	var snd, wet, scale;
+	scale = \scale.kr(1.1);
+	snd = BPF.ar(Hasher.ar(Sweep.ar + [0, 1, 2]), [1420, 1320, 1120, 930] * 1.4, 0.2) * 30.dbamp;
+	snd = Splay.ar(snd, 0.5);
+	// snd = Mix(snd) * -10.dbamp ! 2;
+	snd = snd * Env([0, 1, 0.2, 1, 0.2, 1, 0], [0.001, 0.01, 0.001, 0.01, 0.001, 0.15] * 0.5, -4).ar;
+	wet = snd + 0.1;
+	wet = (snd * 6.dbamp).tanh;
+	wet = LeakDC.ar(wet);
+	snd = XFade2.ar(snd, wet, 0);
+	snd = snd + (DelayC.ar(snd * -25.dbamp, 0.1, 0.02));
+	snd = snd + GVerb.ar(snd.mean * -28.dbamp, 10, 1);
+	snd = snd * Env.linen(0.0, \duration.kr(1.0), 0.01, curve: -4).ar(Done.freeSelf);
+	snd = snd * -12.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hat, {
@@ -141,23 +166,29 @@ play = { |synthDef, duration, args = #[], latency = 0.0|
 };
 
 Routine({
-	Synth(\reverbFx, [in: ~reverbBus, wet: 0.9]);
+	Synth(\reverbFx, [in: ~reverbBus, wet: 1]);
 	Synth(\reverbFx, [in: ~reverbBus2, wet: 0.15]);
 	loop {
-		fork {
+		/*fork {
 			1.do {
 				play.(\kick, 1, [out: ~reverbBus2]);
 				play.(\hat, 1, [out: ~reverbBus2]);
-				play.(\snare, 1, [out: ~reverbBus2]);
-				play.(\hat, 1, [out: ~reverbBus2]);
+				play.(\clap, 1, [out: ~reverbBus2]);
+				// wait.(1);
+				play.(\hat, 0.5, [out: ~reverbBus2]);
+				/*if(0.5.coin, {
+					playParallel.(\blip, 0.5, [out: ~reverbBus]);
+				});*/
+				play.(\kick, 0.5, [out: ~reverbBus2]);
 			}
-		};
+		};*/
 		[
 			(deg: 0, length: 1),
 			(deg: -12, length: 0.5),
 			(deg: 1, length: 1),
 			(deg: 8, length: 0.5),
-			(deg: 7, length: 1)
+			(deg: 7, length: 1),
+
 		].do { |note|
 			var noteHz = (root + note[\deg] + (12 * 1)).midicps;
 			play.(\guitar, note[\length], [freq: noteHz, out: ~reverbBus]);

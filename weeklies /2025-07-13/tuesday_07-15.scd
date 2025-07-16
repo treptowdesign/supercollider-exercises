@@ -93,20 +93,20 @@ SynthDef(\guitar, {
 	var snd, wet, exciter, freq;
 	freq = \freq.kr(60);
 	exciter = SinOsc.ar(
-		Env.perc(0, 0.01).ar.linexp(0, 1, 50, 2600)
+		Env.perc(0, 0.01).ar.linexp(0, 1, 60, 2800)
 	) * Env.perc(0, 0.01).ar;
-	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 30.0, freq.linexp(50, 800, 0.7, 0.3));
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.3));
-	wet = ((snd + 0.1) * 8.dbamp).tanh;
+	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 20.0, freq.linexp(50, 800, 0.7, 0.3));
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.2));
+	wet = ((snd + 0.1) * 7.dbamp).tanh;
 	wet = LeakDC.ar(wet);
 	snd = XFade2.ar(snd, wet, 0);
-	// snd = snd + HPF.ar(GVerb.ar(snd.mean * -20.dbamp, 20), 200);
+	snd = snd + HPF.ar(GVerb.ar(snd.mean * -15.dbamp, 30), 300);
 	snd = snd * Env.linen(0.001, \duration.kr(4), 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), Limiter.ar(snd));
 }).add;
 SynthDef(\pad, {
 	var snd;
-	snd = (\freq.kr(220) * (1.5 * (1..5))).collect { |freq, index|
+	snd = (\freq.kr(220) * (1 * (1..9))).collect { |freq, index|
 		var snd;
 		snd = SinOsc.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio, mul: (1 / (1 + index).sqrt));
 		snd = snd * LFNoise2.kr(8 ! 2);
@@ -116,9 +116,9 @@ SynthDef(\pad, {
 	};
 	snd = snd.sum;
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 3e-3);
 	snd = snd * Env.perc(0.001, 2.0, curve: -4).ar(Done.freeSelf);
-	snd = snd * -16.dbamp * \amp.kr(1);
+	snd = snd * -14.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -157,15 +157,13 @@ Routine({
 		fork {
 			2.do {
 				[0, 3, -5, 10].do { |deg|
-					playParallel.(\pad, beat * 4, [freq: (root + 24 + deg).midicps, amp: 0.5]);
-					playParallel.(\pad, beat * 4, [freq: (root + 12 + deg).midicps]);
+					playParallel.(\pad, beat, [freq: (root + 24 + deg).midicps, amp: 0.1]);
+					play.(\pad, beat, [freq: (root + 12 + deg).midicps, amp: 0.8]);
 				};
-				wait.(beat * 4);
 				[1, 5, -4, 12].do { |deg|
-					playParallel.(\pad, beat * 4, [freq: (root + 24 + deg).midicps, amp: 0.5]);
-					playParallel.(\pad, beat * 4, [freq: (root + 12 + deg).midicps]);
+					playParallel.(\pad, beat, [freq: (root + 24 + deg).midicps, amp: 0.1]);
+					play.(\pad, beat, [freq: (root + 12 + deg).midicps, amp: 0.8]);
 				};
-				wait.(beat * 4);
 			};
 		};
 		fork {

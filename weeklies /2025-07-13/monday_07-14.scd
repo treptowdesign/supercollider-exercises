@@ -153,7 +153,7 @@ SynthDef(\marker1, {
 	snd = snd * Env.perc(0.1, 6.0).ar(Done.freeSelf);
 	snd = snd * -20.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 SynthDef(\marker1hi, {
 	var snd;
 	snd = (\freq.kr(220) * (1.5 ** (0..6))).collect { |freq, index|
@@ -165,8 +165,8 @@ SynthDef(\marker1hi, {
 	};
 	snd = snd.sum;
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = snd * Env.perc(0.1, 6.0).ar(Done.freeSelf);
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 4e-4);
+	snd = snd * Env.perc(0.1, 6.0).ar(Done.freeSelf);
 	snd = snd * -20.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -204,10 +204,10 @@ var outbus;
 outbus = 0;
 Synth(\reverbFx, [in: ~reverbBus, wet: 1]);
 
-Synth(\marker1hi, [freq: (60 + 12 + 0).midicps, amp: 0.1, out: outbus]);
-Synth(\marker1hi, [freq: (60 + 12 + 4).midicps, amp: 0.1, out: outbus]);
-Synth(\marker1hi, [freq: (60 + 12 + 7).midicps, amp: 0.1, out: outbus]);
-Synth(\marker1hi, [freq: (60 + 12 + 11).midicps, amp: 0.1, out: outbus]);
+Synth(\marker1hi, [freq: (60 + 12 + 0).midicps, amp: 0.02, out: outbus]);
+Synth(\marker1hi, [freq: (60 + 12 + 4).midicps, amp: 0.02, out: outbus]);
+Synth(\marker1hi, [freq: (60 + 12 + 7).midicps, amp: 0.02, out: outbus]);
+Synth(\marker1hi, [freq: (60 + 12 + 11).midicps, amp: 0.02, out: outbus]);
 
 Synth(\marker1hi, [freq: (60 + 0 + 0).midicps, amp: 0.2, out: outbus]);
 Synth(\marker1hi, [freq: (60 + 0 + 4).midicps, amp: 0.2, out: outbus]);

@@ -97,9 +97,9 @@ SynthDef(\guitar, {
 	var snd, wet, exciter, freq;
 	freq = \freq.kr(60);
 	exciter = SinOsc.ar(
-		Env.perc(0, 0.01).ar.linexp(0, 1, 60, 1100)
+		Env.perc(0, 0.01).ar.linexp(0, 1, 60, 2200)
 	) * Env.perc(0, 0.01).ar;
-	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 20.0, freq.linexp(50, 800, 0.7, 0.3));
+	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 16.0, freq.linexp(50, 800, 0.65, 0.3));
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.2));
 	wet = ((snd + 0.1) * 9.dbamp).tanh;
 	wet = LeakDC.ar(wet);
@@ -121,7 +121,7 @@ SynthDef(\pad, {
 	snd = snd.sum;
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
-	snd = snd * Env.perc(0.001, 2.4, curve: -4).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.001, 2.7, curve: -4).ar(Done.freeSelf);
 	snd = snd * -14.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -204,12 +204,12 @@ Routine({
 		/*fork {
 			2.do {
 				[0, 3, -5, 10].do { |deg|
-					playParallel.(\pad, beat, [freq: (root + 24 + deg).midicps, amp: 0.1]);
-					play.(\pad, beat, [freq: (root + 12 + deg).midicps, amp: 0.8]);
+					playParallel.(\pad, beat, [freq: (root + 36 + deg).midicps, amp: 0.1]);
+					play.(\pad, beat, [freq: (root + 24 + deg).midicps, amp: 0.8]);
 				};
 				[1, 5, -4, 12].do { |deg|
-					playParallel.(\pad, beat, [freq: (root + 24 + deg).midicps, amp: 0.1]);
-					play.(\pad, beat, [freq: (root + 12 + deg).midicps, amp: 0.8]);
+					playParallel.(\pad, beat, [freq: (root + 36 + deg).midicps, amp: 0.1]);
+					play.(\pad, beat, [freq: (root + 24 + deg).midicps, amp: 0.8]);
 				};
 			};
 		};*/
@@ -251,6 +251,10 @@ Routine({
 			16.do {
 				wait.((beat/3) * 2);
 				play.(\hat, beat/3);
+
+				/*play.(\hat, beat/3);
+				play.(\hat, beat/3);
+				play.(\hat, beat/3);*/
 
 				/*wait.(beat/2);
 				play.(\hat, beat/2);*/

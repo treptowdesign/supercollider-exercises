@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////
+// Synths
+////////////////////////////////////////////////////////////
+
 (
 SynthDef(\kick, {
 	var snd, wet;
@@ -12,7 +16,7 @@ SynthDef(\kick, {
 	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 8320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
 	snd = snd + (DelayC.ar(snd * -22.dbamp, 0.1, 0.02)) ! 2;
 	snd = snd * Env.linen(0.0, \duration.kr(0.5), 0.001, curve: -4).ar(Done.freeSelf);
-	snd = snd * -18.dbamp;
+	snd = snd * -16.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\ghostKick, {
@@ -93,20 +97,20 @@ SynthDef(\guitar, {
 	var snd, wet, exciter, freq;
 	freq = \freq.kr(60);
 	exciter = SinOsc.ar(
-		Env.perc(0, 0.01).ar.linexp(0, 1, 60, 2800)
+		Env.perc(0, 0.01).ar.linexp(0, 1, 60, 1100)
 	) * Env.perc(0, 0.01).ar;
 	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 20.0, freq.linexp(50, 800, 0.7, 0.3));
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.2));
-	wet = ((snd + 0.1) * 7.dbamp).tanh;
+	wet = ((snd + 0.1) * 9.dbamp).tanh;
 	wet = LeakDC.ar(wet);
 	snd = XFade2.ar(snd, wet, 0);
-	snd = snd + HPF.ar(GVerb.ar(snd.mean * -15.dbamp, 30), 300);
+	snd = snd + HPF.ar(GVerb.ar(snd.mean * -15.dbamp, 10, 8), 300);
 	snd = snd * Env.linen(0.001, \duration.kr(4), 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), Limiter.ar(snd));
 }).add;
 SynthDef(\pad, {
 	var snd;
-	snd = (\freq.kr(220) * (1 * (1..9))).collect { |freq, index|
+	snd = (\freq.kr(220) * (1.5 * (1..8))).collect { |freq, index|
 		var snd;
 		snd = SinOsc.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio, mul: (1 / (1 + index).sqrt));
 		snd = snd * LFNoise2.kr(8 ! 2);
@@ -116,20 +120,62 @@ SynthDef(\pad, {
 	};
 	snd = snd.sum;
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
-	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 3e-3);
-	snd = snd * Env.perc(0.001, 2.0, curve: -4).ar(Done.freeSelf);
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
+	snd = snd * Env.perc(0.001, 2.4, curve: -4).ar(Done.freeSelf);
 	snd = snd * -14.dbamp * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).add;
+// REVERB FROM NATHAN HO SYNTHDEF - DECONSTRUCTING
+SynthDef(\reverbFx, {
+	var snd, wet;
+	snd = In.ar(\in.kr(0), 2);
+	wet = snd;
+	// 1) Early Reflection Smear
+	wet = AllpassC.ar(wet, 0.2, [0.0344, 0.05], 0.1);
+	// 2) Feedback Loop Preparation
+	wet = [wet[0], wet[1], wet[0], wet[1]] + LocalIn.ar(4);
+	// 3) Multi-tap Delay: Diffusion
+	wet = DelayC.ar(wet, 1.0, [0.2, 0.343, 0.4335, 0.5242] * 0.2);
+	// 4) Modulated Allpass: Dense, Evolving Texture
+	wet = AllpassC.ar(wet, 0.2, ([0.12, 0.445, 0.31, 0.38] * 0.03) + (LFNoise2.ar(3 ! 4) * 0.0001), [0.3, 0.5, 0.6, 0.7]);
+	// 5) Second Allpass Layer
+	wet = AllpassC.ar(wet, 0.2, [0.42, 0.245, 0.11, 0.78] * 0.01, [0.3, 0.5, 0.6, 0.7]);
+	// 6) Tone Shaping (EQ)
+	wet = wet * -2.dbamp;
+	wet = LPF.ar(wet, 3000);
+	wet = HPF.ar(wet, 100);
+	// 7) Hadamard Matrix: Feedback Mixing
+	wet = wet * ([
+		[1, 1, 1, 1],
+		[1, -1, 1, -1],
+		[1, 1, -1, -1],
+		[1, -1, -1, 1],
+	] / 2);
+	wet = wet.sum;
+	LocalOut.ar(wet);
+	// 8) Stereo Reassembly + Final Delay
+	wet = [wet[0] + wet[3], wet[1] + wet[2]];
+	wet = DelayC.ar(wet, 0.05, 0.05);
+	wet = wet * -5.dbamp * \wet.kr(1).lag(0.1);
+	snd = snd + wet;
+
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
 
+////////////////////////////////////////////////////////////
+// Busses
+////////////////////////////////////////////////////////////
+
+(
+~reverbBus = Bus.audio(nil, 2);
+)
+~reverbBus.index;
 
 
-
-
-
-
-
+////////////////////////////////////////////////////////////
+// Patterns
+////////////////////////////////////////////////////////////
 
 (
 var s, beat, bar, root, wait, playParallel, play;
@@ -153,8 +199,9 @@ play = { |synthDef, duration, args = #[], latency = 0.0|
 };
 
 Routine({
+	Synth(\reverbFx, [in: ~reverbBus, wet: 0.45]);
 	loop {
-		fork {
+		/*fork {
 			2.do {
 				[0, 3, -5, 10].do { |deg|
 					playParallel.(\pad, beat, [freq: (root + 24 + deg).midicps, amp: 0.1]);
@@ -165,22 +212,40 @@ Routine({
 					play.(\pad, beat, [freq: (root + 12 + deg).midicps, amp: 0.8]);
 				};
 			};
+		};*/
+		fork {
+			var octave = 12, outbus = ~reverbBus;
+			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 12.neg).midicps, out: outbus]);
+			play.(\pad, (bar / 3), [freq: (root + octave + 0).midicps, out: outbus]);
+			play.(\pad, (bar / 3) * 2, [freq: (root + octave + 8).midicps, out: outbus]);
+			play.(\pad, (bar / 3), [freq: (root + octave + 12.neg).midicps, out: outbus]);
+			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 1).midicps, out: outbus]);
+			play.(\pad, (bar / 3), [freq: (root + octave + 7).midicps, out: outbus]);
+
+			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 12.neg).midicps, out: outbus]);
+			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
+			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
+			play.(\pad, (bar / 3) * 2, [freq: (root + octave + 1).midicps, out: outbus]);
+			play.(\pad, (bar / 3), [freq: (root + octave + 12.neg).midicps, out: outbus]);
+			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 8).midicps, out: outbus]);
+			play.(\pad, (bar / 3), [freq: (root + octave + 7).midicps, out: outbus]);
 		};
 		fork {
-			play.(\guitar, (bar / 3) * 0.5, [freq: (root + 0 + 12.neg).midicps]);
-			play.(\guitar, (bar / 3), [freq: (root + 0 + 0).midicps]);
-			play.(\guitar, (bar / 3) * 2, [freq: (root + 0 + 8).midicps]);
-			play.(\guitar, (bar / 3), [freq: (root + 0 + 12.neg).midicps]);
-			play.(\guitar, (bar / 3) * 0.5, [freq: (root + 0 + 1).midicps]);
-			play.(\guitar, (bar / 3), [freq: (root + 0 + 7).midicps]);
+			var octave = 0, outbus = ~reverbBus;
+			play.(\guitar, (bar / 3) * 0.5, [freq: (root + octave + 12.neg).midicps, out: outbus]);
+			play.(\guitar, (bar / 3), [freq: (root + octave + 0).midicps, out: outbus]);
+			play.(\guitar, (bar / 3) * 2, [freq: (root + octave + 8).midicps, out: outbus]);
+			play.(\guitar, (bar / 3), [freq: (root + octave + 12.neg).midicps, out: outbus]);
+			play.(\guitar, (bar / 3) * 0.5, [freq: (root + octave + 1).midicps, out: outbus]);
+			play.(\guitar, (bar / 3), [freq: (root + octave + 7).midicps, out: outbus]);
 
-			play.(\guitar, (bar / 3) * 0.5, [freq: (root + 0 + 12.neg).midicps]);
-			play.(\guitar, (bar / 3) * 0.5, [freq: (root + 0 + 0).midicps]);
-			play.(\guitar, (bar / 3) * 0.5, [freq: (root + 0 + 0).midicps]);
-			play.(\guitar, (bar / 3) * 2, [freq: (root + 0 + 1).midicps]);
-			play.(\guitar, (bar / 3), [freq: (root + 0 + 12.neg).midicps]);
-			play.(\guitar, (bar / 3) * 0.5, [freq: (root + 0 + 8).midicps]);
-			play.(\guitar, (bar / 3), [freq: (root + 0 + 7).midicps]);
+			play.(\guitar, (bar / 3) * 0.5, [freq: (root + octave + 12.neg).midicps, out: outbus]);
+			play.(\guitar, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
+			play.(\guitar, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
+			play.(\guitar, (bar / 3) * 2, [freq: (root + octave + 1).midicps, out: outbus]);
+			play.(\guitar, (bar / 3), [freq: (root + octave + 12.neg).midicps, out: outbus]);
+			play.(\guitar, (bar / 3) * 0.5, [freq: (root + 0 + 8).midicps, out: outbus]);
+			play.(\guitar, (bar / 3), [freq: (root + octave + 7).midicps, out: outbus]);
 		};
 		fork {
 			16.do {

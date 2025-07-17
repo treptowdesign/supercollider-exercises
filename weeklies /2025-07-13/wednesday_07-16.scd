@@ -2,7 +2,7 @@
 (
 SynthDef(\pad, {
 	var snd;
-	snd = (\freq.kr(220) * (1.5 * (1..9))).collect { |freq, index|
+	snd = (\freq.kr(220) * (1.5 * (1..8))).collect { |freq, index|
 		var snd;
 		snd = SinOsc.ar((freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) + (WhiteNoise.ar(1 ! 2) * 100));
 		snd = snd * (1 / (1 + index).sqrt) * LFNoise2.kr(8 ! 2);
@@ -12,9 +12,9 @@ SynthDef(\pad, {
 	snd = snd.sum;
 	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0));
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
-	snd = snd * Env.perc(0.001, \rel.kr(0.8), curve: -4).ar;
+	snd = snd * Env.perc(0.001, \rel.kr(1), curve: -4).ar;
 	snd = snd * Env.linen(0, \duration.kr(4), 0.1).ar(Done.freeSelf);
-	snd = snd * -12.dbamp * \amp.kr(1);
+	snd = snd * -8.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 // REVERB FROM NATHAN HO SYNTHDEF - DECONSTRUCTING
@@ -91,22 +91,35 @@ play = { |synthDef, duration, args = #[], latency = 0.0|
 };
 
 Routine({
-	Synth(\reverbFx, [in: ~reverbBus, wet: 0.35]);
+	Synth(\reverbFx, [in: ~reverbBus, wet: 0.25]);
 	loop {
-		[ // 2-5-1 phrygian 2
+		[
+			// b2 major (prygian) =================================
 			(notes: (1 + [0, 4, 7, 11]), length: 3),
 			(notes: (1 + [0, 4, 7, 11]), length: 1),
+			// 2 dim ==============================================
+			/*(notes: (2 + [0, 3, 6, 10]), length: 3),
+			(notes: (2 + [0, 3, 6, 10]), length: 1),*/
+			// 4 min =================================
+			/*(notes: (5 + [-2, 0, 3, 7]), length: 3),
+			(notes: (5 + [-2, 0, 3, 7]), length: 1),*/
+			// 5 min ==============================================
 			(notes: (7 + [-5, -2, 0, 3]), length: 3),
 			(notes: (7 + [-5, -2, 0, 3]), length: 1),
+			// b7 major ===========================================
+			/*(notes: (10 + [-8, -5, -1, 0]), length: 3),
+			(notes: (10 + [-8, -5, -1, 0]), length: 1),*/
+			// 1 sus2 =============================================
 			(notes: (0 + [0, 2, 7, 10]), length: 3),
 			(notes: (0 + [0, 2, 7, 10]), length: 1),
+			// 1 minor ============================================
 			(notes: (0 + [0, 3, 7, 10]), length: 3),
 			(notes: (0 + [0, 3, 7, 10]), length: 1),
 		].do { |chord|
 			chord[\notes].do { |deg, index|
 				[
 					(octave: 2, amp: 0.1),
-					(octave: 1, amp: 0.6),
+					(octave: 1, amp: 0.4),
 					(octave: 0, amp: 1)
 				].do { |voice|
 					playParallel.(\pad, (chord[\length] * beat), [
@@ -117,7 +130,7 @@ Routine({
 					]);
 				};
 			};
-			(chord[\length] * beat).wait;
+			wait.(chord[\length] * beat);
 		};
 	};
 }).play;
@@ -153,24 +166,24 @@ Routine({
 	loop {
 		[
 			// rock IV–V–I ========================================
-			(notes: (5 + [0, 4, 7]), length: 2),
+			/*(notes: (5 + [0, 4, 7]), length: 2),
 			(notes: (7 + [-5, 0, 4]), length: 2),
-			(notes: (0 + [0, 4, 7]), length: 4),
+			(notes: (0 + [0, 4, 7]), length: 4),*/
 			// I–♭VII–IV ==========================================
 			/*(notes: (0 + [0, 4, 7]), length: 2),
 			(notes: (10 + [0, 4, -5]), length: 2),
 			(notes: (5 + [0, 4, 7]), length: 4),*/
 			// I–V–vi–IV ==========================================
-			/*(notes: (0 + [0,4, 7]), length: 2),
+			(notes: (0 + [0,4, 7]), length: 2),
 			(notes: (7 + [0,4, -5]), length: 2),
 			(notes: (9 + [0,3, -5]), length: 2),
-			(notes: (5 + [0,4, 7]), length: 2),*/
+			(notes: (5 + [0,4, 7]), length: 2),
 
 		].do { |chord|
 			chord[\notes].do { |deg, index|
 				[
 					(octave: 2, amp: 0.1),
-					(octave: 1, amp: 0.5),
+					(octave: 1, amp: 0.3),
 					(octave: 0, amp: 1)
 				].do { |voice|
 					playParallel.(\pad, (chord[\length] * beat), [

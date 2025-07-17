@@ -2,7 +2,7 @@
 (
 SynthDef(\pad, {
 	var snd;
-	snd = (\freq.kr(220) * (1 * (1..12))).collect { |freq, index|
+	snd = (\freq.kr(220) * (1.5 * (1..10))).collect { |freq, index|
 		var snd;
 		snd = SinOsc.ar((freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) + (WhiteNoise.ar(1 ! 2) * 100));
 		snd = snd * (1 / (1 + index).sqrt) * LFNoise2.kr(8 ! 2);
@@ -17,7 +17,49 @@ SynthDef(\pad, {
 	snd = snd * -12.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
+// REVERB FROM NATHAN HO SYNTHDEF - DECONSTRUCTING
+SynthDef(\reverbFx, {
+	var snd, wet;
+	snd = In.ar(\in.kr(0), 2);
+	wet = snd;
+	// 1) Early Reflection Smear
+	wet = AllpassC.ar(wet, 0.2, [0.0344, 0.05], 0.1);
+	// 2) Feedback Loop Preparation
+	wet = [wet[0], wet[1], wet[0], wet[1]] + LocalIn.ar(4);
+	// 3) Multi-tap Delay: Diffusion
+	wet = DelayC.ar(wet, 1.0, [0.2, 0.343, 0.4335, 0.5242] * 0.2);
+	// 4) Modulated Allpass: Dense, Evolving Texture
+	wet = AllpassC.ar(wet, 0.2, ([0.12, 0.445, 0.31, 0.38] * 0.03) + (LFNoise2.ar(3 ! 4) * 0.0001), [0.3, 0.5, 0.6, 0.7]);
+	// 5) Second Allpass Layer
+	wet = AllpassC.ar(wet, 0.2, [0.42, 0.245, 0.11, 0.78] * 0.01, [0.3, 0.5, 0.6, 0.7]);
+	// 6) Tone Shaping (EQ)
+	wet = wet * -2.dbamp;
+	wet = LPF.ar(wet, 3000);
+	wet = HPF.ar(wet, 100);
+	// 7) Hadamard Matrix: Feedback Mixing
+	wet = wet * ([
+		[1, 1, 1, 1],
+		[1, -1, 1, -1],
+		[1, 1, -1, -1],
+		[1, -1, -1, 1],
+	] / 2);
+	wet = wet.sum;
+	LocalOut.ar(wet);
+	// 8) Stereo Reassembly + Final Delay
+	wet = [wet[0] + wet[3], wet[1] + wet[2]];
+	wet = DelayC.ar(wet, 0.05, 0.05);
+	wet = wet * -5.dbamp * \wet.kr(1).lag(0.1);
+	snd = snd + wet;
+
+	Out.ar(\out.kr(0), snd);
+}).add;
 )
+
+
+(
+~reverbBus = Bus.audio(nil, 2);
+)
+~reverbBus.index;
 
 
 Scale.aeolian.degrees; // [ 0, 2, 3, 5, 7, 8, 10 ]
@@ -26,25 +68,51 @@ Scale.phrygian.degrees; // [ 0, 1, 3, 5, 7, 8, 10 ]
 
 
 (
-var s, beat, bar, root;
+var s, beat, bar, root, wait, playParallel, play;
 s = Server.default;
 beat = 60 / 118;
 bar = beat * 4;
 root = 42;
+
+wait = { |duration=1|
+	(duration).wait;
+};
+playParallel = { |synthDef, duration, args = #[], latency = 0.0|
+	fork {
+		latency.wait;
+		s.bind { Synth(synthDef, [duration: duration] ++ args) };
+	};
+};
+play = { |synthDef, duration, args = #[], latency = 0.0|
+	playParallel.(synthDef, duration, [duration: duration] ++ args, latency);
+	wait.(duration);
+};
+
 Routine({
+	Synth(\reverbFx, [in: ~reverbBus, wet: 0.3]);
 	loop {
-		[
-			(notes: (1 + [0, 4, 7, 11]).postln, length: 3),
-			(notes: (1 + [0, 4, 7, 11]).postln, length: 1),
-			(notes: (7 + [-5, -2, 0, 3]).postln, length: 3),
-			(notes: (7 + [-5, -2, 0, 3]).postln, length: 1),
-			(notes: (0 + [0, 2, 7, 10]).postln, length: 3),
-			(notes: (0 + [0, 2, 7, 10]).postln, length: 1),
-			(notes: (0 + [0, 3, 7, 10]).postln, length: 3),
-			(notes: (0 + [0, 3, 7, 10]).postln, length: 1),
+		[ // 2-5-1 phrygian 2
+			(notes: (1 + [0, 4, 7, 11]), length: 3),
+			(notes: (1 + [0, 4, 7, 11]), length: 1),
+			(notes: (7 + [-5, -2, 0, 3]), length: 3),
+			(notes: (7 + [-5, -2, 0, 3]), length: 1),
+			(notes: (0 + [0, 2, 7, 10]), length: 3),
+			(notes: (0 + [0, 2, 7, 10]), length: 1),
+			(notes: (0 + [0, 3, 7, 10]), length: 3),
+			(notes: (0 + [0, 3, 7, 10]), length: 1),
 		].do { |chord|
 			chord[\notes].do { |deg, index|
-				Synth(\pad, [freq: (root + (12 * 1) + deg).midicps, amp: (1 / (1 + index).sqrt)]);
+				[
+					(octave: 1, amp: 0.4),
+					(octave: 0, amp: 1)
+				].do { |voice|
+					playParallel.(\pad, (chord[\length] * beat), [
+						freq: (root + (12 * voice[\octave]) + deg).midicps,
+						amp: (1 / (1 + index).sqrt) * voice[\amp],
+						duration: (chord[\length] * beat),
+						out: ~reverbBus
+					]);
+				};
 			};
 			(chord[\length] * beat).wait;
 		};

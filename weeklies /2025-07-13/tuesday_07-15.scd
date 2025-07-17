@@ -64,9 +64,9 @@ SynthDef(\snare, {
 SynthDef(\clap, {
 	var snd, wet, scale;
 	scale = \scale.kr(1.1);
-	snd = BPF.ar(Hasher.ar(Sweep.ar + [0, 1, 2]), [1420, 1320, 1120, 930] * 1.4, 0.2) * 30.dbamp;
+	snd = BPF.ar(Hasher.ar(Sweep.ar + [0, 1, 2]), [1420, 1320, 1120, 930] * 1.6, 0.2) * 30.dbamp;
 	snd = Splay.ar(snd, 0.5);
-	snd = snd * Env([0, 1, 0.2, 1, 0.2, 1, 0], [0.001, 0.01, 0.001, 0.01, 0.001, 0.15] * 0.35, -4).ar;
+	snd = snd * Env([0, 1, 0.2, 1, 0.2, 1, 0], [0.001, 0.01, 0.001, 0.01, 0.001, 0.15] * 0.3, -4).ar;
 	wet = snd + 0.1;
 	wet = (snd * 4.dbamp).tanh;
 	wet = LeakDC.ar(wet);
@@ -97,9 +97,9 @@ SynthDef(\guitar, {
 	var snd, wet, exciter, freq;
 	freq = \freq.kr(60);
 	exciter = SinOsc.ar(
-		Env.perc(0, 0.01).ar.linexp(0, 1, 60, 2200)
+		Env.perc(0, 0.01).ar.linexp(0, 1, 60, 1200)
 	) * Env.perc(0, 0.01).ar;
-	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 16.0, freq.linexp(50, 800, 0.65, 0.3));
+	snd = Pluck.ar(exciter, Impulse.ar(0), 0.2, 1 / (freq), 30.0, freq.linexp(50, 800, 0.65, 0.3));
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.2));
 	wet = ((snd + 0.1) * 9.dbamp).tanh;
 	wet = LeakDC.ar(wet);
@@ -110,12 +110,11 @@ SynthDef(\guitar, {
 }).add;
 SynthDef(\pad, {
 	var snd;
-	snd = (\freq.kr(220) * (1.5 * (1..8))).collect { |freq, index|
+	snd = (\freq.kr(220) * (1 * (1..18))).collect { |freq, index|
 		var snd;
-		snd = SinOsc.ar(freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio, mul: (1 / (1 + index).sqrt));
+		snd = SinOsc.ar(freq * (LFNoise2.kr(8 ! 2) * 0.2).midiratio, mul: (1 / (1 + index).sqrt));
 		snd = snd * LFNoise2.kr(8 ! 2);
 		snd = [snd[0] + snd[1], snd[0] - snd[1]] / 2.sqrt; // <= midSides
-		snd.size.postln;
 		snd;
 	};
 	snd = snd.sum;
@@ -223,8 +222,8 @@ Routine({
 			play.(\pad, (bar / 3), [freq: (root + octave + 7).midicps, out: outbus]);
 
 			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 12.neg).midicps, out: outbus]);
-			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
-			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
+			// play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
+			play.(\pad, (bar / 3) * 1, [freq: (root + octave + 0).midicps, out: outbus]);
 			play.(\pad, (bar / 3) * 2, [freq: (root + octave + 1).midicps, out: outbus]);
 			play.(\pad, (bar / 3), [freq: (root + octave + 12.neg).midicps, out: outbus]);
 			play.(\pad, (bar / 3) * 0.5, [freq: (root + octave + 8).midicps, out: outbus]);
@@ -240,8 +239,8 @@ Routine({
 			play.(\guitar, (bar / 3), [freq: (root + octave + 7).midicps, out: outbus]);
 
 			play.(\guitar, (bar / 3) * 0.5, [freq: (root + octave + 12.neg).midicps, out: outbus]);
-			play.(\guitar, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
-			play.(\guitar, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
+			// play.(\guitar, (bar / 3) * 0.5, [freq: (root + octave + 0).midicps, out: outbus]);
+			play.(\guitar, (bar / 3) * 1, [freq: (root + octave + 0).midicps, out: outbus]);
 			play.(\guitar, (bar / 3) * 2, [freq: (root + octave + 1).midicps, out: outbus]);
 			play.(\guitar, (bar / 3), [freq: (root + octave + 12.neg).midicps, out: outbus]);
 			play.(\guitar, (bar / 3) * 0.5, [freq: (root + 0 + 8).midicps, out: outbus]);
@@ -275,6 +274,7 @@ Routine({
 		4.do {
 			play.(\kick, beat);
 			play.(\kick, beat);
+			// (beat).wait;
 			play.(\kick, beat);
 			if(0.5.coin, {
 				play.(\kick, (beat/3) * 2);

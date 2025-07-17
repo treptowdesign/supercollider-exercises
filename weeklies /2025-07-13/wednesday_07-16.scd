@@ -4,7 +4,7 @@ SynthDef(\pad, {
 	var snd;
 	snd = (\freq.kr(220) * (1.5 * (1..8))).collect { |freq, index|
 		var snd;
-		snd = SinOsc.ar((freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) + (WhiteNoise.ar(1 ! 2) * 100));
+		snd = SinOsc.ar((freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) + (WhiteNoise.ar(1 ! 2) * 50));
 		snd = snd * (1 / (1 + index).sqrt) * LFNoise2.kr(8 ! 2);
 		snd = [snd[0] + snd[1], snd[0] - snd[1]] / 2.sqrt; // <= midSides
 		snd;
@@ -131,6 +131,78 @@ Routine({
 				};
 			};
 			wait.(chord[\length] * beat);
+		};
+	};
+}).play;
+)
+
+
+//////////////////////////////////////////////////////////
+// 2-5-1 Arpeggio
+//////////////////////////////////////////////////////////
+(
+var s, beat, bar, root, wait, playParallel, play;
+s = Server.default;
+beat = 60 / 118;
+bar = beat * 4;
+root = 42;
+
+wait = { |duration=1|
+	(duration).wait;
+};
+playParallel = { |synthDef, duration, args = #[], latency = 0.0|
+	fork {
+		latency.wait;
+		s.bind { Synth(synthDef, [duration: duration] ++ args) };
+	};
+};
+play = { |synthDef, duration, args = #[], latency = 0.0|
+	playParallel.(synthDef, duration, [duration: duration] ++ args, latency);
+	wait.(duration);
+};
+
+Routine({
+	Synth(\reverbFx, [in: ~reverbBus, wet: 0.25]);
+	loop {
+		[
+			// b2 major (prygian) =================================
+			(notes: (1 + [0, 4, 7, 11]), length: 3),
+			(notes: (1 + [0, 4, 7, 11]), length: 1),
+			// 2 dim ==============================================
+			/*(notes: (2 + [0, 3, 6, 10]), length: 3),
+			(notes: (2 + [0, 3, 6, 10]), length: 1),*/
+			// 4 min =================================
+			/*(notes: (5 + [-2, 0, 3, 7]), length: 3),
+			(notes: (5 + [-2, 0, 3, 7]), length: 1),*/
+			// 5 min ==============================================
+			(notes: (7 + [-5, -2, 0, 3]), length: 3),
+			(notes: (7 + [-5, -2, 0, 3]), length: 1),
+			// b7 major ===========================================
+			/*(notes: (10 + [-8, -5, -1, 0]), length: 3),
+			(notes: (10 + [-8, -5, -1, 0]), length: 1),*/
+			// 1 sus2 =============================================
+			(notes: (0 + [0, 2, 7, 10]), length: 3),
+			(notes: (0 + [0, 2, 7, 10]), length: 1),
+			// 1 minor ============================================
+			(notes: (0 + [0, 3, 7, 10]), length: 3),
+			(notes: (0 + [0, 3, 7, 10]), length: 1),
+		].do { |chord|
+			chord[\notes].do { |deg, index|
+				[
+					// (octave: 2, amp: 0.1),
+					(octave: 1, amp: 0.4),
+					(octave: 0, amp: 1)
+				].do { |voice|
+					playParallel.(\pad, (chord[\length] * beat * 0.25), [
+						freq: (root + (12 * voice[\octave]) + deg).midicps,
+						amp: (1 / (1 + index).sqrt) * voice[\amp],
+						duration: (chord[\length] * beat),
+						out: ~reverbBus
+					]);
+				};
+				wait.(chord[\length] * beat * 0.25);
+			};
+			// wait.(chord[\length] * beat);
 		};
 	};
 }).play;

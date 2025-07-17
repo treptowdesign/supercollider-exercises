@@ -169,7 +169,7 @@ Routine({
 	Synth(\reverbFx, [in: ~reverbBus, wet: 1]);
 	Synth(\reverbFx, [in: ~reverbBus2, wet: 0.15]);
 	loop {
-		/*fork {
+		fork {
 			1.do {
 				play.(\kick, 1, [out: ~reverbBus2]);
 				play.(\hat, 1, [out: ~reverbBus2]);
@@ -181,7 +181,7 @@ Routine({
 				});*/
 				play.(\kick, 0.5, [out: ~reverbBus2]);
 			}
-		};*/
+		};
 		[
 			(deg: 0, length: 1),
 			(deg: -12, length: 0.5),

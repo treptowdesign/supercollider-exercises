@@ -2,7 +2,7 @@
 (
 SynthDef(\pad, {
 	var snd;
-	snd = (\freq.kr(220) * (1 * (1..16))).collect { |freq, index|
+	snd = (\freq.kr(220) * (1 * (1..12))).collect { |freq, index|
 		var snd;
 		snd = SinOsc.ar((freq * (LFNoise2.kr(8 ! 2) * 0.1).midiratio) + (WhiteNoise.ar(1 ! 2) * 100));
 		snd = snd * (1 / (1 + index).sqrt) * LFNoise2.kr(8 ! 2);
@@ -16,12 +16,42 @@ SynthDef(\pad, {
 	snd = snd * Env.linen(0, \duration.kr(4), 0.1).ar(Done.freeSelf);
 	snd = snd * -12.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 )
 
 
 Scale.aeolian.degrees; // [ 0, 2, 3, 5, 7, 8, 10 ]
 Scale.phrygian.degrees; // [ 0, 1, 3, 5, 7, 8, 10 ]
+
+
+
+(
+var s, beat, bar, root;
+s = Server.default;
+beat = 60 / 118;
+bar = beat * 4;
+root = 42;
+Routine({
+	loop {
+		[
+			(notes: (1 + [0, 4, 7, 11]).postln, length: 3),
+			(notes: (1 + [0, 4, 7, 11]).postln, length: 1),
+			(notes: (7 + [-5, -2, 0, 3]).postln, length: 3),
+			(notes: (7 + [-5, -2, 0, 3]).postln, length: 1),
+			(notes: (0 + [0, 2, 7, 10]).postln, length: 3),
+			(notes: (0 + [0, 2, 7, 10]).postln, length: 1),
+			(notes: (0 + [0, 3, 7, 10]).postln, length: 3),
+			(notes: (0 + [0, 3, 7, 10]).postln, length: 1),
+		].do { |chord|
+			chord[\notes].do { |deg, index|
+				Synth(\pad, [freq: (root + (12 * 1) + deg).midicps, amp: (1 / (1 + index).sqrt)]);
+			};
+			(chord[\length] * beat).wait;
+		};
+	};
+}).play;
+)
+
 
 
 

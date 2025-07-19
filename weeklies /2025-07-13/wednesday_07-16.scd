@@ -1,6 +1,6 @@
 
 (
-SynthDef(\pad, {
+SynthDef(\pad2, {
 	var snd;
 	snd = (\freq.kr(220) * (1.5 * (1..8))).collect { |freq, index|
 		var snd;
@@ -15,6 +15,22 @@ SynthDef(\pad, {
 	snd = snd * Env.perc(0.001, \rel.kr(1), curve: -4).ar;
 	snd = snd * Env.linen(0, \duration.kr(4), 0.1).ar(Done.freeSelf);
 	snd = snd * -8.dbamp * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\pad, {
+	var snd, freq, fb, duration;
+	duration = \duration.kr(5.0);
+	freq = \freq.kr(440);
+	snd = Pulse.ar(freq * (LFNoise2.ar(3 ! 8) * 0.2).midiratio * [1, 2, 1, 2, 2, 1, 2, 1], LFNoise2.ar(3 ! 8).linlin(-1, 1, 0.1, 0.9));
+	snd = snd * LFNoise2.ar(8 ! snd.size).linlin(-1, 1, 0.5, 1);
+	snd = Splay.ar(snd);
+	snd = LPF.ar(snd, freq * XLine.ar(1, 3, duration));
+	snd = ((snd + 0.1) * 4.dbamp).tanh;
+	snd = LeakDC.ar(snd);
+	snd = snd + DelayC.ar(snd * -8.dbamp, 0.2, SinOsc.ar(Rand(0.1, 0.3), [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 1e-4);
+	snd = snd * freq.explin(100, 3000, 0, -8).dbamp;
+	snd = snd * -14.dbamp;
+	snd = snd * Env.linen(0.001, duration * 0.9, duration * 0.1, curve: -8).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 // REVERB FROM NATHAN HO SYNTHDEF - DECONSTRUCTING
@@ -91,7 +107,7 @@ play = { |synthDef, duration, args = #[], latency = 0.0|
 };
 
 Routine({
-	Synth(\reverbFx, [in: ~reverbBus, wet: 0.25]);
+	Synth(\reverbFx, [in: ~reverbBus, wet: 0.5]);
 	loop {
 		[
 			// b2 major (prygian) =================================
@@ -106,9 +122,9 @@ Routine({
 			// 5 min ==============================================
 			(notes: (7 + [-5, -2, 0, 3]), length: 3),
 			(notes: (7 + [-5, -2, 0, 3]), length: 1),
-			// b7 major ===========================================
-			/*(notes: (10 + [-8, -5, -1, 0]), length: 3),
-			(notes: (10 + [-8, -5, -1, 0]), length: 1),*/
+			// b7 min ===========================================
+			/*(notes: (10 + [-9, -5, -2, 0]), length: 3),
+			(notes: (10 + [-9, -5, -2, 0]), length: 1),*/
 			// 1 sus2 =============================================
 			(notes: (0 + [0, 2, 7, 10]), length: 3),
 			(notes: (0 + [0, 2, 7, 10]), length: 1),
@@ -118,15 +134,17 @@ Routine({
 		].do { |chord|
 			chord[\notes].do { |deg, index|
 				[
-					(octave: 2, amp: 0.1),
-					(octave: 1, amp: 0.4),
-					(octave: 0, amp: 1)
+					(octave: 2, amp: 0.5),
+					(octave: 1, amp: 1),
+					// (octave: 0, amp: 1)
 				].do { |voice|
 					playParallel.(\pad, (chord[\length] * beat), [
 						freq: (root + (12 * voice[\octave]) + deg).midicps,
 						amp: (1 / (1 + index).sqrt) * voice[\amp],
+						// amp: 1 * voice[\amp],
 						duration: (chord[\length] * beat),
 						out: ~reverbBus
+						// out: 0
 					]);
 				};
 			};

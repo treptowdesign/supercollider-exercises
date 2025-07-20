@@ -136,7 +136,7 @@ Routine({
 				[
 					(octave: 2, amp: 0.5),
 					(octave: 1, amp: 1),
-					// (octave: 0, amp: 1)
+					// (octave: 0, amp: 0.25)
 				].do { |voice|
 					playParallel.(\pad, (chord[\length] * beat), [
 						freq: (root + (12 * voice[\octave]) + deg).midicps,
@@ -186,8 +186,8 @@ Routine({
 	loop {
 		[
 			// b2 major (prygian) =================================
-			(notes: (1 + [0, 4, 7, 11]), length: 3),
-			(notes: (1 + [0, 4, 7, 11]), length: 1),
+			(notes: (1 + [0, 4, 7, 11]), length: 4),
+			// (notes: (1 + [0, 4, 7, 11]), length: 1),
 			// 2 dim ==============================================
 			/*(notes: (2 + [0, 3, 6, 10]), length: 3),
 			(notes: (2 + [0, 3, 6, 10]), length: 1),*/
@@ -195,17 +195,17 @@ Routine({
 			/*(notes: (5 + [-2, 0, 3, 7]), length: 3),
 			(notes: (5 + [-2, 0, 3, 7]), length: 1),*/
 			// 5 min ==============================================
-			(notes: (7 + [-5, -2, 0, 3]), length: 3),
-			(notes: (7 + [-5, -2, 0, 3]), length: 1),
+			(notes: (7 + [-5, -2, 0, 3]), length: 4),
+			// (notes: (7 + [-5, -2, 0, 3]), length: 1),
 			// b7 major ===========================================
 			/*(notes: (10 + [-8, -5, -1, 0]), length: 3),
 			(notes: (10 + [-8, -5, -1, 0]), length: 1),*/
 			// 1 sus2 =============================================
-			(notes: (0 + [0, 2, 7, 10]), length: 3),
-			(notes: (0 + [0, 2, 7, 10]), length: 1),
+			(notes: (0 + [0, 2, 7, 10]), length: 4),
+			// (notes: (0 + [0, 2, 7, 10]), length: 1),
 			// 1 minor ============================================
-			(notes: (0 + [0, 3, 7, 10]), length: 3),
-			(notes: (0 + [0, 3, 7, 10]), length: 1),
+			(notes: (0 + [0, 3, 7, 10]), length: 4),
+			// (notes: (0 + [0, 3, 7, 10]), length: 1),
 		].do { |chord|
 			chord[\notes].do { |deg, index|
 				[

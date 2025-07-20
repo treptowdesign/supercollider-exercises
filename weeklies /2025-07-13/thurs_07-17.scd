@@ -26,7 +26,7 @@ SynthDef(\sqr, {
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.5));
 	snd = snd * Env.linen(0, \duration.kr(2), 0.1).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), Limiter.ar(snd));
-}).play;
+}).add;
 SynthDef(\tri, {
 	var snd, wet, freq, ampEnv, lfo;
 	lfo = { |rate=1, min=0, max=1| SinOsc.ar(rate, 0).range(min, max).lag(0.02) };
@@ -59,7 +59,7 @@ SynthDef(\fmPing, {
 	lfo = { |rate=1, min=0, max=1| SinOsc.ar(rate).range(min, max)};
 	freq = (\freq.kr(330)) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
 	ampEnv = Env.perc(\atl.kr(1e-3), \rel.kr(1)).ar;
-	snd = SinOsc.ar(freq * [1, 2, 4, 13]) * [700, 1000, 1200, 300];
+	snd = SinOsc.ar(freq * [1, 2, 4, 13]) * [700, 1000, 1400, 500];
 	snd = SinOsc.ar(freq + snd, [0, 0.5pi, 0, 0.25pi], 0.2).sum;
 
 
@@ -72,6 +72,8 @@ SynthDef(\fmPing, {
 	snd = snd + 0.1;
 	snd = (snd * 4.dbamp).tanh;
 	snd = LeakDC.ar(snd);
+
+	// snd = Latch.ar(snd, Impulse.ar(XLine.kr(16000, 1000, \duration.kr(2))));
 
 	// wet = DelayC.ar(snd, 0.03, lfo.(1, 0, 1e-3));
 	// snd = XFade2.ar(snd, wet, -0.5);
@@ -129,14 +131,14 @@ Routine({
 			(deg: 0, length: (beat * 2) / 3, bend: 0, rel: 0.5),
 			(deg: 8, length: (beat * 2) / 3, bend: 0, rel: 0.5),
 
-			(deg: 7, length: (beat * 2), bend: -2, rel: 1),
-			(deg: 0, length: (beat * 2), bend: 0, rel: 1),
+			(deg: 7, length: (beat * 2), bend: 0, rel: 1),
+			(deg: 0, length: (beat * 2), bend: 7, rel: 1),
 
 
 
 		].do { | note |
 			var noteHz = (root + note[\deg] + (12 * 1)).midicps;
-			play.(\sqr, note[\length], [
+			play.(\fmPing, note[\length], [
 				freq: noteHz,
 				bend: note[\bend],
 				rel: note[\rel]

@@ -2,7 +2,7 @@
 SynthDef(\shaker, {
 	var snd, velocity;
 	velocity = \velocity.kr(1);
-	snd = CombC.ar(WhiteNoise.ar, 0.2, 1 / 70, 0.1);
+	snd = CombC.ar(WhiteNoise.ar, 0.2, 1 / 60, 0.1);
 	snd = BPF.ar(snd, [12120, 16230] * XLine.kr(0.5, 1, 2) * 0.8 * velocity, 0.3).sum;
 	snd = HPF.ar(snd, 1000);
 	snd = snd ! 2;
@@ -86,7 +86,7 @@ SynthDef(\pad, {
 	snd = snd + DelayC.ar(snd * -8.dbamp, 0.2, SinOsc.ar(Rand(0.1, 0.3), [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 1e-4);
 	snd = snd * freq.explin(100, 4000, 0, -8).dbamp;
 	snd = snd * -14.dbamp * \amp.kr(1);
-	snd = snd * Env.linen(0.001, duration * 0.8, duration * 0.2, curve: -8).ar(Done.freeSelf);
+	snd = snd * Env.linen(duration * 0.2, duration * 0.6, duration * 0.2, curve: -8).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 // fx
@@ -194,9 +194,7 @@ Routine({
 		fork {
 			[
 				// b2 major (prygian) =================================
-				(notes: (1 + [0, 4, 7, 11]), length: 1),
-				(notes: (1 + [0, 4, 7, 11]), length: 1),
-				(notes: (1 + [0, 4, 7, 11]), length: 1),
+				(notes: (1 + [0, 4, 7, 11]), length: 3),
 				(notes: (1 + [0, 4, 7, 11]), length: 1),
 				// 2 dim ==============================================
 				/*(notes: (2 + [0, 3, 6, 10]), length: 3),
@@ -205,34 +203,28 @@ Routine({
 				/*(notes: (5 + [-2, 0, 3, 7]), length: 3),
 				(notes: (5 + [-2, 0, 3, 7]), length: 1),*/
 				// 5 min ==============================================
-				(notes: (7 + [-5, -2, 0, 3]), length: 1),
-				(notes: (7 + [-5, -2, 0, 3]), length: 1),
-				(notes: (7 + [-5, -2, 0, 3]), length: 1),
+				(notes: (7 + [-5, -2, 0, 3]), length: 3),
 				(notes: (7 + [-5, -2, 0, 3]), length: 1),
 				// b7 min ===========================================
 				/*(notes: (10 + [-9, -5, -2, 0]), length: 3),
 				(notes: (10 + [-9, -5, -2, 0]), length: 1),*/
 				// 1 sus2 =============================================
-				(notes: (0 + [0, 2, 7, 10]), length: 1),
-				(notes: (0 + [0, 2, 7, 10]), length: 1),
-				(notes: (0 + [0, 2, 7, 10]), length: 1),
+				(notes: (0 + [0, 2, 7, 10]), length: 3),
 				(notes: (0 + [0, 2, 7, 10]), length: 1),
 				// 1 minor ============================================
-				(notes: (0 + [0, 3, 7, 10]), length: 1),
-				(notes: (0 + [0, 3, 7, 10]), length: 1),
-				(notes: (0 + [0, 3, 7, 10]), length: 1),
+				(notes: (0 + [0, 3, 7, 10]), length: 3),
 				(notes: (0 + [0, 3, 7, 10]), length: 1),
 			].do { |chord|
 				chord[\notes].do { |deg, index|
 					[
-						(octave: 2, amp: 0.1),
-						(octave: 1, amp: 0.75),
+						(octave: 2, amp: 0.6),
+						(octave: 1, amp: 0.9),
 						(octave: 0, amp: 0.5)
 					].do { |voice|
 						playParallel.(\pad, (chord[\length] * beat), [
 							freq: (root + (12 * voice[\octave]) + deg).midicps,
-							// amp: (1 / (1 + index).sqrt) * voice[\amp],
-							amp: 1 * voice[\amp],
+							amp: (1 / (1 + index).sqrt) * voice[\amp],
+							// amp: 1 * voice[\amp],
 							duration: (chord[\length] * beat),
 							out: ~reverbBus
 						]);

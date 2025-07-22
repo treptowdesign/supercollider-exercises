@@ -102,7 +102,7 @@ SynthDef(\fmPing, {
 (
 var s, beat, bar, root, wait, playParallel, play;
 s = Server.default;
-beat = 60 / 118;
+beat = 60 / 107;
 bar = beat * 4;
 root = 45;
 
@@ -124,15 +124,15 @@ Routine({
 	loop {
 		[
 			(deg: 0, length: (beat * 2) / 3, bend: 0, rel: 0.5),
-			(deg: 5, length: (beat * 2) / 3, bend: 0, rel: 0.5),
 			(deg: 10, length: (beat * 2) / 3, bend: 0, rel: 0.5),
+			(deg: 12, length: (beat * 2) / 3, bend: 0, rel: 0.5),
 
 			(deg: -2, length: (beat * 2) / 3, bend: 0, rel: 0.5),
-			(deg: 0, length: (beat * 2) / 3, bend: 0, rel: 0.5),
 			(deg: 8, length: (beat * 2) / 3, bend: 0, rel: 0.5),
+			(deg: 10, length: (beat * 2) / 3, bend: 0, rel: 0.5),
 
 			(deg: 7, length: (beat * 2), bend: 0, rel: 1),
-			(deg: 0, length: (beat * 2), bend: 7, rel: 1),
+			(deg: -5, length: (beat * 2), bend: 7, rel: 1),
 
 
 

@@ -32,7 +32,7 @@ SynthDef(\sinSaw, {
 (
 SynthDef(\sinSaw, {
 	var snd, freq;
-	freq = \freq.kr(330) * ;
+	freq = \freq.kr(220);
 	// snd = Pulse.ar(\freq.kr(330) * [1, 2], [0.4, 0.5], [0.3, 0.2]);
 	snd = SinOsc.ar(freq, 0, 0.4) + HPF.ar(Saw.ar(freq, 0.3), freq/2);
 	snd = LPF.ar((snd * 8.dbamp).tanh, 3200);
@@ -48,11 +48,11 @@ SynthDef(\sinSaw, {
 (
 SynthDef(\saw, {
 	var snd, freq;
-	freq = \freq.kr(110);
+	freq = \freq.kr(220);
 	// snd = Pulse.ar(\freq.kr(330) * [1, 2], [0.4, 0.5], [0.3, 0.2]);
 	snd = Saw.ar(freq, 0.3);
 	// snd = snd.sum;
-	snd = Latch.ar(snd, Impulse.ar(9750));
+	// snd = Latch.ar(snd, Impulse.ar(9750));
 	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd * Env.perc(0.001, 2).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);

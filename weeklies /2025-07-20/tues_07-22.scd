@@ -1,0 +1,78 @@
+
+(
+SynthDef(\lead, {
+	var snd, freq;
+	freq = \freq.kr(220);
+	snd = Pulse.ar(freq, 0.5, 1) + SinOsc.ar(freq/2, 0.5pi, 0.5);
+	// snd = LeakDC.ar(((snd + 0.1) * 20.dbamp).tanh);
+	snd = (BPF.ar(snd, freq * ((1..26) * 1), 0.25) * ((1 / (1..26).cbrt) * 26).dbamp).sum;
+	snd = snd + DelayC.ar(snd * 0.dbamp, 0.3, SinOsc.ar(1).range(0, 3e-3)) * 0.dbamp;
+	snd = LPF.ar(snd, 5000);
+	snd = snd * Env.perc(\atk.kr(0.02), \rel.kr(1), curve: -8).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.025);
+	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).add;
+/*SynthDef(\lead, {
+	var snd, freq;
+	freq = \freq.kr(330);
+	snd = SinOsc.ar(freq * [1, 2, 4, 5, 8]) * ([700, 2500, 2000, 1000, 1800] * Env.perc(0.001, 4).ar);
+	snd = SinOsc.ar((freq * 2) + snd).sum;
+	snd = snd + DelayC.ar(snd * -5.dbamp, 0.2, SinOsc.ar(1).range(0, 1e-3));
+	snd = snd * Env.perc(\atk.kr(0.001), \rel.kr(1)).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(0.2));
+	snd = LeakDC.ar(snd);
+	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).play;*/
+SynthDef(\fxReverb, {
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = snd + GVerb.ar(snd.mean * -15.dbamp, 10, 2, 0.8);
+	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).add;
+)
+
+(1 / (1..16).sqrt);
+(1 / (1..16).cbrt);
+
+(
+~reverbBus = Bus.audio(nil, 2);
+)
+
+~reverbBus.index;
+
+
+(
+var s, beat, root, wait, play;
+s = Server.default;
+beat = 60 / 130;
+root = 52;
+
+wait = { |duration| duration.wait; };
+play = { |synth, duration, args|
+	s.bind { Synth(synth, [duration: duration] ++ args); };
+	wait.(duration);
+};
+
+Routine({
+	Synth.tail(nil, \fxReverb, [in: ~reverbBus]);
+	loop {
+		[
+			[0, 0.5],
+			[1, 0.5],
+			[7, 0.5],
+			[8, 1],
+			[12, 0.5],
+			[0, 0.5],
+			[7, 0.5],
+			[1, 1],
+		].do { |note|
+			var deg, length, hz;
+			deg = note[0];
+			length = note[1];
+			hz = (root + deg + (12 * 1)).midicps;
+			play.(\lead, length * beat, [freq: hz, out: ~reverbBus]);
+		};
+	};
+}).play;
+
+)

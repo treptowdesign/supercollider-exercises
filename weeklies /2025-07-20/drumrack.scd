@@ -89,6 +89,24 @@ SynthDef(\pad, {
 	snd = snd * Env.linen(duration * 0.2, duration * 0.6, duration * 0.2, curve: -8).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\sub, {
+	var snd, duration, hi;
+	duration = \duration.kr(3.0);
+	snd = SinOsc.ar(\freq.kr(60));
+	snd = snd * \freq.kr(60).explin(50, 100, 0, -5).dbamp;
+	snd = snd ! 2;
+	snd = snd * -5.dbamp;
+	snd = snd * Env.perc(0.01, 5.0).ar;
+	snd = snd * 5.dbamp;
+	hi = HPF.ar((snd * 6).tanh * -5.dbamp, 4000);
+	hi = hi * (1 + (BPF.ar({ WhiteNoise.ar } ! 2, 3200, 0.5) * 5.dbamp));
+	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 1e-3);
+	hi = hi * 5.dbamp;
+	snd = (snd * 2).tanh + hi;
+	snd = snd * -3.dbamp * \amp.kr(1);
+	snd = snd * Env.linen(0.0, duration * 0.9, 0.2, curve: -4).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
 // fx
 SynthDef(\fxDelay, {
 	var snd, fb, beat;
@@ -215,7 +233,7 @@ Routine({
 				(notes: (0 + [0, 3, 7, 10]), length: 3),
 				(notes: (0 + [0, 3, 7, 10]), length: 1),
 			].do { |chord|
-				chord[\notes].do { |deg, index|
+				chord[\notes].sort.do { |deg, index|
 					[
 						(octave: 2, amp: 0.6),
 						(octave: 1, amp: 0.9),
@@ -223,13 +241,17 @@ Routine({
 					].do { |voice|
 						playParallel.(\pad, (chord[\length] * beat), [
 							freq: (root + (12 * voice[\octave]) + deg).midicps,
-							amp: (1 / (1 + index).sqrt) * voice[\amp],
+							amp: (1 / (1 + index).cbrt) * voice[\amp],
 							// amp: 1 * voice[\amp],
 							duration: (chord[\length] * beat),
 							out: ~reverbBus
 						]);
 					};
 				};
+				/*playParallel.(\sub, chord[\length] * beat, [
+					freq: (root + chord[\notes].sort[0] + (12 * -1)).midicps,
+					amp: 1
+				]);*/
 				wait.(chord[\length] * beat);
 			};
 		};

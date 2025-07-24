@@ -24,11 +24,11 @@ SynthDef(\fm, {
 	var snd, snd2, freq, duration;
 	duration = \duration.kr(4);
 	freq = \freq.kr(440);
-	snd = SinOsc.ar(freq * 3) * 100;
-	snd = SinOsc.ar((freq * 1) + snd) * (200 * Line.kr(0.5, 1, duration));
-	snd2 = SinOsc.ar((freq * 8) + snd) * (300 * Line.kr(1, 0.25, duration));
-	snd = SinOsc.ar(freq + (snd + snd2));
-	snd = snd * Env.perc(0.001, duration).ar(Done.freeSelf);
+	snd = SinOsc.ar(freq * 30) * 1500;
+	snd = SinOsc.ar((freq * 3) + snd) * (160);
+	snd2 = SinOsc.ar((freq * 1) + snd) * (100);
+	snd = SinOsc.ar(freq + snd + snd2);
+	snd = snd * Env.perc(0.05, duration * 1.25).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.3);
 	Out.ar(\out.kr(0), Limiter.ar(snd));
 }).add;
@@ -82,7 +82,7 @@ Routine({
 		].do { |chord|
 			chord[\notes].sort.do { |deg, index|
 				[
-					(octave: 2, amp: 0.5)
+					(octave: 0, amp: 0.5)
 				].do { |voice|
 					play.(\fm, (chord[\length] * beat), [
 						freq: (root + (12 * voice[\octave]) + deg).midicps,

@@ -26,17 +26,26 @@
 }).play;*/
 SynthDef(\lead, {
 	var snd, duration, click, env;
-	duration = \duration.kr(1);
-	snd = Impulse.ar(\freq.kr(330) * 1 * (LFNoise2.kr(3) * 0.1).midiratio);
-	snd = (ToggleFF.ar(PulseDivider.ar(snd, [1, 2, 4])) / [1, 3, 5]).sum + snd;
+	duration = \duration.kr(0.2);
+	snd = Impulse.ar(\freq.kr(330) * 2 * (LFNoise2.kr(3) * 0.1).midiratio);
+	snd = (ToggleFF.ar(PulseDivider.ar(snd, [1, 2])) / [1, 2]).sum + snd;
 	snd = LeakDC.ar(snd);
 	snd = snd * -10.dbamp;
-	snd = Pan2.ar(snd, \pan.kr(0)) + GVerb.ar(snd * -10.dbamp, 10, 4);
+	// snd = (BPF.ar(snd, [400, 1200, 2300, 3600, 4200], 0.35) * [10, 5, 5, 2, 0].dbamp).sum;
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1));
 	snd = (snd * 5.dbamp).tanh;
-	snd = snd * Env.perc(0.001, duration, curve: -4).ar(Done.freeSelf);
+
+	/*2.do {
+		snd = HPF.ar(snd, 80);
+	};
+	*/
+	snd = LPF.ar(snd, 7000);
+	snd = Balance2.ar(snd[0], snd[1]);
+	snd = snd * Env.perc(0.005, 2, curve: -4).ar;
+	snd = snd * Env.linen(0, duration, 0.05, curve: -4).ar(Done.freeSelf);
 	snd = snd * -8.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 SynthDef(\fxReverb, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);

@@ -20,15 +20,39 @@ SynthDef(\randomFm, {
 
 
 (
-SynthDef(\fm, {
+SynthDef(\fm1, {
 	var snd, snd2, freq, duration;
 	duration = \duration.kr(4);
 	freq = \freq.kr(440);
 	snd = SinOsc.ar(freq * 30) * 1500;
-	snd = SinOsc.ar((freq * 3) + snd) * (160);
+	snd = SinOsc.ar((freq * 2) + snd) * (160);
+	snd2 = SinOsc.ar((freq * 5) + snd) * (100);
+	snd = SinOsc.ar(freq + snd + snd2);
+	snd = snd * Env.perc(0.05, duration).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.3);
+	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).add;
+SynthDef(\fm2, {
+	var snd, snd2, freq, duration;
+	duration = \duration.kr(4);
+	freq = \freq.kr(440);
+	snd = SinOsc.ar(freq * 30) * 200;
+	snd = SinOsc.ar((freq * 8) + snd) * (160);
+	snd2 = SinOsc.ar((freq * 3) + snd) * (300);
+	snd = SinOsc.ar(freq + snd + snd2);
+	snd = snd * Env.perc(0.05, duration).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.3);
+	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).add;
+SynthDef(\fm, {
+	var snd, snd2, freq, duration;
+	duration = \duration.kr(4);
+	freq = \freq.kr(440);
+	snd = SinOsc.ar(freq * 10) * 6000;
+	snd = SinOsc.ar((freq * 8) + snd) * (200);
 	snd2 = SinOsc.ar((freq * 1) + snd) * (100);
 	snd = SinOsc.ar(freq + snd + snd2);
-	snd = snd * Env.perc(0.05, duration * 1.25).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.05, duration).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.3);
 	Out.ar(\out.kr(0), Limiter.ar(snd));
 }).add;
@@ -36,7 +60,7 @@ SynthDef(\fm, {
 
 (
 [0, 3, -5, 10].do { |deg|
-	var hz = (52 + deg + (12 * 1)).midicps;
+	var hz = (52 + deg + (12 * 0)).midicps;
 	Synth(\fm, [freq: hz]);
 };
 )
@@ -82,7 +106,7 @@ Routine({
 		].do { |chord|
 			chord[\notes].sort.do { |deg, index|
 				[
-					(octave: 0, amp: 0.5)
+					(octave: 1, amp: 0.75)
 				].do { |voice|
 					play.(\fm, (chord[\length] * beat), [
 						freq: (root + (12 * voice[\octave]) + deg).midicps,

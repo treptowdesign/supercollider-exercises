@@ -39,7 +39,7 @@ SynthDef(\lead, {
 		snd = HPF.ar(snd, 80);
 	};
 	*/
-	snd = LPF.ar(snd, 7000);
+	snd = LPF.ar(snd, 5000);
 	snd = Balance2.ar(snd[0], snd[1]);
 	snd = snd * Env.perc(0.005, 2, curve: -4).ar;
 	snd = snd * Env.linen(0, duration, 0.05, curve: -4).ar(Done.freeSelf);

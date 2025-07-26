@@ -107,17 +107,21 @@ SynthDef(\pad, {
 
 (
 SynthDef(\kick, {
-	var snd;
-	snd = SinOsc.ar(Env.perc(0, 0.07).ar.linexp(0, 1, 58, 900) * XLine.kr(1, 0.5, 0.3)) * -2.dbamp;
-	snd = snd + (SinOsc.ar(XLine.ar(900, 90, 0.03)) * Env.perc(0.001, 0.01).ar * 1.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 10110, 0.2) * Env.linen(0.01, 0.01, 0.01, curve: -4).ar * -8.dbamp);
-	snd = snd * (1 + (3 * Env.perc(0, 0.03).ar));
-	snd = snd.fold2 + (snd * 2.dbamp).tanh;
-	snd = snd * Env.perc(0.003, 0.9, curve: -8).ar(Done.freeSelf);
-	snd = snd * -3.dbamp;
-	snd = Pan2.ar(snd, \pan.kr(0));
+	var snd, wet;
+	snd = SinOsc.ar(42 * (1 + (4 * Env.perc(0, 0.09).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
+	snd = snd * (1 + (4 * Env.perc(0, 0.01).ar));
+	// snd = LPF.ar(snd, 1200);
+	wet = snd;
+	wet = (wet * 4.dbamp).clip2 + (wet.fold2 * -4.dbamp);
+	wet = LeakDC.ar(wet);
+	snd = XFade2.ar(snd, wet, 0);
+	snd = snd * Env.perc(0.001, 0.4).ar;
+	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 8320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
+	snd = snd + (DelayC.ar(snd * -24.dbamp, 0.1, 0.02)) ! 2;
+	snd = snd * Env.linen(0.0, \duration.kr(0.5), 0.001, curve: -4).ar(Done.freeSelf);
+	snd = snd * -7.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 SynthDef(\snare, {
 	var snd, scale;
 	scale = \scale.kr(1);
@@ -218,7 +222,7 @@ Routine({
 				};
 			};
 		};*/
-		/*fork {
+		fork {
 			4.do {
 				duck.();
 				seq.(\kick, beat * 1.5);
@@ -229,7 +233,7 @@ Routine({
 				seq.(\kick, beat * 0.5);
 
 			};
-		};*/
+		};
 		'--------'.postln;
 		[
 			(notes: (0 + [0, 5, 7, 14]), length: beat * 4),

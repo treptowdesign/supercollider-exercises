@@ -26,20 +26,21 @@ SynthDef(\hat, {
 }).add;
 SynthDef(\kick, {
 	var snd, wet;
-	snd = SinOsc.ar(46 * (1 + (3 * Env.perc(0, 0.1).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
-	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
-	// snd = LPF.ar(snd, 1200);
+	snd = SinOsc.ar(46 * (1 + (5 * Env.perc(0, 0.1).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
+	snd = snd * (1 + (4 * Env.perc(0, 0.01).ar));
 	wet = snd + 0.1;
-	wet = wet.clip2 + (wet.fold2 * -6.dbamp);
+	wet = wet.clip2 + (wet.fold2 * -4.dbamp);
 	wet = LeakDC.ar(wet);
 	snd = XFade2.ar(snd, wet, 0);
 	snd = snd * Env.perc(0.001, 0.4).ar;
-	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 8320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
-	snd = snd + (DelayC.ar(snd * -22.dbamp, 0.1, 0.02)) ! 2;
+	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 10320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
+	snd = snd + (DelayC.ar(snd * -20.dbamp, 0.1, 0.02)) ! 2;
 	snd = snd * Env.linen(0.0, \duration.kr(0.5), 0.001, curve: -4).ar(Done.freeSelf);
+	snd = BHiShelf.ar(snd, 1000, 0.5, -4);
+	snd = BLowShelf.ar(snd, 100, 0.5, 4);
 	snd = snd * -12.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 SynthDef(\clap, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);

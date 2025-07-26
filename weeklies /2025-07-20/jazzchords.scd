@@ -22,7 +22,7 @@ SynthDef(\bass, {
 	snd = snd * Env.linen(0.0, duration, 0.02, curve: -4).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.5);
 	Out.ar(\out.kr(0), snd );
-}).play;
+}).add;
 SynthDef(\sub, {
 	var snd, duration, hi;
 	duration = \duration.kr(3.0);
@@ -44,10 +44,10 @@ SynthDef(\sub, {
 // drums
 SynthDef(\kick, {
 	var snd, wet;
-	snd = SinOsc.ar(41 * (1 + (4 * Env.perc(0, 0.09).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
+	snd = SinOsc.ar(42 * (1 + (4 * Env.perc(0, 0.09).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
 	snd = snd * (1 + (4 * Env.perc(0, 0.01).ar));
 	// snd = LPF.ar(snd, 1200);
-	wet = snd + 0.1;
+	wet = snd;
 	wet = (wet * 4.dbamp).clip2 + (wet.fold2 * -4.dbamp);
 	wet = LeakDC.ar(wet);
 	snd = XFade2.ar(snd, wet, 0);
@@ -57,7 +57,7 @@ SynthDef(\kick, {
 	snd = snd * Env.linen(0.0, \duration.kr(0.5), 0.001, curve: -4).ar(Done.freeSelf);
 	snd = snd * -7.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 SynthDef(\hiss, {
 	var snd;
 	snd = CombC.ar(WhiteNoise.ar, 0.2, 1 / 60, 0.1);

@@ -12,6 +12,17 @@ SynthDef(\sineKey, {
 	snd = snd * Env.linen(0.0, duration, 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\bass, {
+	var snd, freq, duration;
+	duration = \duration.kr(3.0);
+	freq = \freq.kr(87);
+	snd = Pulse.ar(freq);
+	snd = LPF.ar(snd, 500);
+	snd = snd * Env.perc(0.01, \rel.kr(4)).ar;
+	snd = snd * Env.linen(0.0, duration, 0.02, curve: -4).ar(Done.freeSelf);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.5);
+	Out.ar(\out.kr(0), snd );
+}).play;
 SynthDef(\sub, {
 	var snd, duration, hi;
 	duration = \duration.kr(3.0);
@@ -26,34 +37,34 @@ SynthDef(\sub, {
 	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 1e-3);
 	hi = hi * 5.dbamp;
 	snd = (snd * 2).tanh + hi;
-	snd = snd * -8.dbamp;
+	snd = snd * -8.dbamp * \amp.kr(1);
 	snd = snd * Env.linen(0.0, duration, 0.02, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 // drums
 SynthDef(\kick, {
 	var snd, wet;
-	snd = SinOsc.ar(53 * (1 + (4 * Env.perc(0, 0.1).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
+	snd = SinOsc.ar(41 * (1 + (4 * Env.perc(0, 0.09).ar)) * (1 + (3 * Env.perc(0, 0.01).ar)));
 	snd = snd * (1 + (4 * Env.perc(0, 0.01).ar));
 	// snd = LPF.ar(snd, 1200);
 	wet = snd + 0.1;
-	wet = (wet * 6.dbamp).clip2 + (wet.fold2 * -4.dbamp);
+	wet = (wet * 4.dbamp).clip2 + (wet.fold2 * -4.dbamp);
 	wet = LeakDC.ar(wet);
 	snd = XFade2.ar(snd, wet, 0);
 	snd = snd * Env.perc(0.001, 0.4).ar;
-	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 9320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
+	snd = snd + ((BPF.ar(Hasher.ar(Sweep.ar), 8320, 0.3) * Env.perc(0.01, 0.02).ar) * -10.dbamp);
 	snd = snd + (DelayC.ar(snd * -24.dbamp, 0.1, 0.02)) ! 2;
 	snd = snd * Env.linen(0.0, \duration.kr(0.5), 0.001, curve: -4).ar(Done.freeSelf);
-	snd = snd * -8.dbamp;
+	snd = snd * -7.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hiss, {
 	var snd;
 	snd = CombC.ar(WhiteNoise.ar, 0.2, 1 / 60, 0.1);
-	snd = BPF.ar(snd, [14120, 17230] * XLine.kr(0.5, 1, 1) * Rand(0.95, 1.15), 0.2).sum;
+	snd = BPF.ar(snd, [15120, 16230] * XLine.kr(0.5, 1, 1) * Rand(0.95, 1.15), 0.2).sum;
 	snd = HPF.ar(snd, 1000);
 	snd = snd ! 2;
-	snd = snd * Env([0, 1, 1, 0.1, 0], [0.05, 0.06, 0.001, 0.005] * 0.6, curve: [2, 0.1, -2]).ar(Done.freeSelf);
+	snd = snd * Env([0, 1, 1, 0.1, 0], [0.05, 0.06, 0.001, 0.005] * 0.55, curve: [2, 0.1, -2]).ar(Done.freeSelf);
 	snd = snd * -22.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -107,7 +118,7 @@ SynthDef(\sidechainFx, {
 	var snd, trigger;
 	trigger = T2A.ar(\trigger.tr(1));
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * (1 - (1 * Env.perc(0, 1, curve: -2).ar(gate: trigger)));
+	snd = snd * (1 - (1 * Env.perc(0, 0.5, curve: 2).ar(gate: trigger)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\reverbFx, {
@@ -169,7 +180,7 @@ play = { |synth, duration, args|
 
 
 sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~busSidechain, out: ~reverbBus]);
-Synth.tail(nil, \reverbFx, [in: ~reverbBus, wet: 0.15]);
+Synth.tail(nil, \reverbFx, [in: ~reverbBus, wet: 0.25]);
 
 duck = {
 	s.bind { sidechainFx.set(\trigger, 1) };
@@ -202,9 +213,11 @@ Routine({
 				duck.();
 				play.(\kick, beat * 1, [out: 0]);
 				(beat * 1.5).wait;
+				duck.();
 				play.(\kick, beat/3, [out: 0]);
 				(beat * 0.5).wait;
 				(beat * 1.5).wait;
+				duck.();
 				play.(\kick, beat * 0.5, [out: 0]);
 				(beat * 0.5).wait;
 			};
@@ -228,11 +241,11 @@ Routine({
 			(notes: (0 + [0, 3, 10, 7]).sort.postln, length: beat * 1),
 		].do { |chord|
 			chord[\notes].do { |deg, index|
-				// (1 / (index + 1).sqrt)
-				// play.(\sineKey, chord[\length], [freq: (root + deg + (12 * 1)).midicps, amp: 0.05 * (1 / (index + 1).sqrt), out: 0]);
+				//
+				play.(\sineKey, chord[\length], [freq: (root + deg + (12 * 1)).midicps, amp: 0.25 * (1 / (index + 1).sqrt), out: ~busSidechain]);
 				play.(\sineKey, chord[\length], [freq: (root + deg + (12 * 0)).midicps, amp:  1, out: ~busSidechain]);
 			};
-			// play.(\sub, chord[\length], [freq: (root + chord[\notes][0] + (12 * -1)).midicps, out: ~busSidechain]);
+			play.(\bass, chord[\length], [freq: (root + chord[\notes][0] + (12 * -1)).midicps, out: ~busSidechain, amp: 0.5]);
 			play.(\sub, chord[\length], [freq: (root + chord[\notes][0] + (12 * -2)).midicps, out: ~busSidechain]);
 			(chord[\length]).wait;
 		};
@@ -240,6 +253,8 @@ Routine({
 }).play;
 
 )
+
+(53 + 0 + (12 * -1)).midicps;
 
 
 

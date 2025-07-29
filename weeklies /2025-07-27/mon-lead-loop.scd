@@ -39,7 +39,7 @@ Routine({
 		].do { |spec|
 			var note, dur, rel, amp;
 			# note, dur, rel, amp = spec;
-			note = (root + note + (12 * -1)).midicps;
+			note = (root + note + (12 * 0)).midicps;
 			seq.(\source, dur, [freq: note, rel: 6]);
 		};
 	};

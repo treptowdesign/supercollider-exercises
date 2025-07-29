@@ -20,6 +20,6 @@ SynthDef(\danceChords, {
 
 (
 [0, 3, 7, 10].do { |deg|
-	Synth(\danceChords, [freq: (51 + deg + (12 * 0)).midicps]);
+	Synth(\danceChords, [freq: (51 + deg + (12 * -1)).midicps]);
 };
 )

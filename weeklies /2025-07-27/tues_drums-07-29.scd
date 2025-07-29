@@ -47,20 +47,22 @@ seq = { |synth, dur, args|
 Routine({
 	loop {
 		fork {
-			2.do {
+			4.do {
 				[1, 0.3, 0.8, 0.7, 0.5, 0.9, 0.6, 0.8].do { |amp|
 					seq.(\hat, beat/2, [amp: amp]);
 				};
 			};
 		};
 		// bar 1
-		seq.(\kick, beat);
-		seq.(\kick, beat);
-		seq.(\clap, beat/2);
-		seq.(\kick, beat/4, [amp: 0.5]);
-		seq.(\kick, beat/2);
-		seq.(\kick, beat/4, [amp: 0.5]);
-		seq.(\kick, beat/2);
+		3.do {
+			seq.(\kick, beat);
+			seq.(\kick, beat);
+			seq.(\clap, beat/2);
+			seq.(\kick, beat/4, [amp: 0.5]);
+			seq.(\kick, beat/2);
+			seq.(\kick, beat/4, [amp: 0.5]);
+			seq.(\kick, beat/2);
+		};
 		// bar 2
 		seq.(\kick, beat);
 		seq.(\kick, beat);

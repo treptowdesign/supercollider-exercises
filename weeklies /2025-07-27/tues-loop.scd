@@ -4,9 +4,11 @@
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(0.3);
-	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 900) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
+	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 940) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
 	snd = snd * Env.perc(0.001, 0.4).ar;
+	// snd = snd.tanh + (snd.clip2 * -8.dbamp);
 	// snd = snd.tanh;
+	snd = BLowShelf.ar(snd, 160, 0.75, 4);
 	snd = snd ! 2;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	snd = snd * \amp.kr(1) * -6.dbamp;
@@ -135,7 +137,7 @@ Routine({
 			].do { |chord|
 				chord.sort.postln.do { |int|
 					// play.(\ping, bar, [freq: noteHz.(int, 0)]);
-					play.(\pad, bar, [freq: noteHz.(int, 1), amp: 0.6]);
+					play.(\pad, bar, [freq: noteHz.(int, 1), amp: 0.45]);
 					play.(\pad, bar, [freq: noteHz.(int, 0), out: 0]);
 				};
 				(bar).wait;
@@ -155,9 +157,9 @@ Routine({
 					}, {
 						seq.(\bass, beat/2, [
 							freq: noteHz.(int, -1),
-							lpfcutoff: index.linexp(0, 8, 900, 100),
-							// lpfcutoff: exprand(1, 6) * 100,
-							out: 0
+							// lpfcutoff: index.linexp(0, 8, 900, 100),
+							lpfcutoff: exprand(1, 8) * 100,
+							out: ~busSidechain
 						]);
 					});
 				};

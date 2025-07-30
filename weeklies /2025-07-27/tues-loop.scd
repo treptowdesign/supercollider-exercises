@@ -4,7 +4,7 @@
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(0.3);
-	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 940) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
+	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 1000) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
 	snd = snd * Env.perc(0.001, 0.4).ar;
 	// snd = snd.tanh + (snd.clip2 * -8.dbamp);
 	// snd = snd.tanh;
@@ -46,9 +46,9 @@ SynthDef(\hat, {
 	var snd, amp;
 	amp = \amp.kr(1);
 	snd = Hasher.ar(Sweep.ar);
-	snd = BPF.ar(snd, [9420, 14030] * amp.linlin(0, 1, 2, 1), 0.3).sum;
+	snd = BPF.ar(snd, [9420, 14030] * amp.linlin(0, 1, 1.6, 1), 0.3).sum;
 	snd = snd * Env.perc(0.0001, 0.06 * amp.linlin(0, 1, 0.7, 1)).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, \pan.kr(0), amp * 2.dbamp);
+	snd = Pan2.ar(snd, \pan.kr(0), amp * 0.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\pad, {
@@ -157,8 +157,8 @@ Routine({
 					}, {
 						seq.(\bass, beat/2, [
 							freq: noteHz.(int, -1),
-							// lpfcutoff: index.linexp(0, 8, 900, 100),
-							lpfcutoff: exprand(1, 8) * 100,
+							lpfcutoff: index.linexp(0, 8, 900, 200),
+							// lpfcutoff: exprand(1, 8) * 100,
 							out: ~busSidechain
 						]);
 					});

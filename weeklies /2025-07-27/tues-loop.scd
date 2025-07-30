@@ -4,7 +4,7 @@
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(0.3);
-	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 900) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
+	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 1300) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
 	snd = snd * Env.perc(0.001, 0.4).ar;
 	// snd = snd.tanh;
 	snd = snd ! 2;
@@ -54,7 +54,7 @@ SynthDef(\pad, {
 	freq = \freq.kr(220);
 	snd = LFTri.ar(freq * (LFNoise2.ar(10 ! 5) * Line.ar(0, 0.25, 0.3)).midiratio * [1, 2, 1, 2, 1]);
 	snd = Splay.ar(snd);
-	snd = RLPF.ar(snd, XLine.ar(6000 * ExpRand(0.5, 2), 100, 2.0), 0.1);
+	snd = RLPF.ar(snd, XLine.ar(100, 8000 * ExpRand(0.5, 2), 2.0), 0.1);
 	snd = snd * -24.dbamp * \amp.kr(1);
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.linen(0.01, \duration.kr(1.0), 0.01, curve: -16).ar(Done.freeSelf);
@@ -75,7 +75,7 @@ SynthDef(\bass, {
 	duration = \duration.kr(0.1);
 	snd = SinOsc.ar(freq) + Pulse.ar(freq);
 	snd = RLPF.ar(snd, \lpfcutoff.kr(500), 0.25);
-	snd = snd + Latch.ar(snd * -10.dbamp, Impulse.ar(4000));
+	snd = snd + Latch.ar(snd * -10.dbamp, Impulse.ar(5000));
 	snd = snd + (GVerb.ar(snd, 20, 1) * -20.dbamp);
 	snd = snd * (1 + (0.5 * Env.perc(0, 0.01).ar));
 	snd = snd * Env.linen(0, \rel.kr(0.15), 0.1, curve: -8).ar(Done.freeSelf);
@@ -135,7 +135,7 @@ Routine({
 			].do { |chord|
 				chord.sort.postln.do { |int|
 					// play.(\ping, bar, [freq: noteHz.(int, 0)]);
-					play.(\pad, bar, [freq: noteHz.(int, 1), amp: 0.3]);
+					play.(\pad, bar, [freq: noteHz.(int, 1), amp: 0.6]);
 					play.(\pad, bar, [freq: noteHz.(int, 0), out: 0]);
 				};
 				(bar).wait;
@@ -155,8 +155,8 @@ Routine({
 					}, {
 						seq.(\bass, beat/2, [
 							freq: noteHz.(int, -1),
-							// lpfcutoff: index.linexp(0, 8, 600, 100),
-							lpfcutoff: exprand(2, 4) * 100,
+							lpfcutoff: index.linexp(0, 8, 900, 100),
+							// lpfcutoff: exprand(1, 6) * 100,
 							out: 0
 						]);
 					});
@@ -208,13 +208,6 @@ Routine({
 	};
 }).play;
 )
-
-
-
-
-
-
-
 
 
 

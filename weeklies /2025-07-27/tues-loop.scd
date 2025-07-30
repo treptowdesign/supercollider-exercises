@@ -4,7 +4,7 @@
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(0.3);
-	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 1300) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
+	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 900) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
 	snd = snd * Env.perc(0.001, 0.4).ar;
 	// snd = snd.tanh;
 	snd = snd ! 2;
@@ -86,7 +86,7 @@ SynthDef(\sidechainFx, {
 	var snd, trigger;
 	trigger = T2A.ar(\trigger.tr(1));
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd * (1 - (0.9 * Env.perc(0.01, 0.36, curve: -2).ar(gate: trigger)));
+	snd = snd * (1 - (0.9 * Env.perc(0.01, 0.5, curve: -2).ar(gate: trigger)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 )

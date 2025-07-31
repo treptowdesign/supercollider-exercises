@@ -4,14 +4,15 @@
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(0.3);
-	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 58, 960) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
+	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 1020) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
 	snd = snd.tanh + (snd.clip2 * -6.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 9020, 0.3) * Env.perc(0.001, 0.01).ar);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 5020, 0.3) * Env.perc(0.001, 0.02).ar);
 	snd = snd * Env.perc(0.001, 0.4).ar;
 	snd = BLowShelf.ar(snd, 200, 1, 4);
+	snd = BHiShelf.ar(snd, 500, 1, -2);
 	snd = snd ! 2;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * \amp.kr(1) * -8.dbamp;
+	snd = snd * \amp.kr(1) * -10.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\clap, {
@@ -111,7 +112,7 @@ SynthDef(\sidechainFx, {
 	trigger = T2A.ar(\trigger.tr(1));
 	snd = In.ar(\in.kr(0), 2);
 	snd = BLowShelf.ar(snd, 160, 0.5, (8 * Env.perc(0.01, 0.3, curve: 4).ar(gate: trigger)).neg);
-	snd = snd * (1 - (0.4 * Env.perc(0.01, 0.15, curve: 2).ar(gate: trigger)));
+	snd = snd * (1 - (0.2 * Env.perc(0.01, 0.15, curve: 2).ar(gate: trigger)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\masterFx, {
@@ -122,6 +123,9 @@ SynthDef(\masterFx, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
+
+{(8 * Env.perc(0.01, 0.3, curve: 4).ar).neg}.plot(1);
+{0 - (8 * Env.perc(0.01, 0.3, curve: 4).ar)}.plot(1);
 
 {1 - (0.9 * Env.perc(0.01, 0.2, curve: 4).ar)}.plot(1);
 {(4 * Env.perc(0.01, 0.15, curve: 4).ar).neg}.plot(1);
@@ -184,8 +188,7 @@ Routine({
 				(7 + [0, 3, 7, 10 -12])
 			].do { |chord|
 				chord.sort.postln.do { |int|
-					// play.(\ping, bar, [freq: noteHz.(int, 0)]);
-					play.(\padReverse, bar, [freq: noteHz.(int, 1), amp: 0.3, out: ~busMaster]);
+					play.(\padReverse, bar, [freq: noteHz.(int, 1), amp: 0.75, out: ~busMaster]);
 					play.(\padReverse, bar, [freq: noteHz.(int, 0), out: ~busMaster]);
 				};
 				(bar).wait;

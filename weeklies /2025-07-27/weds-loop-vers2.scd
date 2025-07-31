@@ -4,14 +4,14 @@
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(0.3);
-	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 1300) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
+	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 58, 960) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
 	snd = snd.tanh + (snd.clip2 * -6.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 5820, 0.3) * Env.perc(0.001, 0.02).ar);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 9020, 0.3) * Env.perc(0.001, 0.01).ar);
 	snd = snd * Env.perc(0.001, 0.4).ar;
 	snd = BLowShelf.ar(snd, 200, 1, 4);
 	snd = snd ! 2;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * \amp.kr(1) * -5.dbamp;
+	snd = snd * \amp.kr(1) * -8.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\clap, {
@@ -80,7 +80,7 @@ SynthDef(\padReverse, {
 	snd = Splay.ar(snd);
 	snd = RLPF.ar(snd, XLine.ar(100, 8000 * ExpRand(0.5, 2), 2.0), 0.1);
 	snd = snd * -24.dbamp * \amp.kr(1);
-	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
+	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.linen(0.01, \duration.kr(1.0), 0.01, curve: -16).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -127,6 +127,7 @@ SynthDef(\masterFx, {
 {(4 * Env.perc(0.01, 0.15, curve: 4).ar).neg}.plot(1);
 
 -12.dbamp;
+4.dbamp;
 
 (
 ~busMaster = Bus.audio(nil, 2);

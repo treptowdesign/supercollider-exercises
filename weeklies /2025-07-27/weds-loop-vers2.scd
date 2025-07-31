@@ -6,11 +6,10 @@ SynthDef(\kick, {
 	duration = \duration.kr(0.3);
 	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 1020) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
 	snd = snd.tanh + (snd.clip2 * -6.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 5020, 0.3) * Env.perc(0.001, 0.02).ar);
-	snd = snd * Env.perc(0.001, 0.4).ar;
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 6020, 0.3) * Env.perc(0.001, 0.02).ar);
+	snd = snd * Env.perc(0.001, 0.4).ar ! 2;
 	snd = BLowShelf.ar(snd, 200, 1, 4);
-	snd = BHiShelf.ar(snd, 500, 1, -2);
-	snd = snd ! 2;
+	snd = BHiShelf.ar(snd, 800, 1, -2);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	snd = snd * \amp.kr(1) * -10.dbamp;
 	Out.ar(\out.kr(0), snd);
@@ -79,9 +78,20 @@ SynthDef(\padReverse, {
 	freq = \freq.kr(220);
 	snd = LFTri.ar(freq * (LFNoise2.ar(10 ! 5) * Line.ar(0, 0.25, 0.3)).midiratio * [1, 2, 1, 2, 1]);
 	snd = Splay.ar(snd);
-	snd = RLPF.ar(snd, XLine.ar(100, 8000 * ExpRand(0.5, 2), 2.0), 0.1);
+	snd = RLPF.ar(snd, XLine.ar(100, 6000 * ExpRand(0.5, 2), 2.0), 0.1);
 	snd = snd * -24.dbamp * \amp.kr(1);
 	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
+	snd = snd * Env.linen(0.01, \duration.kr(1.0), 0.01, curve: -16).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\padReverseWide, {
+	var snd, freq;
+	freq = \freq.kr(220);
+	snd = LFTri.ar(freq * (LFNoise2.ar(10 ! 5) * Line.ar(0, 0.25, 0.3)).midiratio * [1, 2, 1, 2, 1]);
+	snd = Splay.ar(snd);
+	snd = RLPF.ar(snd, XLine.ar(100, 6000 * ExpRand(0.5, 2), 2.0), 0.1);
+	snd = snd * -24.dbamp * \amp.kr(1);
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.linen(0.01, \duration.kr(1.0), 0.01, curve: -16).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -130,8 +140,10 @@ SynthDef(\masterFx, {
 {1 - (0.9 * Env.perc(0.01, 0.2, curve: 4).ar)}.plot(1);
 {(4 * Env.perc(0.01, 0.15, curve: 4).ar).neg}.plot(1);
 
+12.dbamp;
 -12.dbamp;
 4.dbamp;
+-4.dbamp;
 
 (
 ~busMaster = Bus.audio(nil, 2);
@@ -188,7 +200,8 @@ Routine({
 				(7 + [0, 3, 7, 10 -12])
 			].do { |chord|
 				chord.sort.postln.do { |int|
-					play.(\padReverse, bar, [freq: noteHz.(int, 1), amp: 0.75, out: ~busMaster]);
+					// play.(\pad, bar, [freq: noteHz.(int, 1), amp: 0.25, out: ~busMaster]);
+					play.(\padReverseWide, bar, [freq: noteHz.(int, 1), amp: 0.25, out: ~busMaster]);
 					play.(\padReverse, bar, [freq: noteHz.(int, 0), out: ~busMaster]);
 				};
 				(bar).wait;
@@ -208,8 +221,9 @@ Routine({
 					}, {
 						seq.(\bass, beat/2, [
 							freq: noteHz.(int, -1),
-							// lpfcutoff: index.linexp(0, 8, 900, 100),
+							// lpfcutoff: index.linexp(0, 8, 500, 100),
 							lpfcutoff: exprand(1, 5) * 100,
+							// lpfcutoff: 300,
 							out: ~busSidechain
 						]);
 					});
@@ -221,6 +235,7 @@ Routine({
 			var panVals = [0.5, -0.7, 0.3, -0.6, 0.3, -0.3, 0.5, -0.7];
 			4.do {
 				[1, 0.3, 0.8, 0.7, 0.5, 0.9, 0.6, 0.8].do { |amp, index|
+					// panVals[index]
 					seq.(\hat, beat/2, [amp: amp, pan: panVals[index], out: ~busMaster]);
 				};
 			};
@@ -237,7 +252,7 @@ Routine({
 		3.do {
 			seqKick.(beat);
 			seqKick.(beat);
-			play.(\metallic, beat/2, [out: ~busMaster], latency: 0.025);
+			play.(\metallic, beat/2, [out: ~busMaster], latency: 0.028);
 			seq.(\clap, beat/2, [out: ~busMaster]);
 			seqKick.(beat/4, [amp: 0.5]);
 			seqKick.(beat/2);
@@ -247,7 +262,7 @@ Routine({
 		// bar 4
 		seqKick.(beat);
 		seqKick.(beat);
-		play.(\metallic, beat/2, [out: ~busMaster], latency: 0.025);
+		play.(\metallic, beat/2, [out: ~busMaster], latency: 0.028);
 		seq.(\clap, beat/2, [out: ~busMaster]);
 		seqKick.(beat/4, [amp: 0.25]);
 		seqKick.(beat/4);

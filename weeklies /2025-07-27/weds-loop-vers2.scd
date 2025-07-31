@@ -209,7 +209,7 @@ Routine({
 						seq.(\bass, beat/2, [
 							freq: noteHz.(int, -1),
 							// lpfcutoff: index.linexp(0, 8, 900, 100),
-							lpfcutoff: exprand(1, 6) * 100,
+							lpfcutoff: exprand(1, 5) * 100,
 							out: ~busSidechain
 						]);
 					});

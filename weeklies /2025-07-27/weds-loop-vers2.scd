@@ -4,14 +4,14 @@
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(0.3);
-	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 1020) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
+	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 950) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.4));
 	snd = snd.tanh + (snd.clip2 * -6.dbamp);
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 6020, 0.3) * Env.perc(0.001, 0.02).ar);
 	snd = snd * Env.perc(0.001, 0.4).ar ! 2;
 	snd = BLowShelf.ar(snd, 200, 1, 4);
 	snd = BHiShelf.ar(snd, 800, 1, -2);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * \amp.kr(1) * -10.dbamp;
+	snd = snd * \amp.kr(1) * -8.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\clap, {
@@ -78,7 +78,7 @@ SynthDef(\padReverse, {
 	freq = \freq.kr(220);
 	snd = LFTri.ar(freq * (LFNoise2.ar(10 ! 5) * Line.ar(0, 0.25, 0.3)).midiratio * [1, 2, 1, 2, 1]);
 	snd = Splay.ar(snd);
-	snd = RLPF.ar(snd, XLine.ar(100, 6000 * ExpRand(0.5, 2), 2.0), 0.1);
+	snd = RLPF.ar(snd, XLine.ar(100, 4000 * ExpRand(0.5, 2), 2.0), 0.1);
 	snd = snd * -24.dbamp * \amp.kr(1);
 	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.linen(0.01, \duration.kr(1.0), 0.01, curve: -16).ar(Done.freeSelf);
@@ -87,9 +87,9 @@ SynthDef(\padReverse, {
 SynthDef(\padReverseWide, {
 	var snd, freq;
 	freq = \freq.kr(220);
-	snd = LFTri.ar(freq * (LFNoise2.ar(10 ! 5) * Line.ar(0, 0.25, 0.3)).midiratio * [1, 2, 1, 2, 1]);
+	snd = LFTri.ar(freq * (LFNoise2.ar(10 ! 5) * Line.ar(0, 0.25, 0.3)).midiratio * [1, 3, 2, 3, 1]);
 	snd = Splay.ar(snd);
-	snd = RLPF.ar(snd, XLine.ar(100, 6000 * ExpRand(0.5, 2), 2.0), 0.1);
+	snd = RLPF.ar(snd, XLine.ar(100, 6000, 2.0), 0.1);
 	snd = snd * -24.dbamp * \amp.kr(1);
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.linen(0.01, \duration.kr(1.0), 0.01, curve: -16).ar(Done.freeSelf);
@@ -117,12 +117,18 @@ SynthDef(\bass, {
 	snd = snd * -12.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\drumFx, {
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = snd + LPF.ar(GVerb.ar(snd.mean * -25.dbamp, 20, 2, 0.9), 800);
+	Out.ar(\out.kr(0), snd);
+}).add;
 SynthDef(\sidechainFx, {
 	var snd, trigger;
 	trigger = T2A.ar(\trigger.tr(1));
 	snd = In.ar(\in.kr(0), 2);
 	snd = BLowShelf.ar(snd, 160, 0.5, (8 * Env.perc(0.01, 0.3, curve: 4).ar(gate: trigger)).neg);
-	snd = snd * (1 - (0.2 * Env.perc(0.01, 0.15, curve: 2).ar(gate: trigger)));
+	snd = snd * (1 - (0.25 * Env.perc(0.01, 0.15, curve: 2).ar(gate: trigger)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\masterFx, {
@@ -148,10 +154,12 @@ SynthDef(\masterFx, {
 (
 ~busMaster = Bus.audio(nil, 2);
 ~busSidechain = Bus.audio(nil, 2);
+~busDrumfx = Bus.audio(nil, 2);
 )
 
 ~busSidechain.index;
 ~busMaster.index;
+~busDrumfx.index;
 
 (
 var s, beat, bar, root, play, seq, noteHz, sidechainFx, duck, seqKick;
@@ -176,6 +184,7 @@ noteHz = { |deg=0, octave=0|
 };
 
 sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~busSidechain, out: ~busMaster]);
+// Synth.tail(nil, \drumFx, [in: ~busDrumfx, out: ~busMaster]);
 Synth.tail(nil, \masterFx, [in: ~busMaster, out: 0]);
 
 duck = { |latency = 0.0|
@@ -201,8 +210,9 @@ Routine({
 			].do { |chord|
 				chord.sort.postln.do { |int|
 					// play.(\pad, bar, [freq: noteHz.(int, 1), amp: 0.25, out: ~busMaster]);
-					play.(\padReverseWide, bar, [freq: noteHz.(int, 1), amp: 0.25, out: ~busMaster]);
-					play.(\padReverse, bar, [freq: noteHz.(int, 0), out: ~busMaster]);
+					// play.(\padReverseWide, bar, [freq: noteHz.(int, 1), amp: 0.25, out: ~busMaster]);
+					play.(\padReverseWide, bar, [freq: noteHz.(int, 1), out: ~busMaster, amp: 0.25]);
+					play.(\padReverseWide, bar, [freq: noteHz.(int, 0), out: ~busMaster, amp: 0.75]);
 				};
 				(bar).wait;
 			};
@@ -251,7 +261,7 @@ Routine({
 		// bar 1-3
 		3.do {
 			seqKick.(beat);
-			seqKick.(beat);
+			seqKick.(beat, [amp: 0.8]);
 			play.(\metallic, beat/2, [out: ~busMaster], latency: 0.028);
 			seq.(\clap, beat/2, [out: ~busMaster]);
 			seqKick.(beat/4, [amp: 0.5]);
@@ -261,7 +271,7 @@ Routine({
 		};
 		// bar 4
 		seqKick.(beat);
-		seqKick.(beat);
+		seqKick.(beat, [amp: 0.8]);
 		play.(\metallic, beat/2, [out: ~busMaster], latency: 0.028);
 		seq.(\clap, beat/2, [out: ~busMaster]);
 		seqKick.(beat/4, [amp: 0.25]);

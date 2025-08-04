@@ -4,7 +4,7 @@
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(0.3);
-	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 950) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.3, 0.4));
+	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 60, 950) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.4, 0.4));
 	snd = snd.tanh + (snd.clip2 * -6.dbamp);
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 6520, 0.3) * Env.perc(0.001, 0.02).ar);
 	snd = snd * Env.perc(0.001, 0.4).ar ! 2;
@@ -49,17 +49,6 @@ SynthDef(\hat, {
 	snd = BPF.ar(snd, [9420, 14030] * amp.linlin(0, 1, 2, 1), 0.3).sum;
 	snd = snd * Env.perc(0.0001, 0.06 * amp.linlin(0, 1, 0.7, 1)).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), amp * -2.dbamp);
-	Out.ar(\out.kr(0), snd);
-}).add;
-SynthDef(\shaker, {
-	var snd, amp;
-	amp = \amp.kr(0.9);
-	snd = CombC.ar(WhiteNoise.ar, 0.2, 1 / 50, 0.2);
-	snd = BPF.ar(snd, [8120, 12230] * XLine.kr(0.5, 2, 2) * (2 * amp), 0.2).sum;
-	snd = HPF.ar(snd, 2000);
-	snd = snd ! 2;
-	snd = snd * Env([0, 1, 1, 0.1, 0], [0.1, 0.1, 0.001, 0.01] * 0.4 * amp, curve: [1, 0.5, -4]).ar(Done.freeSelf);
-	snd = snd * -24.dbamp * amp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\pad, {
@@ -115,9 +104,22 @@ SynthDef(\bass, {
 	snd = snd + (GVerb.ar(snd, 20, 1) * -20.dbamp);
 	snd = snd * (1 + (0.5 * Env.perc(0, 0.01).ar));
 	snd = snd * Env.linen(0, \rel.kr(0.1), 0.1, curve: -8).ar(Done.freeSelf);
-	snd = snd * -12.dbamp * \amp.kr(1);
+	snd = snd * -10.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\key, {
+	var snd, freq;
+	freq = \freq.kr(440);
+	snd = SinOsc.ar(freq * 2) * Env.perc(0.1, 0.6).ar * 900;
+	snd = SinOsc.ar(freq + snd);
+	snd = snd + (DelayC.ar(snd, 0.2, LFNoise2.kr(3 ! 3).linlin(-1, 1, 0, 1) * 5e-3) * LFNoise2.kr(12 ! 2) * 5.dbamp);
+	snd = Pan2.ar(snd.sum, 0, 1);
+	snd = snd * Env.perc(0.01, 3, curve: -10).ar(Done.freeSelf);
+	snd = snd * -18.dbamp;
+	snd = snd * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).add;
+// FX
 SynthDef(\reverbFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
@@ -128,8 +130,8 @@ SynthDef(\sidechainFx, {
 	var snd, trigger;
 	trigger = T2A.ar(\trigger.tr(1));
 	snd = In.ar(\in.kr(0), 2);
-	snd = BLowShelf.ar(snd, 160, 0.5, (8 * Env.perc(0.01, 0.3, curve: 4).ar(gate: trigger)).neg);
-	snd = snd * (1 - (0.25 * Env.perc(0.01, 0.15, curve: 2).ar(gate: trigger)));
+	snd = BLowShelf.ar(snd, 160, 0.5, (6 * Env.perc(0.01, 0.5, curve: 4).ar(gate: trigger)).neg);
+	snd = snd * (1 - (0.4 * Env.perc(0.01, 0.15, curve: 2).ar(gate: trigger)));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\masterFx, {
@@ -187,7 +189,7 @@ noteHz = { |deg=0, octave=0|
 };
 
 sidechainFx = Synth.tail(nil, \sidechainFx, [in: ~busSidechain, out: ~busMaster]);
-Synth.tail(nil, \reverbFx, [in: ~reverbfx, out: ~busMaster]);
+// Synth.tail(nil, \reverbFx, [in: ~reverbfx, out: ~busMaster]);
 Synth.tail(nil, \masterFx, [in: ~busMaster, out: 0]);
 
 duck = { |latency = 0.0|
@@ -232,6 +234,7 @@ Routine({
 					if(int == \, {
 						(beat/2).wait;
 					}, {
+						play.(\key, beat/2, [freq: noteHz.(int, 0), out: ~busMaster]);
 						seq.(\bass, beat/2, [
 							freq: noteHz.(int, -1),
 							// lpfcutoff: index.linexp(0, 8, 500, 100),
@@ -253,14 +256,6 @@ Routine({
 				};
 			};
 		};
-		// shaker
-		/*fork {
-			8.do {
-				[1, 0.7, 0.9, 0.8].do { |amp, index|
-					seq.(\shaker, beat/2, [amp: amp, out: ~busMaster]);
-				};
-			};
-		};*/
 		// bar 1-3
 		3.do {
 			seqKick.(beat);

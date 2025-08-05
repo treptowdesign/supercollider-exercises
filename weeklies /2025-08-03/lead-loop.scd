@@ -1,16 +1,3 @@
-(
-SynthDef(\key, {
-	var snd, freq;
-	freq = \freq.kr(440);
-	snd = SinOsc.ar(freq * \index.kr.linlin(0, 1, 1, 10).round) * Env.perc(0.1, \decay.kr.linexp(0, 1, 0.5, 10)).ar * \brightness.kr.linlin(0, 1, 100, 3000);
-	snd = SinOsc.ar(freq + snd);
-	snd = snd + (DelayC.ar(snd, 0.2, LFNoise2.kr(3 ! 3).linlin(-1, 1, 0, 1) * 5e-3) * LFNoise2.kr(12 ! 2) * 5.dbamp);
-	snd = snd * Env.perc(0.01, \decay.kr.linexp(0, 1, 5, 20), curve: -10).ar(Done.freeSelf, \gate.kr(1));
-	snd = snd * -36.dbamp;
-	snd = snd * \amp.kr(1);
-	Out.ar(\out.kr(0), snd);
-}).play;
-)
 
 (
 SynthDef(\bass, {
@@ -81,10 +68,17 @@ SynthDef(\lead, {
 	dry = snd;
 	snd = DelayC.ar(HPF.ar((snd * 12.dbamp).tanh, 1200), 0.2, SinOsc.ar(3, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 5e-4);
 	snd = dry + (snd * -2.dbamp);
-	snd = snd * Env.perc(0.001, 1, curve: -2).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.01, 1, curve: -2).ar(Done.freeSelf);
 	snd = snd * \amp.kr(1) * -16.dbamp ! 2;
 	Out.ar(\out.kr(0), snd);
 }).add;
+)
+
+
+(
+[0, 3, 7, 10].do { |int|
+	Synth(\lead, [freq: (51 + int + (12 * 0)).midicps, amp: 0.5]);
+};
 )
 
 
@@ -102,6 +96,7 @@ play = { |synth, dur, args|
 };
 Routine({
 	loop {
+
 		[
 			[0, beat],
 			[12, beat/2],

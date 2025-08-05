@@ -52,11 +52,12 @@ SynthDef(\hat, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\pad, {
-	var snd, freq;
+	var snd, freq, duration;
+	duration = \duration.kr(1.0);
 	freq = \freq.kr(220);
 	snd = LFTri.ar(freq * (LFNoise2.ar(10 ! 5) * Line.ar(0, 0.25, 0.3)).midiratio * [1, 2, 1, 2, 1]);
 	snd = Splay.ar(snd);
-	snd = RLPF.ar(snd, XLine.ar(8000 * ExpRand(0.5, 2), 100, 2.0), 0.1);
+	snd = RLPF.ar(snd, XLine.ar(4000, 300, duration), 0.1);
 	snd = snd * -24.dbamp * \amp.kr(1);
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.linen(0.01, \duration.kr(1.0), 0.01, curve: -16).ar(Done.freeSelf);
@@ -115,8 +116,20 @@ SynthDef(\key, {
 	snd = snd + (DelayC.ar(snd, 0.2, LFNoise2.kr(3 ! 3).linlin(-1, 1, 0, 1) * 5e-3) * LFNoise2.kr(12 ! 2) * 5.dbamp);
 	snd = Pan2.ar(snd.sum, 0, 1);
 	snd = snd * Env.perc(0.01, 3, curve: -10).ar(Done.freeSelf);
-	snd = snd * -18.dbamp;
-	snd = snd * \amp.kr(1);
+	snd = snd * \amp.kr(1) * -18.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\lead, {
+	var snd, freq, dry;
+	freq = \freq.kr(220);
+	snd = SinOsc.ar((freq * 4)) * (950 * Line.ar(1, 0.75, 1));
+	snd = SinOsc.ar(freq + snd);
+	snd = (snd * 4.dbamp).tanh + ((snd * 10.dbamp).clip2 * -4.dbamp);
+	dry = snd;
+	snd = DelayC.ar(HPF.ar((snd * 4.dbamp).tanh, 900), 0.2, SinOsc.ar(3, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 5e-4);
+	snd = dry + (snd * -2.dbamp);
+	snd = snd * Env.perc(0.01, 1, curve: -2).ar(Done.freeSelf);
+	snd = snd * \amp.kr(1) * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 // FX
@@ -216,8 +229,8 @@ Routine({
 				chord.sort.postln.do { |int, index|
 					// play.(\pad, bar, [freq: noteHz.(int, 1), amp: 0.25, out: ~busMaster]);
 					// play.(\padReverseWide, bar, [freq: noteHz.(int, 1), amp: 0.25, out: ~busMaster]);
-					play.(\padReverseWide, bar, [freq: noteHz.(int, 1), out: ~busMaster, amp: 0.25]);
-					play.(\padReverseWide, bar, [freq: noteHz.(int, 0), out: ~busMaster, amp: 0.55]);
+					play.(\pad, bar, [freq: noteHz.(int, 1), out: ~busMaster, amp: 1]);
+					play.(\pad, bar, [freq: noteHz.(int, 0), out: ~busMaster, amp: 0.5]);
 				};
 				(bar).wait;
 			};
@@ -234,12 +247,13 @@ Routine({
 					if(int == \, {
 						(beat/2).wait;
 					}, {
-						play.(\key, beat/2, [freq: noteHz.(int, 0), out: ~busMaster]);
+						play.(\lead, beat/2, [freq: noteHz.(int, 1), amp: 1, out: ~busMaster]);
+						// play.(\key, beat/2, [freq: noteHz.(int, 0), amp: 0.35, out: ~busMaster]);
 						seq.(\bass, beat/2, [
 							freq: noteHz.(int, -1),
 							// lpfcutoff: index.linexp(0, 8, 500, 100),
-							lpfcutoff: exprand(1, 5) * 100,
-							// lpfcutoff: 500,
+							// lpfcutoff: exprand(1, 3) * 100,
+							lpfcutoff: 200,
 							out: ~busSidechain
 						]);
 					});

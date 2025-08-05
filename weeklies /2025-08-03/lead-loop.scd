@@ -66,10 +66,10 @@ SynthDef(\lead, {
 	snd = SinOsc.ar(freq + snd);
 	snd = (snd * 4.dbamp).tanh + ((snd * 10.dbamp).clip2 * -4.dbamp);
 	dry = snd;
-	snd = DelayC.ar(HPF.ar((snd * 12.dbamp).tanh, 1200), 0.2, SinOsc.ar(3, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 5e-4);
+	snd = DelayC.ar(HPF.ar((snd * 4.dbamp).tanh, 900), 0.2, SinOsc.ar(3, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 5e-4);
 	snd = dry + (snd * -2.dbamp);
 	snd = snd * Env.perc(0.01, 1, curve: -2).ar(Done.freeSelf);
-	snd = snd * \amp.kr(1) * -16.dbamp ! 2;
+	snd = snd * \amp.kr(1) * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -129,7 +129,7 @@ Routine({
 		].do { |spec|
 			var int, length;
 			# int, length = spec;
-			play.(\lead, length, [freq: (root + int + (12 * 0)).midicps]);
+			play.(\lead, length, [freq: (root + int + (12 * 1)).midicps]);
 		};
 	};
 }).play;

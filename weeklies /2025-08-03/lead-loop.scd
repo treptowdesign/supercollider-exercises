@@ -58,6 +58,43 @@ SynthDef(\lead, {
 /////////////////////////////////////////////////////////////
 
 
+-10.dbamp;
+
+(
+SynthDef(\lead, {
+	var snd, freq, dry;
+	freq = \freq.kr(220);
+	snd = SinOsc.ar(freq).sign ! 2;
+
+
+	snd = BLowShelf.ar(snd, 200, 0.5,  -6);
+	snd = BHiShelf.ar(snd, 2000, 0.5, -6);
+	snd = snd + CombC.ar(snd, 0.2, LFNoise2.ar(1).range(0, 6e-3), 0);
+	snd = snd + CombC.ar(snd, 0.2, LFNoise2.ar(0.25).range(0, 2e-3), 0);
+	snd = BLowShelf.ar(snd, 200, 0.5, 6);
+	snd = BHiShelf.ar(snd, 2000, 0.5,  6);
+
+	4.do { snd = HPF.ar(snd, 100); };
+	2.do { snd = LPF.ar(snd, 8000); };
+
+
+	snd = snd * Env.perc(0.01, 1, curve: -2).ar(Done.freeSelf);
+	snd = snd * \amp.kr(1) * -25.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+(
+SynthDef(\lead, {
+	var snd, freq, dry;
+	freq = \freq.kr(440);
+	snd = Pulse.ar(freq);
+	snd = snd * Env.perc(0.01, 1, curve: -2).ar(Done.freeSelf);
+	snd = snd * \amp.kr(1) * -25.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
 (
 SynthDef(\lead, {
 	var snd, freq, dry;

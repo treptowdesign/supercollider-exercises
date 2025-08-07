@@ -122,9 +122,10 @@ SynthDef(\key, {
 SynthDef(\lead, {
 	var snd, freq, dry;
 	freq = \freq.kr(220);
-	snd = SinOsc.ar((freq * 4)) * (950 * Line.ar(1, 0.75, 1));
+	snd = SinOsc.ar((freq * 4)) * (1250 * Line.ar(1, 0.5, 1));
 	snd = SinOsc.ar(freq + snd);
 	snd = (snd * 4.dbamp).tanh + ((snd * 10.dbamp).clip2 * -4.dbamp);
+	// snd = Latch.ar(snd, Impulse.ar(8200));
 	dry = snd;
 	snd = DelayC.ar(HPF.ar((snd * 4.dbamp).tanh, 900), 0.2, SinOsc.ar(3, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 5e-4);
 	snd = dry + (snd * -2.dbamp);
@@ -247,7 +248,7 @@ Routine({
 					if(int == \, {
 						(beat/2).wait;
 					}, {
-						play.(\lead, beat/2, [freq: noteHz.(int, 1), amp: 1, out: ~busMaster]);
+						play.(\lead, beat/2, [freq: noteHz.(int, 1), amp: 0.75, out: ~busMaster]);
 						// play.(\key, beat/2, [freq: noteHz.(int, 0), amp: 0.35, out: ~busMaster]);
 						seq.(\bass, beat/2, [
 							freq: noteHz.(int, -1),

@@ -193,13 +193,15 @@ SynthDef(\sqr, {
 	duration = \duration.kr(1);
 	env = Env([0, 1, 0.9, 0], duration * [0.001, 0.4, 0.2].normalizeSum, [2, 0, -2]);
 	env = EnvGen.kr(env, doneAction: 2);
-	snd = SinOsc.ar(freq).sum + Pulse.ar(freq).sum;
+	snd =  Saw.ar(freq).sum;
 	snd = LPF.ar(snd, freq * 9);
 	snd = Pan2.ar(snd * env, \pan.kr(0), \amp.kr(1) * 0.15);
 	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
+
+
 
 
 
@@ -238,7 +240,7 @@ seq = { |synth, dur, args|
 Routine({
 	loop {
 		[
-			// int, dur
+			// int, dur = = = = = = = = = = = = = = =
 			[0, 3, -5], // 16 tatums
 			[3, 3, 1],
 			[7, 3, 0],

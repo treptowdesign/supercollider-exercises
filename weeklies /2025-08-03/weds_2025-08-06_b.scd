@@ -36,7 +36,7 @@ SynthDef(\bpfSaw, {
 		{LFNoise1.kr(0.1).exprange(\rqmin.kr(0.1), \rqmax.kr(0.2)) } ! 2,
 	);
 	snd = snd * env;
-	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0), \amp.kr(1) * 4.dbamp);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0), \amp.kr(1) * -4.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
@@ -46,7 +46,7 @@ SynthDef(\bpfSaw, {
 (
 [0, 3 + 12, -5, 10].do { |int|
 	var freq = (51 + int + (12 * 0)).midicps;
-	Synth(\bpfSaw, [freq: freq, cfmin: 100, cfmax: 1600, detune: 0.1]);
+	Synth(\bpfSaw, [freq: freq, cfmin: 100, cfmax: 1200, detune: 0.1]);
 };
 )
 
@@ -94,7 +94,7 @@ SynthDef(\bpfSawUnison, {
 		{LFNoise2.kr(0.1).exprange(\rqmin.kr(0.1), \rqmax.kr(0.2)) } ! 2,
 	);
 	snd = snd * env;
-	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0), \amp.kr(1) * 4.dbamp);
+	snd = Balance2.ar(snd[0], snd[1], \pan.kr(0), \amp.kr(1) * -4.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
@@ -104,9 +104,9 @@ SynthDef(\bpfSawUnison, {
 (
 [0, 3, 7, 10, 17].do { |int|
 	var freq = (51 + int + (12 * 1)).midicps;
-	Synth(\bpfSawUnison, [freq: freq, cfmin: 100, cfmax: 1600, detune: 0.3]);
+	Synth(\bpfSawUnison, [freq: freq, cfmin: 100, cfmax: 1200, detune: 0.1]);
 	freq = (51 + int + (12 * 0)).midicps;
-	Synth(\bpfSawUnison, [freq: freq, cfmin: 100, cfmax: 1600, detune: 0.3]);
+	Synth(\bpfSawUnison, [freq: freq, cfmin: 100, cfmax: 1200, detune: 0.1]);
 };
 )
 
@@ -152,7 +152,7 @@ SynthDef(\bpfFm, {
 (
 [0, 3, 7, 10, 17].do { |int|
 	var freq = (51 + int + (12 * 0)).midicps;
-	Synth(\bpfFm, [freq: freq, cfmin: 100, cfmax: 1500, detune: 0.1]);
+	Synth(\bpfFm, [freq: freq, cfmin: 100, cfmax: 1500, detune: 0.3]);
 };
 )
 
@@ -189,11 +189,11 @@ SynthDef(\sqrLead, {
 }).add;
 SynthDef(\phaseDist, {
 	var snd, freq;
-	freq = \freq.kr(660);
+	freq = \freq.kr(440);
 	snd = SinOsc.ar(freq, SinOsc.ar(freq * 4) * 0.6 * Env.perc(0.1, 0.2).ar);
-	snd = (snd * 4).tanh + ((snd * 10).clip2 * -2.dbamp);
+	// snd = (snd * 4).tanh + ((snd * 10).clip2 * -2.dbamp);
 	// snd = RLPF.ar(snd, SinOsc.ar(8).exprange(2000, 2500), 0.2);
-	snd = snd * -18.dbamp;
+	snd = snd * -10.dbamp;
 	// snd = snd + DelayC.ar(snd, 0.2, Amplitude.ar(snd, 0.05, 0.05) * 0.005);
 	// snd = snd + CombC.ar(snd, 0.2, LFNoise2.ar(8).range(0, 1e-3), 0);
 	snd = Pan2.ar(snd, \pan.kr(0));

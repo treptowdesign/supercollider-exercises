@@ -42,11 +42,31 @@ SynthDef(\saw, {
 (
 SynthDef(\phsr, {
 	var snd, freq, duration, env, lfo, fx;
-	freq = \freq.kr(110);
+	freq = \freq.kr(60);
 	duration = \duration.kr(8);
 	env = Env([0, 1, 0.65, 0], duration * [0.001, 0.2, 0.1].normalizeSum, [2, 0, -2]);
 	env = EnvGen.kr(env, doneAction: 2);
 	lfo = { |rate=1| LFNoise2.kr(rate).range(0, 8e-3).lag(0.02) };
+	snd = Pulse.ar(freq);
+	snd = LPF.ar(snd, 6500);
+	// fx = HPF.ar(LPF.ar(snd, 4000), 200);
+	fx = (BPF.ar(snd, freq * (1..10) * LFNoise1.kr(4 ! 10, 6).midiratio, 0.2) * 0.dbamp).sum;
+	// fx = snd;
+	8.do { fx = AllpassL.ar(fx, 1, lfo.(0.5), 0); };
+	snd = XFade2.ar(snd, fx, 0);
+	snd = Pan2.ar(snd * env, \pan.kr(0), \amp.kr(1) * 0.2);
+	Out.ar(\out.kr(0), Limiter.ar(snd));
+}).play;
+)
+
+(
+SynthDef(\phsr, {
+	var snd, freq, duration, env, lfo, fx;
+	freq = \freq.kr(60);
+	duration = \duration.kr(8);
+	env = Env([0, 1, 0.65, 0], duration * [0.001, 0.2, 0.1].normalizeSum, [2, 0, -2]);
+	env = EnvGen.kr(env, doneAction: 2);
+	lfo = { |rate=1| SinOsc.kr(rate).range(0, 1e-3).lag(0.02) };
 	snd = Pulse.ar(freq);
 	snd = LPF.ar(snd, 6500);
 	// fx = HPF.ar(LPF.ar(snd, 4000), 200);
@@ -188,16 +208,16 @@ SynthDef(\sqr, {
 (
 SynthDef(\saw, {
 	var snd, freq, duration, env;
-	freq = \freq.kr(330) * ([-0.2, 0.2] * Line.ar(1, 0.1, 0.3)).midiratio;
-	freq = freq * XLine.ar(\bend.kr(0).midiratio, 1, 0.1);
+	freq = \freq.kr(330) * ([-0.2, 0.2] * Line.ar(1, 0.2, 0.2)).midiratio;
+	freq = freq * XLine.ar(\bend.kr(0).midiratio, 1, 0.12);
 	duration = \duration.kr(1);
 	env = Env([0, 1, 0.8, 0], duration * [0.001, 0.4, 0.1].normalizeSum, [4, 0, -4]);
 	env = EnvGen.kr(env, doneAction: 2);
-	snd = Saw.ar(freq).sum + Pulse.ar(freq, mul: 1).sum;
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), freq * [1,2,4], 0.2) * Env.perc(0.001, 0.1 * [4,2,1]).ar * (1 / [1,2,4]).dbamp).sum;
-	snd = snd + snd.tanh * -6.dbamp;
-	snd = LPF.ar(snd, freq * 10);
-	snd = Pan2.ar(snd * env, \pan.kr(0), \amp.kr(1) * 0.08);
+	snd = Saw.ar(freq).sum + Pulse.ar(freq, mul: 1).sum * 0.dbamp;
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), freq * [1,2,4], 0.3) * Env.perc(0.001, 0.1 * [4,2,1]).ar * (1 / [1,2,4]).dbamp * 4.dbamp).sum;
+	snd = snd + snd.tanh * -8.dbamp;
+	snd = LPF.ar(snd, freq * 12);
+	snd = Pan2.ar(snd * env, \pan.kr(0), \amp.kr(1) * 0.06);
 	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -220,12 +240,12 @@ Routine({
 		[
 			// int, dur
 			[0, 3, -5], // 16 tatums
-			[3, 3, 5],
+			[3, 3, 1],
 			[7, 3, 0],
 			[3, 7, -5],
 			[5, 3, 0], // 16 tatums
 			[8, 3, -5],
-			[12, 3, 5],
+			[12, 3, 1],
 			[8, 3, 0],
 			[10, 2, -5],
 			[14, 2, 0]

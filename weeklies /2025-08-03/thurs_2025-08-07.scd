@@ -188,15 +188,15 @@ SynthDef(\sqr, {
 (
 SynthDef(\saw, {
 	var snd, freq, duration, env;
-	freq = \freq.kr(330) * ([-0.3, 0.3] * Line.ar(1, 0.1, 0.3)).midiratio;
+	freq = \freq.kr(330) * ([-0.2, 0.2] * Line.ar(1, 0.1, 0.3)).midiratio;
 	freq = freq * XLine.ar(\bend.kr(0).midiratio, 1, 0.1);
 	duration = \duration.kr(1);
-	env = Env([0, 1, 0.75, 0], duration * [0.001, 0.2, 0.1].normalizeSum, [4, 0, -4]);
+	env = Env([0, 1, 0.8, 0], duration * [0.001, 0.4, 0.1].normalizeSum, [4, 0, -4]);
 	env = EnvGen.kr(env, doneAction: 2);
-	snd = Saw.ar(freq).sum + Pulse.ar(freq, mul: 0.7).sum;
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), freq * [1,2,4], 0.3) * Env.perc(0.001, 0.1).ar * (1 / [1,2,4]).dbamp).sum;
+	snd = Saw.ar(freq).sum + Pulse.ar(freq, mul: 1).sum;
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), freq * [1,2,4], 0.2) * Env.perc(0.001, 0.1 * [4,2,1]).ar * (1 / [1,2,4]).dbamp).sum;
 	snd = snd + snd.tanh * -6.dbamp;
-	snd = LPF.ar(snd, freq * 8);
+	snd = LPF.ar(snd, freq * 10);
 	snd = Pan2.ar(snd * env, \pan.kr(0), \amp.kr(1) * 0.08);
 	snd = Limiter.ar(LeakDC.ar(snd));
 	Out.ar(\out.kr(0), snd);
@@ -215,19 +215,19 @@ seq = { |synth, dur, args|
 	s.bind { Synth(synth, [duration: dur] ++ args); };
 	dur.wait;
 };
-Routine({=
+Routine({
 	loop {
 		[
 			// int, dur
-			[0, 3, -7], // 16 tatums
-			[3, 3, 0],
+			[0, 3, -5], // 16 tatums
+			[3, 3, 5],
 			[7, 3, 0],
-			[3, 7, -7],
+			[3, 7, -5],
 			[5, 3, 0], // 16 tatums
-			[8, 3, -7],
-			[12, 3, 0],
+			[8, 3, -5],
+			[12, 3, 5],
 			[8, 3, 0],
-			[10, 2, -7],
+			[10, 2, -5],
 			[14, 2, 0]
 		].do { |spec|
 			var int, dur, bend;

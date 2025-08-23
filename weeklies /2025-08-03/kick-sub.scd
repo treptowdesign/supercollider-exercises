@@ -3,7 +3,7 @@ SynthDef(\kick, {
 	var snd, velocity;
 	velocity = \velocity.kr(1).clip(0, 1);
 	snd = SinOsc.ar(
-		XLine.ar(58, 50, 0.1)
+		XLine.ar(58, 50, 0.2)
 		* (1 + (3 * Env.perc(0.0, 0.2, curve: -8).ar * velocity))
 		* (1 + (2 * Env.perc(0.0, 0.01, curve: -6).ar * velocity))
 		* [1, 2.3, 1.2]

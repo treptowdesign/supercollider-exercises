@@ -83,19 +83,19 @@ x = Synth(\fbPM_loop, [\freq, 220, \index, 1.2]);
 
 (
 SynthDef(\fbFM_loop, {
-    var freq = \freq.kr(220);
+    var freq = \freq.kr(20);
     var env  = Env.perc(0.001, 5).ar(Done.freeSelf);
-    var idx  = \dev.kr(800);
+    var idx  = \dev.kr(300);
 
     var fb   = LocalIn.ar(1);
-    var instFreq = (freq + (fb * idx)).max(0.0);
+    var instFreq = (freq + (fb * idx));
     var osc  = SinOsc.ar(instFreq);
 	var sig;
 
-    LocalOut.ar(osc);                    // feed back the raw osc
+    LocalOut.ar(osc);
 
     sig = osc * env;
-    sig = MoogFF.ar(sig, 8000, 0);
+    // sig = MoogFF.ar(sig, 8000, 0);
 	sig = HPF.ar(sig, 50);
     sig = Pan2.ar(sig, \pan.kr(0), \amp.kr(1));
     // sig = Limiter.ar(sig, 0.99);

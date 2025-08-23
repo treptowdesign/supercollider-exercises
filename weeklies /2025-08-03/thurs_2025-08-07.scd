@@ -66,7 +66,7 @@ SynthDef(\phsr, {
 	duration = \duration.kr(8);
 	env = Env([0, 1, 0.65, 0], duration * [0.001, 0.2, 0.1].normalizeSum, [2, 0, -2]);
 	env = EnvGen.kr(env, doneAction: 2);
-	lfo = { |rate=1| SinOsc.kr(rate).range(0, 1e-3).lag(0.02) };
+	lfo = { |rate=1| SinOsc.kr(rate).range(0, 3e-3).lag(0.02) };
 	snd = Pulse.ar(freq);
 	snd = LPF.ar(snd, 6500);
 	// fx = HPF.ar(LPF.ar(snd, 4000), 200);

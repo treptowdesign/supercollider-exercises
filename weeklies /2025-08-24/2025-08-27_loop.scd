@@ -32,11 +32,11 @@ SynthDef(\pad, {
 	freqs = \freq.kr(260) * Line.kr(\bend.kr(-7), 0, 0.3).midiratio;
 	freqs = freqs * (LFNoise2.ar(30 ! 10) * 0.3).midiratio;
 	snd = SinOsc.ar(freqs, Rand(0 ! freqs.size, 2pi));
-	snd = SinOsc.ar(freqs, snd * LFNoise2.ar(30 ! freqs.size).linlin(-1, 1, 0, 2pi) * 0.1);
+	snd = SinOsc.ar(freqs, snd * LFNoise2.ar(30 ! freqs.size).linlin(-1, 1, 0, 2pi) * 0.06);
 	snd = Splay.ar(snd);
 	snd = snd + GVerb.ar(snd.mean * -30.dbamp, 60, 4, 0.8);
 	snd = snd * Env.perc(0.02, 4, curve: -4).ar(Done.freeSelf);
-	snd = snd * \amp.kr(1) * -22.dbamp;
+	snd = snd * \amp.kr(1) * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).play;
 SynthDef(\kick, {
@@ -48,7 +48,7 @@ SynthDef(\kick, {
 	snd = snd * (1 + (10 * Env.perc(0.0, 0.02).ar));
 	snd = snd.tanh;
 	snd = BLowShelf.ar(snd, 100, 1, 4);
-	snd = snd * \amp.kr(1) * 2.dbamp;
+	snd = snd * \amp.kr(1) * 0.dbamp;
 	snd = snd * Env.perc(0.001, 0.3).ar(Done.freeSelf);
 	snd = snd ! 2;
 	Out.ar(\out.kr(0), snd);
@@ -113,7 +113,8 @@ Routine({
 			};
 		});
 		// perc /////////////////////////////////////////////////////
-		subroutine.(8, {
+		subroutine.(4, {
+			beat.wait;
 			seq.(\hasherPerc, beat);
 		});
 		// pad ////////////////////////////////////////////////////

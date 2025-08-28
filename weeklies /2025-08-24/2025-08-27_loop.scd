@@ -21,7 +21,7 @@ SynthDef(\fmMid, {
 	freq = \freq.kr(260) * [-0.1, 0.1].midiratio;
 	env = Env.perc(0.001, 3, curve: -4).ar;
 	env = env * Env.linen(0, \duration.kr(1), 0.1).ar(Done.freeSelf);
-	snd = SinOsc.ar(freq * 3) * Env.perc(0, 0.1).ar.linlin(0, 1, 400, 900);
+	snd = SinOsc.ar(freq * 2) * Env.perc(0, 0.1).ar.linlin(0, 1, 400, 900);
 	snd = SinOsc.ar(freq + snd).sum;
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * -16.dbamp);
 	snd = snd * env;
@@ -38,7 +38,7 @@ SynthDef(\pad, {
 	snd = snd * Env.perc(0.02, 4, curve: -4).ar(Done.freeSelf);
 	snd = snd * \amp.kr(1) * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 SynthDef(\kick, {
 	var snd;
 	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 50, 400) * [1, 2.2, 2.8]);
@@ -68,7 +68,7 @@ SynthDef(\hat, {
 	snd = Hasher.ar(Sweep.ar);
 	snd = BPF.ar(snd, [9420, 14030] * amp.linlin(0, 1, 2, 1), 0.3).sum;
 	snd = snd * Env.perc(0.0001, 0.06 * amp.linlin(0, 1, 0.7, 1)).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, \pan.kr(0), amp * 0.dbamp);
+	snd = Pan2.ar(snd, \pan.kr(0), amp * -3.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )

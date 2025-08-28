@@ -1,5 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
+// sources
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +24,7 @@ SynthDef(\fmMid, {
 	env = env * Env.linen(0, \duration.kr(1), 0.1).ar(Done.freeSelf);
 	snd = SinOsc.ar(freq * 2) * Env.perc(0, 0.1).ar.linlin(0, 1, 400, 900);
 	snd = SinOsc.ar(freq + snd).sum;
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * -12.dbamp);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * -14.dbamp);
 	snd = snd * env;
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -32,12 +33,12 @@ SynthDef(\pad, {
 	freqs = \freq.kr(260) * Line.kr(\bend.kr(-12), 0, 0.2).midiratio;
 	freqs = freqs * (LFNoise2.ar(30 ! 10) * 0.3).midiratio;
 	snd = SinOsc.ar(freqs, Rand(0 ! freqs.size, 2pi));
-	snd = SinOsc.ar(freqs, snd * LFNoise2.ar(30 ! freqs.size).linlin(-1, 1, 0, 2pi) * 0.2);
+	snd = SinOsc.ar(freqs, snd * LFNoise2.ar(30 ! freqs.size).linlin(-1, 1, 0, 2pi) * 0.1);
 	snd = Splay.ar(snd);
 	snd = snd + GVerb.ar(snd.mean * -30.dbamp, 60, 4, 0.8);
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	snd = snd * Env.perc(0.02, 4, curve: -4).ar(Done.freeSelf);
-	snd = snd * \amp.kr(1) * -16.dbamp;
+	snd = snd * \amp.kr(1) * -18.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\sub, {
@@ -45,7 +46,6 @@ SynthDef(\sub, {
 	freq = \freq.kr(60);
 	duration = \duration.kr(3.0);
 	snd = SinOsc.ar(freq);
-	// snd = snd * freq.explin(50, 100, 0, -5).dbamp;
 	snd = snd ! 2;
 	snd = snd * -5.dbamp;
 	snd = snd * Env.perc(0.01, 5.0).ar;
@@ -74,14 +74,31 @@ SynthDef(\kick, {
 	// snd = snd ! 2;
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\rim, {
+	var snd, ratio;
+	ratio = \ratio.kr(1);
+	snd = SinOsc.ar(1220 * [0.34, 0.4, 0.5, 0.9, 1.3, 1.45, 1.7] * ratio);
+	snd = snd * Env.perc(0.001, [0.01, 0.005, 0.001, 0.03, 0.023, 0.005, 0.015]).ar;
+	snd = snd.sum;
+	snd = snd * (1 + (2 * Env.perc(0.0, 0.01).ar));
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 3230 * ratio, 0.3) * Env.perc(0.0, 0.003).ar * 3.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 2230 * ratio, 0.3) * Env.perc(0.002, 0.03).ar * 4.dbamp);
+	snd = snd.tanh;
+	snd = BPeakEQ.ar(snd, 230, 1.2, 5);
+	snd = snd + GVerb.ar(snd * -1.dbamp, 30, 1);
+	snd = snd + PitchShift.ar(snd * -10.dbamp, 0.025, 1.9);
+	snd = snd + PitchShift.ar(snd * -7.dbamp, 0.035, 1.5);
+	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.015, 2.3);
+	snd = snd * -10.dbamp * \amp.kr(1);
+	snd = snd * Env.perc(0.0, 0.3).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
 SynthDef(\clap, {
 	var snd;
 	snd = BPF.ar(Hasher.ar(Sweep.ar), [1540, 1880], [0.4, 0.6]).sum;
 	snd = snd * 16.dbamp;
 	snd = snd * (1 + ( 3 * Env.perc(0, 0.1).ar));
 	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.004, 1e-4, 0.003, 1e-4, 0.08] * 0.9, -4).ar(Done.freeSelf);
-	// snd = snd + DelayN.ar(FreqShift.ar(snd * -15.dbamp, 500), 0.05, 0.03);
-	// snd = snd * Env.linen(0, \duration.kr(1), 0.1).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.45);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -110,6 +127,8 @@ SynthDef(\crash, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
+
+
 
 (
 SynthDef(\fm, {
@@ -151,7 +170,11 @@ SynthDef(\blip, {
 }).play;
 )
 
-
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+// pattern
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
 (
 var s, beat, bar, tatum, root, noteHz, play, seq, subroutine;
@@ -160,17 +183,20 @@ beat = 60 / 128;
 bar = beat * 4;
 tatum = beat / 4;
 root = 51;
+
+// functions
 noteHz = { |int=0, oct=1| (root + int + (12 * oct)).midicps; };
 play = { |synth, dur, args| s.bind { Synth(synth, [duration: dur] ++ args); }; };
 seq = { |synth, dur, args| s.bind { Synth(synth, [duration: dur] ++ args); }; (dur).wait; };
 subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 
+// scheduling
 Routine({
 	loop {
 		// kick+clap /////////////////////////////////////////////////////
 		subroutine.(1, {
 			// bar
-			// if(0.5.coin, { play.(\crash, beat); });
+			if(0.5.coin, { play.(\crash, beat); });
 			seq.(\kick, beat * 1, [amp: 1]);
 			seq.(\kick, beat * 1, [amp: 0.6]);
 			play.(\rim, beat * 0.5, [amp: 1]);
@@ -179,17 +205,15 @@ Routine({
 			seq.(\kick, beat * 0.5, [amp: 0.9]);
 			// bar
 			seq.(\kick, beat * 2, [amp: 1]);
-			// if(0.5.coin, { play.(\blip, beat); });
 			play.(\rim, beat * 0.5, [amp: 1]);
 			seq.(\clap, beat * 0.5, [amp: 1]);
-			// if(0.5.coin, { play.(\blip, beat); });
 			seq.(\kick, beat * 1, [amp: 0.7]);
 			seq.(\kick, beat * 0.25, [amp: 0.3]);
 			seq.(\kick, beat * 0.25, [amp: 0.9]);
 		});
 		// hat /////////////////////////////////////////////////////
-		subroutine.(4, {
-			[1, 0.6, 0.7, 0.5].do { |amp| seq.(\hat, beat/2, [amp: amp]); };
+		subroutine.(8, {
+			[1, 0.5, 0.6, 0.4].do { |amp| seq.(\hat, beat/4, [amp: amp * 0.5]); };
 		});
 		// perc /////////////////////////////////////////////////////
 		subroutine.(4, {
@@ -214,13 +238,13 @@ Routine({
 		// fmMid ////////////////////////////////////////////////////
 		subroutine.(1, {
 			[
-				// bar
+				// bar 1 ...
 				[0, 3],
 				[12, 3],
 				[-5, 6],
 				[8, 2],
 				[7, 2],
-				// bar
+				// bar 2 ...
 				[5, 3],
 				[12, 3],
 				[-4, 6],
@@ -242,32 +266,16 @@ Routine({
 )
 
 
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+// misc synths...
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
 
 (
-SynthDef(\rim, {
-	var snd, ratio;
-	ratio = \ratio.kr(1);
-	snd = SinOsc.ar(1220 * [0.34, 0.4, 0.5, 0.9, 1.3, 1.45, 1.7] * ratio);
-	snd = snd * Env.perc(0.001, [0.01, 0.005, 0.001, 0.03, 0.023, 0.005, 0.015]).ar;
-	snd = snd.sum;
-	snd = snd * (1 + (2 * Env.perc(0.0, 0.01).ar));
-	// snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 7230 * ratio, 0.3) * Env.perc(0.001, 0.01).ar * 1.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 3230 * ratio, 0.3) * Env.perc(0.0, 0.003).ar * 3.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 2230 * ratio, 0.3) * Env.perc(0.002, 0.03).ar * 4.dbamp);
-	// snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 2630 * ratio, 0.4) * Env.perc(0.03, 0.1).ar * 4.dbamp);
-	snd = snd.tanh;
-	snd = BPeakEQ.ar(snd, 230, 1.2, 5);
-	snd = snd + GVerb.ar(snd * -1.dbamp, 30, 1);
-	snd = snd + PitchShift.ar(snd * -10.dbamp, 0.025, 1.9);
-	snd = snd + PitchShift.ar(snd * -7.dbamp, 0.035, 1.5);
-	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.015, 2.3);
-	snd = snd * -15.dbamp * \amp.kr(1);
-	snd = snd * Env.perc(0.0, 0.3).ar(Done.freeSelf);
-	Out.ar(\out.kr(0), snd);
-}).play;
-)
 
+)
 
 (
 SynthDef(\breathe1, {
@@ -281,6 +289,8 @@ SynthDef(\breathe1, {
 }).play;
 )
 
-
-
-// endfile
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+// endfile...
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////

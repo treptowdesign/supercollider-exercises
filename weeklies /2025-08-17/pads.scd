@@ -155,7 +155,7 @@ SynthDef(\pad5, {
 	snd = Splay.ar(snd);
 	// snd = snd + GVerb.ar(snd.mean * -30.dbamp, 20, 4, 0.8);
 	snd = FreqShift.ar(snd, -30);
-	snd = snd.blend(CombC.ar(snd, 0.2, 1 / Line.kr(90, 120, 1), 1), 0.5);
+	snd = snd.blend(CombC.ar(snd, 0.2, 1 / Line.kr(90, 20, 1), 1), 0.2);
 	snd = FreqShift.ar(snd, 30);
 	snd = snd * Env.perc(0.02, 4, curve: -4).ar(Done.freeSelf);
 	snd = snd * \amp.kr(1) * -24.dbamp;

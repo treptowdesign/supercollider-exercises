@@ -33,7 +33,7 @@ SynthDef(\pad, {
 	freqs = \freq.kr(260) * Line.kr(\bend.kr(-12), 0, 0.2).midiratio;
 	freqs = freqs * (LFNoise2.ar(30 ! 10) * 0.3).midiratio;
 	snd = SinOsc.ar(freqs, Rand(0 ! freqs.size, 2pi));
-	snd = SinOsc.ar(freqs, snd * LFNoise2.ar(30 ! freqs.size).linlin(-1, 1, 0, 2pi) * 0.1);
+	snd = SinOsc.ar(freqs, snd * LFNoise2.ar(30 ! freqs.size).linlin(-1, 1, 0, 2pi) * 0.2);
 	snd = Splay.ar(snd);
 	snd = snd + GVerb.ar(snd.mean * -30.dbamp, 60, 4, 0.8);
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
@@ -196,7 +196,21 @@ Routine({
 		// kick+clap /////////////////////////////////////////////////////
 		subroutine.(1, {
 			// bar
-			if(0.5.coin, { play.(\crash, beat); });
+			play.(\crash, beat);
+			seq.(\kick, beat * 1, [amp: 1]);
+			seq.(\kick, beat * 1, [amp: 0.6]);
+			play.(\rim, beat * 0.5, [amp: 1]);
+			seq.(\clap, beat * 0.5, [amp: 1]);
+			seq.(\kick, beat * 1, [amp: 0.7]);
+			seq.(\kick, beat * 0.5, [amp: 0.9]);
+			// bar
+			seq.(\kick, beat * 2, [amp: 1]);
+			play.(\rim, beat * 0.5, [amp: 1]);
+			seq.(\clap, beat * 0.5, [amp: 1]);
+			seq.(\kick, beat * 1, [amp: 0.7]);
+			seq.(\kick, beat * 0.25, [amp: 0.3]);
+			seq.(\kick, beat * 0.25, [amp: 0.9]);
+			// bar
 			seq.(\kick, beat * 1, [amp: 1]);
 			seq.(\kick, beat * 1, [amp: 0.6]);
 			play.(\rim, beat * 0.5, [amp: 1]);
@@ -212,11 +226,11 @@ Routine({
 			seq.(\kick, beat * 0.25, [amp: 0.9]);
 		});
 		// hat /////////////////////////////////////////////////////
-		subroutine.(8, {
+		subroutine.(16, {
 			[1, 0.5, 0.6, 0.4].do { |amp| seq.(\hat, beat/4, [amp: amp * 0.5]); };
 		});
 		// perc /////////////////////////////////////////////////////
-		subroutine.(4, {
+		subroutine.(8, {
 			beat.wait;
 			seq.(\hasherPerc, beat);
 		});
@@ -234,6 +248,18 @@ Routine({
 			};
 			play.(\sub, bar, [freq: noteHz.(-2, -1)]);
 			bar.wait;
+			(8 + [-12, 4, 7, -1]).do { |int|
+				play.(\pad, bar, [freq: noteHz.(int, 1)]);
+				play.(\pad, bar, [freq: noteHz.(int, 0)]);
+			};
+			play.(\sub, bar, [freq: noteHz.(5, -1)]);
+			bar.wait;
+			(7 + [-12, 3, 7, -2]).do { |int|
+				play.(\pad, bar, [freq: noteHz.(int, 1)]);
+				play.(\pad, bar, [freq: noteHz.(int, 0)]);
+			};
+			play.(\sub, bar, [freq: noteHz.(-5, -1)]);
+			bar.wait;
 		});
 		// fmMid ////////////////////////////////////////////////////
 		subroutine.(1, {
@@ -250,6 +276,18 @@ Routine({
 				[-4, 6],
 				[10, 2],
 				[7, 2],
+				// bar 3 ... [ 8, 12, 15, 7 ]
+				[-4, 3],
+				[8, 3],
+				[12, 6],
+				[0, 2],
+				[3, 2],
+				// bar 4 ... [ 7, 10, 14, 5 ]
+				[-2, 3],
+				[10, 3],
+				[14, 6],
+				[-5, 2],
+				[7, 2],
 			].do { |spec|
 				var int, dur;
 				# int, dur = spec;
@@ -260,7 +298,7 @@ Routine({
 			};
 		});
 		// LoopWait /////////////////////////////////////////////////////
-		(bar * 2).wait;
+		(bar * 4).wait;
 	};
 }).play;
 )

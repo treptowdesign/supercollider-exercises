@@ -58,7 +58,7 @@ SynthDef(\pad, {
 	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).unipolar * 2e-3);
 	2.do { snd = HPF.ar(snd, 60); };
 	snd = snd * Env.perc(0.02, 4, curve: -4).ar(Done.freeSelf);
-	snd = snd * \amp.kr(1) * -16.dbamp;
+	snd = snd * \amp.kr(1) * -18.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\sub, {
@@ -81,7 +81,7 @@ SynthDef(\sub, {
 }).add;
 SynthDef(\kick, {
 	var snd;
-	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 50, 400) * [1, 2.6, 3.2]);
+	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 50, 400) * [1, 2.4, 3.6]);
 	snd = snd * Env.perc(0.0, [1, 0.3, 0.05]).ar;
 	snd = snd * [0, -5, -15].dbamp;
 	snd = snd.sum;
@@ -89,7 +89,7 @@ SynthDef(\kick, {
 	snd = snd.tanh;
 	snd = BLowShelf.ar(snd, 100, 1, 4);
 	snd = snd * \amp.kr(1) * 0.dbamp;
-	snd = snd + LPF.ar(GVerb.ar(snd * -10.dbamp, 20, 6, 0.8), 400);
+	snd = snd + LPF.ar(GVerb.ar(snd * -12.dbamp, 20, 3, 0.9), 600);
 	// snd = snd ! 2;
 	snd = snd * Env.perc(0.001, 0.3).ar;
 	snd = snd * Env.linen(0, \duration.kr(1), 0.01).ar(Done.freeSelf);
@@ -209,7 +209,9 @@ root = 51;
 noteHz = { |int=0, oct=1| (root + int + (12 * oct)).midicps; };
 play = { |synth, dur, args| s.bind { Synth(synth, [duration: dur] ++ args); }; };
 seq = { |synth, dur, args| s.bind { Synth(synth, [duration: dur] ++ args); }; (dur).wait; };
-subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
+subroutine = { |num=1, sequence, chance=1|
+	if(chance.coin, { fork { num.do { sequence.() }; }; });
+};
 
 // scheduling
 Routine({
@@ -245,18 +247,18 @@ Routine({
 			seq.(\kick, beat * 1, [amp: 0.7]);
 			seq.(\kick, beat * 0.25, [amp: 0.3]);
 			seq.(\kick, beat * 0.25, [amp: 0.9]);
-		});
+		}, chance: 0.75);
 		// hat /////////////////////////////////////////////////////
 		subroutine.(16, {
 			[1, 0.5, 0.6, 0.4].do { |amp|
 				seq.(\hat, beat/4, [amp: amp * 0.5]);
 			};
-		});
+		}, chance: 0.75);
 		// perc /////////////////////////////////////////////////////
 		subroutine.(8, {
 			seq.(\breathe, beat);
 			seq.(\hasherPerc, beat);
-		});
+		}, chance: 0.75);
 		// pad+sub ////////////////////////////////////////////////////
 		subroutine.(1, {
 			[0, -2, 5, -5].do { |int|
@@ -264,7 +266,7 @@ Routine({
 				play.(\sub, bar, [freq: noteHz.(int, -1)]);
 				bar.wait;
 			};
-		});
+		}, chance: 0.75);
 		// pad ////////////////////////////////////////////////////////
 		subroutine.(1, {
 			[
@@ -281,9 +283,9 @@ Routine({
 				};
 				bar.wait;
 			};
-		});
+		}, chance: 0.75);
 		// fmMid ////////////////////////////////////////////////////
-		/*subroutine.(1, {
+		subroutine.(1, {
 			(bar * 3).wait;
 			[
 				// bar 4 ... [ 7, 10, 14, 5 ]
@@ -301,7 +303,7 @@ Routine({
 				});
 				(dur * tatum).wait;
 			};
-		});*/
+		}, chance: 0.75);
 		// fmMid ////////////////////////////////////////////////////
 		subroutine.(1, {
 			[
@@ -326,9 +328,9 @@ Routine({
 				[-4, 2],
 				// bar 4 [ -5, 10, 14, 5 ]
 				[12, 4],
-				[14, 4],
-				[10, 4],
-				[7, 4]
+				[14, 4], // 14
+				[10, 4], // 10
+				[7, 4] // 17
 			].do { |spec|
 				var int, dur;
 				# int, dur = spec;
@@ -339,7 +341,7 @@ Routine({
 				});
 				(dur * tatum).wait;
 			};
-		});
+		}, chance: 0.75);
 		// LoopWait /////////////////////////////////////////////////////
 		(bar * 4).wait;
 	};
@@ -353,6 +355,11 @@ Routine({
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
+
+
+0.5.coin;
+0.0.coin;
+1.0.coin;
 
 (
 

@@ -82,15 +82,14 @@ SynthDef(\sub, {
 SynthDef(\kick, {
 	var snd;
 	snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 50, 400) * [1, 2.4, 3.6]);
-	snd = snd * Env.perc(0.0, [1, 0.3, 0.05]).ar;
-	snd = snd * [0, -5, -15].dbamp;
+	snd = snd * Env.perc(0.0, [1, 0.3, 0.05]).ar * [0, -5, -15].dbamp;
 	snd = snd.sum;
 	snd = snd * (1 + (6 * Env.perc(0.0, 0.02).ar));
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 10520, 0.3) * Env.perc(0.001, 0.02).ar);
 	snd = snd.tanh;
-	snd = BLowShelf.ar(snd, 100, 1, 4);
+	snd = BLowShelf.ar(snd, 160, 1, 4);
 	snd = snd * \amp.kr(1) * 0.dbamp;
-	snd = snd + LPF.ar(GVerb.ar(snd * -12.dbamp, 20, 3, 0.9), 600);
-	// snd = snd ! 2;
+	snd = snd + LPF.ar(GVerb.ar(snd * -16.dbamp, 20, 3, 0.9), 600);
 	snd = snd * Env.perc(0.001, 0.3).ar;
 	snd = snd * Env.linen(0, \duration.kr(1), 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -110,7 +109,7 @@ SynthDef(\rim, {
 	snd = snd + PitchShift.ar(snd * -10.dbamp, 0.025, 1.9);
 	snd = snd + PitchShift.ar(snd * -7.dbamp, 0.035, 1.5);
 	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.015, 2.3);
-	snd = snd * -8.dbamp * \amp.kr(1);
+	snd = snd * -10.dbamp * \amp.kr(1);
 	snd = snd * Env.perc(0.0, 0.3).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -120,7 +119,7 @@ SynthDef(\clap, {
 	snd = snd * 16.dbamp;
 	snd = snd * (1 + ( 3 * Env.perc(0, 0.1).ar));
 	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.004, 1e-4, 0.003, 1e-4, 0.08] * 0.8, -4).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.45);
+	snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1) * 0.5);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hat, {
@@ -170,7 +169,7 @@ SynthDef(\fm, {
 SynthDef(\hat2, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = CombC.ar(snd, 0.1, 1 / [60, 230, 345], 0.3);
+	snd = CombC.ar(snd, 0.1, 1 / [60, 130, 285], 0.1);
 	snd = snd.sum;
 	snd = BPF.ar(snd, [8430, 10342] * XLine.ar(1, 1.1, 0.05), 0.2).sum * 7.dbamp;
 	snd = Splay.ar(snd, 0.3);
@@ -216,7 +215,7 @@ subroutine = { |num=1, sequence, chance=1|
 // scheduling
 Routine({
 	loop {
-		// kick+clap /////////////////////////////////////////////////////
+		// kick+clap ////////////////////////////////////////////////////////////////////////////////////
 		subroutine.(1, {
 			// bar
 			play.(\crash, beat);
@@ -248,26 +247,25 @@ Routine({
 			seq.(\kick, beat * 0.25, [amp: 0.3]);
 			seq.(\kick, beat * 0.25, [amp: 0.9]);
 		}, chance: 0.75);
-		// hat /////////////////////////////////////////////////////
+		// hat ////////////////////////////////////////////////////////////////////////////////////
 		subroutine.(16, {
 			[1, 0.5, 0.6, 0.4].do { |amp|
 				seq.(\hat, beat/4, [amp: amp * 0.5]);
 			};
 		}, chance: 0.75);
-		// perc /////////////////////////////////////////////////////
+		// perc ////////////////////////////////////////////////////////////////////////////////////
 		subroutine.(8, {
 			seq.(\breathe, beat);
 			seq.(\hasherPerc, beat);
 		}, chance: 0.75);
-		// pad+sub ////////////////////////////////////////////////////
+		// pad+sub ///////////////////////////////////////////////////////////////////////////////////
 		subroutine.(1, {
 			[0, -2, 5, -5].do { |int|
-				// int.postln;
 				play.(\sub, bar, [freq: noteHz.(int, -1)]);
 				bar.wait;
 			};
 		}, chance: 0.75);
-		// pad ////////////////////////////////////////////////////////
+		// pad ///////////////////////////////////////////////////////////////////////////////////////
 		subroutine.(1, {
 			[
 				(0 + [0, 3, 7, 10]),   // i min7
@@ -275,7 +273,6 @@ Routine({
 				(8 + [-12, 4, 7, -1]), // vi maj7
 				(7 + [-12, 3, 7, -2])  // v min7
 			].do { |chord|
-				// chord.sort.postln;
 				chord.do { |int|
 					[0, 1].do { |oct|
 						play.(\pad, bar, [freq: noteHz.(int, oct), brightness: 0.2]);
@@ -284,11 +281,11 @@ Routine({
 				bar.wait;
 			};
 		}, chance: 0.75);
-		// fmMid ////////////////////////////////////////////////////
+		// fmMid ///////////////////////////////////////////////////////////////////////////////////
 		subroutine.(1, {
 			(bar * 3).wait;
 			[
-				// bar 4 ... [ 7, 10, 14, 5 ]
+				// bar 4 ... [ -5, 10, 14, 5 ]
 				[\, 4], // 2
 				[14, 4],
 				[10, 4],
@@ -304,7 +301,7 @@ Routine({
 				(dur * tatum).wait;
 			};
 		}, chance: 0.75);
-		// fmMid ////////////////////////////////////////////////////
+		// fmMid ///////////////////////////////////////////////////////////////////////////////////
 		subroutine.(1, {
 			[
 				// bar 1 [ 0, 3, 7, 10 ]
@@ -342,7 +339,7 @@ Routine({
 				(dur * tatum).wait;
 			};
 		}, chance: 0.75);
-		// LoopWait /////////////////////////////////////////////////////
+		// LoopWait ////////////////////////////////////////////////////////////////////////////////////
 		(bar * 4).wait;
 	};
 }).play;

@@ -230,7 +230,7 @@ Routine({
 				chord.sort.postln.do { |int, index|
 					// play.(\pad, bar, [freq: noteHz.(int, 1), amp: 0.25, out: ~busMaster]);
 					// play.(\padReverseWide, bar, [freq: noteHz.(int, 1), amp: 0.25, out: ~busMaster]);
-					play.(\pad, bar, [freq: noteHz.(int, 1), out: ~busMaster, amp: 0.5]);
+					play.(\pad, bar, [freq: noteHz.(int, 1), out: ~busMaster, amp: 0.25]);
 					play.(\pad, bar, [freq: noteHz.(int, 0), out: ~busMaster, amp: 0.25]);
 				};
 				(bar).wait;
@@ -248,13 +248,13 @@ Routine({
 					if(int == \, {
 						(beat/2).wait;
 					}, {
-						play.(\lead, beat/2, [freq: noteHz.(int, 1), amp: 0.75, out: ~busMaster]);
-						// play.(\key, beat/2, [freq: noteHz.(int, 0), amp: 0.35, out: ~busMaster]);
+						// play.(\lead, beat/2, [freq: noteHz.(int, 1), amp: 0.75, out: ~busMaster]);
+						// play.(\key, beat/2, [freq: noteHz.(int, 1), amp: 0.35, out: ~busMaster]);
 						seq.(\bass, beat/2, [
 							freq: noteHz.(int, -1),
 							// lpfcutoff: index.linexp(0, 8, 500, 100),
-							// lpfcutoff: exprand(1, 3) * 100,
-							lpfcutoff: 400,
+							lpfcutoff: exprand(1, 3) * 100,
+							// lpfcutoff: 400,
 							out: ~busSidechain
 						]);
 					});

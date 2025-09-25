@@ -54,7 +54,7 @@ SynthDef(\hat, {
 	snd = Hasher.ar(Sweep.ar);
 	snd = BPF.ar(snd, [9420, 14030] * brightness.linlin(0, 1, 2, 1), 0.3).sum;
 	snd = snd * Env.perc(0.0001, 0.06 * brightness.linlin(0, 1, 0.7, 1)).ar(Done.freeSelf);
-	snd = Pan2.ar(snd, \pan.kr(0), amp * 0.dbamp);
+	snd = Pan2.ar(snd, \pan.kr(0), amp * -8.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\crash, {
@@ -80,15 +80,15 @@ SynthDef(\sqr, {
 	var freq, duration, snd, env;
 	freq = \freq.kr(260);
 	duration = \duration.kr(2);
-	env = Env.perc(0.001, 4, curve: -8).ar;
+	env = Env.perc(0.001, 4, curve: -4).ar;
 	env = env * Env.linen(0.001, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	snd = (LFPulse.ar(freq * [1, 2, 4]) * 2) - 1;
 	snd = snd + BPF.ar(PinkNoise.ar(1 ! 3), freq);
 	snd = snd.product;
-	// snd = XFade2.ar(snd, CombC.ar(snd, 0.02, SinOsc.ar(0.5, 0).linlin(-1, 1, 0, 1) * 1e-4, 0), \comb.kr(0));
-	snd = XFade2.ar(snd, DelayC.ar(snd, 0.2, LFNoise2.ar(3 ! 2).linlin(-1, 1, 0, 1) * 4e-3), \delc.kr(0));
-	snd = LPF.ar(snd, 5000);
-	snd = Pan2.ar(snd * env, \pan.kr(0), \amp.kr(0.1) * -1.dbamp);
+	snd = XFade2.ar(snd, CombC.ar(snd, 0.02, SinOsc.ar(0.5, 0).linlin(-1, 1, 0, 1) * 6e-3, 0), \comb.kr(0));
+	snd = XFade2.ar(snd, DelayC.ar(snd, 0.2, LFNoise2.ar(3 ! 2).linlin(-1, 1, 0, 1) * 3e-3), \delc.kr(0));
+	snd = LPF.ar(snd, 8000);
+	snd = Pan2.ar(snd * env, \pan.kr(0), \amp.kr(0.1) * -4.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -146,17 +146,17 @@ subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 // scheduling
 Routine({
 	loop {
-		subroutine.(1, {
+		subroutine.(2, {
 			// bar 1
-			8.do { seq.(\hat, tatum * 2); };
+			8.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
 			// bar 2
-			8.do { seq.(\hat, tatum * 2); };
+			8.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
 			// bar 3
-			8.do { seq.(\hat, tatum * 2); };
+			8.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
 			// bar 4
-			5.do { seq.(\hat, tatum * 2); };
+			5.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
 			seq.(\crash, tatum * 2);
-			2.do { seq.(\hat, tatum * 2); };
+			2.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
 		});
 		subroutine.(1, {
 			// bar 1
@@ -214,29 +214,45 @@ Routine({
 					play.(\pad, bar, [freq: noteHz.(int, oct)]);
 				};
 			};
-			// play.(\sub, bar, [freq: noteHz.(0, -1)]);
 			(bar).wait;
-			/*(0 + [0, 3, 8, 12]).do { |int|
-				[0, 1].do { |oct|
-					play.(\pad, bar, [freq: noteHz.(int, oct)]);
-				};
-			};
-			(bar).wait;*/
 		});
-		subroutine.(4, {
+		subroutine.(1, {
 			[
-				[0, 4],
-				[7, 2],
-				[12, 4],
-				[8, 2],
-				[8, 2],
-				[7, 2],
+				// Interval, Duration, Octave
+				// 1
+				[0, 4, -1],
+				[7, 2, -1],
+				[12, 4, -1],
+				[8, 2, -1],
+				[8, 2, -1],
+				[7, 2, -1],
+				// 2
+				[0, 4, -1],
+				[10, 2, -1],
+				[17, 4, -1],
+				[3, 2, -1],
+				[3, 2, -1],
+				[8, 2, -1],
+				// 3
+				[0, 4, 0],
+				[7, 2, 0],
+				[12, 4, 0],
+				[8, 2, 0],
+				[8, 2, 0],
+				[7, 2, 0],
+				// 4
+				[0, 4, 0],
+				[10, 2, 0],
+				[17, 4, 0],
+				[3, 2, 0],
+				[3, 2, 0],
+				[8, 2, 0],
 			].do { | spec |
-				var int, dur;
-				# int, dur = spec;
-				play.(\sub, (dur * tatum), [freq: noteHz.(int, -2)]);
+				var int, dur, oct;
+				# int, dur, oct = spec;
 				if(int != \, {
-					seq.(\sqr, (dur * tatum), [freq: noteHz.(int, -1)]);
+					play.(\sub, (dur * tatum), [freq: noteHz.(int, -2)]);
+					seq.(\sqr, (dur * tatum), [freq: noteHz.(int, oct)]); // (-1..1).choose
 				}, {
 					(dur * tatum).wait;
 				});

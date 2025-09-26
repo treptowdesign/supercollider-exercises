@@ -9,7 +9,7 @@ SynthDef(\kick, {
 	snd = snd.tanh;
 	snd = BLowShelf.ar(snd, 160, 1, 4);
 	snd = snd * \amp.kr(1) * 0.dbamp;
-	snd = snd + LPF.ar(GVerb.ar(snd * -16.dbamp, 20, 3, 0.9), 600);
+	snd = snd + LPF.ar(GVerb.ar(snd * -14.dbamp, 30, 6, 0.9), 600);
 	snd = snd * Env.perc(0.001, 0.3).ar;
 	snd = snd * Env.linen(0, \duration.kr(1), 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -42,8 +42,8 @@ SynthDef(\snare, {
 	snd = snd * (1 + Env.perc(0, 0.03).ar);
 	snd = snd.clip2;
 	snd = snd + PitchShift.ar(snd, 0.05, 1.5);
-	// snd = snd + GVerb.ar(snd * -10.dbamp, 30, 3);
-	snd = snd * -6.dbamp ! 2;
+	snd = snd + GVerb.ar(snd * -15.dbamp, 30, 6);
+	snd = snd * -2.dbamp;
 	snd = snd * Env.linen(0.001, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -80,15 +80,16 @@ SynthDef(\sqr, {
 	var freq, duration, snd, env;
 	freq = \freq.kr(260);
 	duration = \duration.kr(2);
-	env = Env.perc(0.001, 4, curve: -4).ar;
+	env = Env.perc(0.001, 3, curve: -4).ar;
 	env = env * Env.linen(0.001, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	snd = (LFPulse.ar(freq * [1, 2, 4]) * 2) - 1;
-	snd = snd + BPF.ar(PinkNoise.ar(1 ! 3), freq);
+	// snd = snd + BPF.ar(PinkNoise.ar(1 ! 3), freq);
 	snd = snd.product;
-	snd = XFade2.ar(snd, CombC.ar(snd, 0.02, SinOsc.ar(0.5, 0).linlin(-1, 1, 0, 1) * 6e-3, 0), \comb.kr(0));
-	snd = XFade2.ar(snd, DelayC.ar(snd, 0.2, LFNoise2.ar(3 ! 2).linlin(-1, 1, 0, 1) * 3e-3), \delc.kr(0));
+	snd = XFade2.ar(snd, CombC.ar(snd, 0.02, SinOsc.ar(0.5, 0).linlin(-1, 1, 0, 1) * 3e-3, 0), \comb.kr(0));
+	snd = XFade2.ar(snd, DelayC.ar(snd, 0.2, LFNoise2.ar(3 ! 2).linlin(-1, 1, 0, 1) * 8e-3), \delc.kr(0));
+	snd = snd + GVerb.ar(snd * -15.dbamp, 30, 6).mean;
 	snd = LPF.ar(snd, 8000);
-	snd = Pan2.ar(snd * env, \pan.kr(0), \amp.kr(0.1) * -4.dbamp);
+	snd = Pan2.ar(snd * env, \pan.kr(0), \amp.kr(0.1) * -2.dbamp);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -130,6 +131,38 @@ SynthDef(\sub, {
 )
 
 (
+SynthDef(\ping, {
+	var snd, duration, freq;
+	freq = \freq.kr(600);
+	duration = \duration.kr(2.0);
+	snd = SinOsc.ar(freq * 1) * 600;
+	snd = SinOsc.ar((freq + snd) * (LFNoise2.ar(30) * 0.05).midiratio);
+	snd = snd + HPF.ar(PinkNoise.ar, 2000);
+	snd = snd * Env.perc(0.01, 0.5, curve: -8).ar;
+	snd = LPF.ar(snd, 3000);
+	snd = snd * -12.dbamp;
+	snd = snd + GVerb.ar(snd, 20, 3);
+	snd = snd.tanh;
+	snd = snd * -6.dbamp;
+	snd = snd * Env.linen(0.001, 5.0, 0.001, curve: -4).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
+)
+
+(
+SynthDef(\saw, {
+	var snd, count, freq;
+	count = 10;
+	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.05).midiratio;
+	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.5) } ! count) * 0.3).midiratio, { Rand(0, 4) } ! count);
+	snd = Splay.ar(snd) * -8.dbamp;
+	snd = snd * Env.perc(0, \rel.kr(2)).ar(Done.freeSelf);
+	snd = snd * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).add;
+)
+
+(
 var s, beat, bar, tatum, root, noteHz, play, seq, subroutine;
 s = Server.default;
 beat = 60 / 142;
@@ -146,7 +179,11 @@ subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 // scheduling
 Routine({
 	loop {
-		subroutine.(2, {
+		subroutine.(0, { // 1 bar (enter 4)
+			// bar 1
+			16.do { seq.(\hat, tatum * 1, [amp: rrand(0.8, 0.5)]); };
+		});
+		subroutine.(1, { // 4 bars (enter 1)
 			// bar 1
 			8.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
 			// bar 2
@@ -169,17 +206,31 @@ Routine({
 			seq.(\kick, tatum * 8);
 			seq.(\kick, tatum * 1);
 			seq.(\kick, tatum * 5);
-			// bar 3
+			// bar 1 alt
 			seq.(\kick, tatum * 2);
+			// seq.(\kick, tatum * 1);
+			seq.(\kick, tatum * 8);
+			// seq.(\kick, tatum * 4);
+			seq.(\kick, tatum * 1);
+			seq.(\kick, tatum * 5);
+			// bar 2 alt
+			seq.(\kick, tatum * 2);
+			seq.(\kick, tatum * 8);
+			seq.(\kick, tatum * 1);
+			seq.(\kick, tatum * 4);
+			seq.(\kick, tatum * 1);
+
+			// bar 3
+			/*seq.(\kick, tatum * 2);
 			seq.(\kick, tatum * 8);
 			seq.(\kick, tatum * 6);
 			// bar 4
 			(tatum * 2).wait;
 			seq.(\kick, tatum * 1);
 			seq.(\kick, tatum * 7);
-			seq.(\kick, tatum * 6);
+			seq.(\kick, tatum * 6);*/
 		});
-		subroutine.(1, {
+		subroutine.(2, {
 			// bar 1
 			(tatum * 4).wait;
 			seq.(\snare, tatum * 3);
@@ -195,7 +246,7 @@ Routine({
 			seq.(\snare, tatum * 3);
 			seq.(\snare, tatum * 1);
 			// bar 3
-			(tatum * 4).wait;
+			/*(tatum * 4).wait;
 			seq.(\snare, tatum * 3);
 			seq.(\snare, tatum * 2);
 			seq.(\snare, tatum * 5);
@@ -206,9 +257,10 @@ Routine({
 			seq.(\snare, tatum * 3);
 			seq.(\snare, tatum * 2);
 			seq.(\snare, tatum * 5);
-			seq.(\snare, tatum * 2);
+			seq.(\snare, tatum * 2);*/
 		});
 		subroutine.(4, {
+			// 1 bar
 			(0 + [0, 3, 7, 10]).do { |int|
 				[0, 1].do { |oct|
 					play.(\pad, bar, [freq: noteHz.(int, oct)]);
@@ -217,36 +269,41 @@ Routine({
 			(bar).wait;
 		});
 		subroutine.(1, {
+			// (bar * 1).wait;
+			seq.(\saw, tatum * 2, [freq: noteHz.(0, 1), rel: 1]);
+			seq.(\saw, tatum * 14, [freq: noteHz.(0, 1), rel: 2]);
+			[2, 1, 1, 4, 1, 1, 6].do { |dur|
+				seq.(\ping, tatum * dur, [freq: noteHz.(7, 2)]);
+			};
+			seq.(\saw, bar, [freq: noteHz.(0, 2), rel: 3, bend: -12]);
+			seq.(\saw, bar, [freq: noteHz.(7, 1), rel: 3, bend: -12]);
+
+		});
+		subroutine.(1, {
 			[
 				// Interval, Duration, Octave
-				// 1
-				[0, 4, -1],
+				[\, 4, -1],
 				[7, 2, -1],
 				[12, 4, -1],
 				[8, 2, -1],
 				[8, 2, -1],
 				[7, 2, -1],
-				// 2
-				[0, 4, -1],
-				[10, 2, -1],
-				[17, 4, -1],
-				[3, 2, -1],
-				[3, 2, -1],
+
+				[\, 16, 0],
+
+				// 1
+				[\, 4, -1],
+				[7, 2, -1],
+				[12, 4, -1],
 				[8, 2, -1],
-				// 3
-				[0, 4, 0],
-				[7, 2, 0],
-				[12, 4, 0],
-				[8, 2, 0],
-				[8, 2, 0],
-				[7, 2, 0],
-				// 4
-				[0, 4, 0],
-				[10, 2, 0],
-				[17, 4, 0],
-				[3, 2, 0],
-				[3, 2, 0],
-				[8, 2, 0],
+				[8, 2, -1],
+				[7, 2, -1],
+
+				[\, 4, 0],
+				[7, 4, 0],
+				[5, 4, 0],
+				[0, 4, -1],
+
 			].do { | spec |
 				var int, dur, oct;
 				# int, dur, oct = spec;
@@ -265,6 +322,14 @@ Routine({
 
 
 
+
+~msg = { |text='Test Message'| text.postln };
+
+0.do { ~msg.('ABCD'); };
+
+rrand(1.0, 0.7);
+
+[2, 1, 1, 4, 1, 1, 5].sum;
 
 
 

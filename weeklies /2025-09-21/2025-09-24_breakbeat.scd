@@ -153,8 +153,9 @@ SynthDef(\ping, {
 SynthDef(\saw, {
 	var snd, count, freq;
 	count = 10;
-	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.05).midiratio;
+	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.1).midiratio;
 	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.5) } ! count) * 0.3).midiratio, { Rand(0, 4) } ! count);
+	// snd = XFade2.ar(snd, DelayC.ar(snd, 0.2, LFNoise2.ar(3 ! 2).linlin(-1, 1, 0, 1) * 8e-3), \delc.kr(0));
 	snd = Splay.ar(snd) * -8.dbamp;
 	snd = snd * Env.perc(0, \rel.kr(2)).ar(Done.freeSelf);
 	snd = snd * \amp.kr(1);
@@ -219,7 +220,6 @@ Routine({
 			seq.(\kick, tatum * 1);
 			seq.(\kick, tatum * 4);
 			seq.(\kick, tatum * 1);
-
 			// bar 3
 			/*seq.(\kick, tatum * 2);
 			seq.(\kick, tatum * 8);
@@ -261,48 +261,44 @@ Routine({
 		});
 		subroutine.(4, {
 			// 1 bar
-			(0 + [0, 3, 7, 10]).do { |int|
+			(0 + [0, 3, 7, 10]).sort.postln.do { |int|
 				[0, 1].do { |oct|
 					play.(\pad, bar, [freq: noteHz.(int, oct)]);
 				};
 			};
 			(bar).wait;
+			/*(6 + [0, 4, 7 - 12, 11]).sort.postln.do { |int|
+				[0, 1].do { |oct|
+					play.(\pad, bar, [freq: noteHz.(int, oct)]);
+				};
+			};
+			(bar).wait;*/
 		});
 		subroutine.(1, {
 			// (bar * 1).wait;
-			seq.(\saw, tatum * 2, [freq: noteHz.(0, 1), rel: 1]);
-			seq.(\saw, tatum * 14, [freq: noteHz.(0, 1), rel: 2]);
-			[2, 1, 1, 4, 1, 1, 6].do { |dur|
-				seq.(\ping, tatum * dur, [freq: noteHz.(7, 2)]);
-			};
-			seq.(\saw, bar, [freq: noteHz.(0, 2), rel: 3, bend: -12]);
-			seq.(\saw, bar, [freq: noteHz.(7, 1), rel: 3, bend: -12]);
-
+			// seq.(\saw, tatum * 2, [freq: noteHz.(0, 1), rel: 1]);
+			// seq.(\saw, tatum * 14, [freq: noteHz.(0, 1), rel: 3]);
+			seq.(\saw, bar, [freq: noteHz.(0, 1), rel: 4, bend: -12]);
+			seq.(\saw, bar, [freq: noteHz.(2, 1), rel: 4, bend: -12]);
+			if(0.5.coin.postln, {
+				seq.(\saw, bar, [freq: noteHz.(8, 1), rel: 4, bend: -5]);
+			}, {
+				seq.(\saw, bar * 0.75, [freq: noteHz.(8, 1), rel: 4, bend: -5]);
+				seq.(\saw, bar * 0.25, [freq: noteHz.(10, 1), rel: 2, bend: -5]);
+			});
+			seq.(\saw, bar, [freq: noteHz.(7, 1), rel: 4, bend: -5]);
 		});
-		subroutine.(1, {
+		subroutine.(0, {
 			[
 				// Interval, Duration, Octave
-				[\, 4, -1],
-				[7, 2, -1],
-				[12, 4, -1],
-				[8, 2, -1],
-				[8, 2, -1],
-				[7, 2, -1],
-
-				[\, 16, 0],
-
-				// 1
-				[\, 4, -1],
-				[7, 2, -1],
-				[12, 4, -1],
-				[8, 2, -1],
-				[8, 2, -1],
-				[7, 2, -1],
-
+				[0, 1, 0],
+				[7, 3, -1],
 				[\, 4, 0],
-				[7, 4, 0],
-				[5, 4, 0],
-				[0, 4, -1],
+				[3, 2, 0],
+				[10, 2, 0],
+				[8, 2, 0],
+				[7, 2, 0],
+
 
 			].do { | spec |
 				var int, dur, oct;

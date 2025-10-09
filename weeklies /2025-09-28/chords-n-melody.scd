@@ -155,7 +155,7 @@ SynthDef(\saw, {
 	count = 10;
 	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.05).midiratio;
 	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.5) } ! count) * 0.3).midiratio, { Rand(0, 4) } ! count);
-	snd = Splay.ar(snd) * -15.dbamp;
+	snd = Splay.ar(snd) * -18.dbamp;
 	snd = LPF.ar(snd, 8000);
 	snd = snd * Env.perc(0.02, \rel.kr(4)).ar(Done.freeSelf);
 	snd = snd * \amp.kr(1);
@@ -627,7 +627,7 @@ Routine({
                 var off = entry[0], ints = entry[1], bars = entry[2], dur = bar * bars;
                 (off + ints).sort.do { |int|
                     play.(\pad, dur, [freq: noteHz.(int, 0)]);
-                    // play.(\pad, dur, [freq: noteHz.(int, 1)]);
+                    play.(\pad, dur, [freq: noteHz.(int, 1)]);
                 };
                 dur.wait;
             };

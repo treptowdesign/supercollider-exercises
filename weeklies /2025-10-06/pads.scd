@@ -235,7 +235,7 @@ subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 Routine({
 	'Start Routine'.postln;
 	loop {
-		subroutine.(0, { // set to 2
+		subroutine.(2, { // set to 2
 			// bar 1
 			8.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
 			// bar 2
@@ -247,7 +247,7 @@ Routine({
 			seq.(\crash, tatum * 2);
 			2.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
 		});
-		subroutine.(0, { // set to 2
+		subroutine.(2, { // set to 2
 			// bar 1
 			seq.(\kick, tatum * 2);
 			seq.(\kick, tatum * 8);
@@ -270,7 +270,7 @@ Routine({
 			seq.(\kick, tatum * 4);
 			seq.(\kick, tatum * 1);
 		});
-		subroutine.(0, { // set to 4
+		subroutine.(4, { // set to 4
 			// bar 1
 			(tatum * 4).wait;
 			seq.(\snare, tatum * 3);
@@ -309,7 +309,7 @@ Routine({
 			].do { |chord|
 				var dur = (chord[\length] * beat);
 				chord[\notes].sort.postln.do { |int|
-					[0].do { |oct|
+					[0, 1].do { |oct|
 						// var amp = oct.linlin(0, 1, 1, 0.15);
 						play.(\pad, dur, [freq: noteHz.(int, oct).postln, amp: 1, out: 0]);
 					};
@@ -366,20 +366,18 @@ SynthDef(\pad, {
 	var snd, duration, freq;
 	freq = \freq.kr(440);
 	duration = \duration.kr(2.0);
-	snd = LFTri.ar(freq * (LFNoise2.ar(60 ! 20) * 0.25).midiratio, Rand(0, 4 ! 20));
+	snd = LFTri.ar(freq * (LFNoise2.ar(60 ! 20) * 0.2).midiratio, Rand(0.0, 4.0 ! 20));
 	// snd = RLPF.ar(snd, XLine.ar(1600, 500, duration) * (ExpRand(1 ! snd.size, 4)) * (LFNoise2.ar(3 ! snd.size) * 12).midiratio, 0.4);
 	snd = Splay.ar(snd);
-	snd = snd * freq.explin(400, 1000, 1, 0.8);
+	snd = snd * freq.explin(400, 1000, 1, 0.75);
 	snd = BLowShelf.ar(snd, 400, 1, 4);
-	snd = BHiShelf.ar(snd, 1000, 1, -4);
-	snd = snd * -16.dbamp * \amp.kr(1);
-	snd = snd * Env.perc(0.005, 1.2, curve: -10).ar;
+	snd = BHiShelf.ar(snd, 1000, 1, -3);
+	snd = snd * -20.dbamp * \amp.kr(1);
+	snd = snd * Env.perc(0.01, \rel.kr(1.4), curve: -10).ar;
 	snd = snd * Env.linen(0, duration, 0.1, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
-
-
 
 ~padFxBus = Bus.audio(nil, 2);
 ~padFxBus.index;
@@ -398,6 +396,10 @@ subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 Routine({
 	'Start Routine'.postln;
 	loop {
+		subroutine.(0, { // 1 bar (enter 8)
+			// bar 1
+			16.do { seq.(\hat, tatum * 1, [amp: rrand(0.6, 0.3)]); };
+		});
 		subroutine.(2, { // set to 2
 			// bar 1
 			8.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
@@ -458,28 +460,24 @@ Routine({
 				(notes: -4 + [ 0, 11, 16, 19 ], length: 3), // VI7
 				(notes: -4 + [ 0, 11, 16, 19 ], length: 2), // VI7
 				(notes: \, length: 1),
-
 				(notes: 2 + [ 0, 7 + 12, 10, 15 ], length: 4), // ii7
 				(notes: 2 + [ 0, 7 + 12, 10, 15 ], length: 3), // ii7
 				(notes: 1 + [ 0, 7 + 12, 11, 16 ], length: 3), // bII7
 				(notes: 1 + [ 0, 7 + 12, 11, 16 ], length: 3), // bII7
 				(notes: 1 + [ 0, 7 + 12, 11, 16 ], length: 2), // bII7
 				(notes: \, length: 1),
-
 				(notes: 0 + [ 0, 3, 10, 14 ], length: 4), // i9
 				(notes: 0 + [ 0, 3, 10, 14 ], length: 3), // i9
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 3), // i7
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 3), // i7
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 2), // i7
 				(notes: \, length: 1),
-
 				(notes: 0 + [ 0, 3, 10, 14 ], length: 4), // i9
 				(notes: 0 + [ 0, 3, 10, 14 ], length: 3), // i9
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 3), // i7
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 3), // i7
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 2), // i7
 				(notes: \, length: 1),
-
 				// bar 5-8
 				(notes: -5 + [ 0, 15, 19, 22 ], length: 4), // V7
 				(notes: -5 + [ 0, 15, 19, 22 ], length: 3), // V7
@@ -487,35 +485,31 @@ Routine({
 				(notes: -4 + [ 0, 11, 16, 19 ], length: 3), // VI7
 				(notes: -4 + [ 0, 11, 16, 19 ], length: 2), // VI7
 				(notes: \, length: 1),
-
 				(notes: -7 + [ 0, 15, 19, 22 ], length: 4), // ii7
 				(notes: -7 + [ 0, 15, 19, 22 ], length: 3), // ii7
 				(notes: -2 + [ 0, 13, 16, 22 ], length: 3), // bII7
 				(notes: -2 + [ 0, 13, 16, 22 ], length: 3), // bII7
 				(notes: -2 + [ 0, 13, 16, 22 ], length: 2), // bII7
 				(notes: \, length: 1),
-
 				(notes: 0 + [ 0, 3, 10, 14 ], length: 4), // i9
 				(notes: 0 + [ 0, 3, 10, 14 ], length: 3), // i9
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 3), // i7
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 3), // i7
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 2), // i7
 				(notes: \, length: 1),
-
 				(notes: 0 + [ 0, 3, 10, 14 ], length: 4), // i9
 				(notes: 0 + [ 0, 3, 10, 14 ], length: 3), // i9
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 3), // i7
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 3), // i7
 				(notes: 0 + [ 0, 10, 15, 19 ], length: 2), // i7
 				(notes: \, length: 1),
-
 			].do { |chord|
 				var dur = (chord[\length] * tatum);
 				if(chord[\notes] != \, {
 					chord[\notes].sort.postln.do { |int|
 						[0, 1, 2].do { |oct|
-							var amp = oct.linlin(0, 2, 1, 0.85);
-							play.(\pad, dur, [freq: noteHz.(int, oct), amp: amp, out: 0]);
+							// var amp = oct.linlin(0, 2, 1, 0.5);
+							play.(\pad, dur, [freq: noteHz.(int, oct), amp: 1, out: 0]);
 						};
 					};
 				});

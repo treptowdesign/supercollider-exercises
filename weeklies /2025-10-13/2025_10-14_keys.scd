@@ -2,20 +2,30 @@
 SynthDef(\keys, {
 	var snd, duration, freq;
 	duration = \duration.kr(1.0);
-	freq = \freq.kr(260) * ([-0.05, 0, 0.05] * LFNoise2.ar(4 ! 3)).midiratio;
+	freq = \freq.kr(260) * ([-0.05, 0, 0.05] * LFNoise2.ar(20 ! 3)).midiratio;
 	snd = SinOsc.ar(freq * 1.001) * 4 * (1 + Env.perc(0, 0.01).ar);
 	snd = SinOsc.ar(freq, snd);
-	snd = snd.sum * -12.dbamp;
-	snd = snd * Env.perc(0.001, 3).ar;
-	snd = snd * Env.linen(0, duration, 0.1).ar(Done.freeSelf);
-	snd = snd ! 2;
-	snd = snd * -18.dbamp;
+	snd = snd.sum * (-30.dbamp * \amp.kr(1)) ! 2;
+	snd = snd * Env.perc(0.001, \rel.kr(1.6)).ar;
+	snd = snd * Env.linen(0, duration, 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
 
 (
-(0 + [0, 4, 7, 11]).do { |int|
+(0 + [0, 4 +12, 7, 11 +12]).do { |int|
+	Synth(\keys, [freq: (50 + int + (12 * 0)).midicps]);
+};
+)
+
+(
+(0 + [0, 3 +12, 7, 10 +12]).do { |int|
+	Synth(\keys, [freq: (50 + int + (12 * 0)).midicps]);
+};
+)
+
+(
+(0 + [0, 5 +12, 7, 10 +12]).do { |int|
 	Synth(\keys, [freq: (50 + int + (12 * 0)).midicps]);
 };
 )
@@ -64,7 +74,7 @@ Routine({
 				(notes: 0 + [ 0, 10, 15, 19 ], length: [3, 3, 2]), // i7
 				(notes: \, length: [1]),
 			].do { |chord|
-				chord[\length].do { |item|
+				chord[\length].do { |item, index|
 					var dur = item * tatum;
 					if(chord[\notes] != \, {
 						chord[\notes].sort.postln.do { |int|

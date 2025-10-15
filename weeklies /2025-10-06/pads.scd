@@ -599,6 +599,21 @@ SynthDef(\sub, {
 	snd = snd * Env.linen(0.01, duration, 0.1, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\organ, {
+	var snd, duration;
+	duration = \duration.kr(1.0);
+	snd = SinOsc.ar(\freq.kr(260) * [1, 2, 4] * (LFNoise2.kr(10 ! 3) * 0.2).midiratio);
+	snd = snd * Env.perc(0, [5, 10, 1]).ar;
+	snd = snd * [-5, 0, -9].dbamp;
+	snd = snd * (1 + (0.3 * LFNoise2.kr(16 ! snd.size)));
+	snd = snd.sum;
+	snd = LPF.ar(snd, XLine.ar(8000, 100, 3.0));
+	// snd = snd * Select.ar(Sweep.ar > 0.02, [ToggleFF.ar(Dust.ar(200)), DC.ar(1)]);
+	snd = snd + GVerb.ar(snd * -20.dbamp, 10, 3, damping: 0.2);
+	snd = snd * Env.linen(0.01, duration, 0.0, curve: -4).ar(Done.freeSelf);
+	snd = snd * -24.dbamp * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 ~padFxBus = Bus.audio(nil, 2);
@@ -618,10 +633,10 @@ subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 Routine({
 	'Start Routine'.postln;
 	loop {
-		subroutine.(0, { // set to 8
+		subroutine.(8, { // set to 8
 			16.do { seq.(\hat, tatum * 1, [amp: rrand(0.6, 0.3)]); }; // bar 1
 		});
-		subroutine.(2, { // set to 2
+		subroutine.(0, { // set to 2
 			29.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); }; // bar 1 -4
 			seq.(\crash, tatum * 2); // 29 (8+8+8+5) x2 = 58, then +6 = 64
 			2.do { seq.(\hat, tatum * 2, [amp: rrand(1.0, 0.7)]); };
@@ -681,8 +696,14 @@ Routine({
 					var dur = item * tatum;
 					if(chord[\notes] != \, {
 						chord[\notes].sort.postln.do { |int|
-							[0, 1, 2].do { |oct| play.(\organ, dur, [freq: noteHz.(int, oct), amp: oct.linlin(0, 2, 0.3, 0.1), out: 0]); };
-							// [0, 1, 2].do { |oct| play.(\pad, dur, [freq: noteHz.(int, oct), amp: 1, out: 0]); };
+							[0, 1].do { |oct|
+								play.(\keys, dur, [
+									freq: noteHz.(int, oct),
+									amp: oct.linlin(0, 1, 1, 0.2),
+									rel: 1.4,
+									out: 0
+								]);
+							};
 						};
 					});
 					dur.wait;

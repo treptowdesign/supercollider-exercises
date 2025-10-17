@@ -34,12 +34,11 @@ SynthDef(\organ, {
 	snd = snd * [0, -4, -9, -16].dbamp;
 	snd = snd * (1 + (0.1 * LFNoise2.kr(16 ! snd.size)));
 	snd = snd.sum;
-	// snd = LPF.ar(snd, XLine.ar(8000, 600, 3.0));
 	snd = BLowShelf.ar(snd, 400, 0.3, 4);
 	snd = snd + GVerb.ar(snd * -20.dbamp, 10, 6, damping: 0.2);
 	snd = snd * Env.perc(0.001, \rel.kr(1.3), curve: -4).ar;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * -28.dbamp * \amp.kr(1);
+	snd = snd * -30.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\perc, {
@@ -136,7 +135,7 @@ Routine({
 			seq.(\perc, (tatum * 1));
 			seq.(\clap, (tatum * 4));
 			(tatum * 2).wait;
-			seq.(\perc, (tatum * 1), [amp: 0.4]);
+			seq.(\perc, (tatum * 1), [amp: 0.3]);
 			seq.(\perc, (tatum * 1));
 			seq.(\clap, (tatum * 4));
 		});
@@ -146,7 +145,7 @@ Routine({
 			[7, 9, 7, 3, 3, 3].do { |dur| seq.(\kick, tatum * dur); };
 			[7, 9, 7, 6, 3].do { |dur| seq.(\kick, tatum * dur); };
 		});
-		subroutine.(1, { // 1
+		subroutine.(0, { // 1
 			[
 				// bar 1-4 //////////////////////////////////////////////////////////////////////////////
 				(notes: -5 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.2, 1.2], late: [0, 0.02]), // V7
@@ -180,7 +179,7 @@ Routine({
 					if(chord[\notes] != \, {
 						chord[\notes].sort.postln.do { |int|
 							[0,1].do { |oct|
-								var vel = chord[\amp][index] * oct.linlin(0, 1, 1, 0.1);
+								var vel = chord[\amp][index] * oct.linlin(0, 1, 1, 0.3);
 								var rel = chord[\rel][index] * 0.6;
 								var late = chord[\late][index];
 								play.(\organ, dur, [freq: noteHz.(int, oct), amp: vel, rel: rel, out: 0], latency: late);

@@ -29,7 +29,7 @@ SynthDef(\sub, {
 SynthDef(\organ, {
 	var snd, duration;
 	duration = \duration.kr(1.0);
-	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 8] * (LFNoise2.kr(60 ! 4) * 0.15).midiratio);
+	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 8] * (LFNoise2.kr(60 ! 4) * 0.12).midiratio);
 	snd = snd * Env.perc(0, [10, 8, 2, 2]).ar;
 	snd = snd * [0, -4, -9, -16].dbamp;
 	snd = snd * (1 + (0.1 * LFNoise2.kr(16 ! snd.size)));
@@ -37,7 +37,7 @@ SynthDef(\organ, {
 	// snd = LPF.ar(snd, XLine.ar(8000, 600, 3.0));
 	snd = BLowShelf.ar(snd, 400, 0.3, 4);
 	snd = snd + GVerb.ar(snd * -20.dbamp, 10, 6, damping: 0.2);
-	snd = snd * Env.perc(0.001, \rel.kr(1.3), curve: 2).ar;
+	snd = snd * Env.perc(0.001, \rel.kr(1.3), curve: -4).ar;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	snd = snd * -28.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
@@ -115,7 +115,9 @@ play = { |synth, dur, args=#[], latency=0.0|
 		s.bind { Synth(synth, [duration: dur] ++ args); };
 	};
 };
-seq = { |synth, dur, args=#[], latency=0.0| s.bind { Synth(synth, [duration: dur] ++ args); }; (dur).wait;  };
+seq = { |synth, dur, args=#[], latency=0.0|
+	s.bind { Synth(synth, [duration: dur] ++ args); }; (dur).wait;
+};
 subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 Routine({
 	'Start Routine'.postln;
@@ -179,7 +181,7 @@ Routine({
 						chord[\notes].sort.postln.do { |int|
 							[0,1].do { |oct|
 								var vel = chord[\amp][index] * oct.linlin(0, 1, 1, 0.1);
-								var rel = chord[\rel][index] * 0.26;
+								var rel = chord[\rel][index] * 0.6;
 								var late = chord[\late][index];
 								play.(\organ, dur, [freq: noteHz.(int, oct), amp: vel, rel: rel, out: 0], latency: late);
 							};

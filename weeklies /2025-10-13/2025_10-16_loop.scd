@@ -29,17 +29,17 @@ SynthDef(\sub, {
 SynthDef(\organ, {
 	var snd, duration;
 	duration = \duration.kr(1.0);
-	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 8] * (LFNoise2.kr(10 ! 4) * 0.1).midiratio);
-	snd = snd * Env.perc(0, [5, 10, 2, 2]).ar;
-	snd = snd * [0, -5, -9, -12].dbamp;
+	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 8] * (LFNoise2.kr(20 ! 4) * 0.15).midiratio);
+	snd = snd * Env.perc(0, [10, 8, 2, 2]).ar;
+	snd = snd * [0, -4, -9, -12].dbamp;
 	snd = snd * (1 + (0.1 * LFNoise2.kr(16 ! snd.size)));
 	snd = snd.sum;
 	// snd = LPF.ar(snd, XLine.ar(8000, 600, 3.0));
-	snd = BLowShelf.ar(snd, 600, 0.3, 4);
-	snd = snd + GVerb.ar(snd * -20.dbamp, 10, 3, damping: 0.2);
+	snd = BLowShelf.ar(snd, 400, 0.3, 4);
+	snd = snd + GVerb.ar(snd * -20.dbamp, 10, 6, damping: 0.2);
 	snd = snd * Env.perc(0.001, \rel.kr(1.3), curve: 2).ar;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * -26.dbamp * \amp.kr(1);
+	snd = snd * -28.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\perc, {
@@ -134,7 +134,7 @@ Routine({
 			seq.(\perc, (tatum * 1));
 			seq.(\clap, (tatum * 4));
 			(tatum * 2).wait;
-			seq.(\perc, (tatum * 1), [amp: 0.5]);
+			seq.(\perc, (tatum * 1), [amp: 0.4]);
 			seq.(\perc, (tatum * 1));
 			seq.(\clap, (tatum * 4));
 		});
@@ -145,29 +145,29 @@ Routine({
 		subroutine.(1, { // 1
 			[
 				// bar 1-4 //////////////////////////////////////////////////////////////////////////////
-				(notes: -5 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // V7
+				(notes: -5 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.2, 1.2], late: [0, 0.01]), // V7
 				(notes: -4 + [0, 11, 16, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // VI7
 				(notes: \, length: [1]),
-				(notes: 2 + [0, 7 +0, 10, 15], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // ii7
-				(notes: 1 + [0, 7 +0, 11, 16], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // bII7
+				(notes: 2 + [0, 7 +12, 10, 15], length: [4, 3], amp: [1, 0.9], rel: [1.2, 1.2], late: [0, 0.01]), // ii7
+				(notes: 1 + [0, 7 +12, 11, 16], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // bII7
 				(notes: \, length: [1]),
-				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // i9
+				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.2, 1.2], late: [0, 0.01]), // i9
 				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // i7
 				(notes: \, length: [1]),
-				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // i9
+				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.2, 1.2], late: [0, 0.01]), // i9
 				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // i7
 				(notes: \, length: [1]),
 				// bar 5-8 //////////////////////////////////////////////////////////////////////////////
-				(notes: -5 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // V7
+				(notes: -5 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.2, 1.2], late: [0, 0.01]), // V7
 				(notes: -4 + [0, 11, 16, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // VI7
 				(notes: \, length: [1]),
-				(notes: -7 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // iv7
+				(notes: -7 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.2, 1.2], late: [0, 0.01]), // iv7
 				(notes: -2 + [0, 13, 16, 22], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // bVII7
 				(notes: \, length: [1]),
-				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // i9
+				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.2, 1.2], late: [0, 0.01]), // i9
 				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // i7
 				(notes: \, length: [1]),
-				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // i9
+				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.2, 1.2], late: [0, 0.01]), // i9
 				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // i7
 				(notes: \, length: [1]),
 			].do { |chord|

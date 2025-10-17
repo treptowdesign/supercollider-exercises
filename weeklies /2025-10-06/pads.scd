@@ -699,7 +699,7 @@ Routine({
 							[0, 1].do { |oct|
 								play.(\keys, dur, [
 									freq: noteHz.(int, oct),
-									amp: oct.linlin(0, 1, 1, 0.2),
+									amp: oct.linlin(0, 1, 0.8, 0.1),
 									rel: 1.4,
 									out: 0
 								]);

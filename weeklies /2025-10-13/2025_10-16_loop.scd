@@ -30,16 +30,16 @@ SynthDef(\organ, {
 	var snd, duration;
 	duration = \duration.kr(1.0);
 	snd = SinOsc.ar(\freq.kr(440) * [1, 2, 4, 8] * (LFNoise2.kr(10 ! 4) * 0.1).midiratio);
-	snd = snd * Env.perc(0, [5, 10, 1, 2]).ar;
-	snd = snd * [-5, 0, -9, -18].dbamp;
+	snd = snd * Env.perc(0, [5, 10, 2, 2]).ar;
+	snd = snd * [0, -5, -9, -12].dbamp;
 	snd = snd * (1 + (0.1 * LFNoise2.kr(16 ! snd.size)));
 	snd = snd.sum;
 	// snd = LPF.ar(snd, XLine.ar(8000, 600, 3.0));
-	snd = BLowShelf.ar(snd, 500, 0.3, 3);
+	snd = BLowShelf.ar(snd, 600, 0.3, 4);
 	snd = snd + GVerb.ar(snd * -20.dbamp, 10, 3, damping: 0.2);
 	snd = snd * Env.perc(0.001, \rel.kr(1.3), curve: 2).ar;
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * -24.dbamp * \amp.kr(1);
+	snd = snd * -26.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\perc, {
@@ -72,7 +72,7 @@ SynthDef(\kick, {
 	snd = BHiShelf.ar(snd, 3400, 0.3, 4);
 	snd = BLowShelf.ar(snd, 100, 0.3, 4);
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -25.dbamp, 0.1, [30e-3, 45e-3]), 200), 3000);
-	snd = snd * Env.perc(0.001, 1).ar;
+	snd = snd * Env.perc(0.001, 0.4).ar;
 	snd = snd * -6.dbamp;
 	snd = snd * Env.linen(0.001, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -120,16 +120,16 @@ subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 Routine({
 	'Start Routine'.postln;
 	loop {
-		subroutine.(8, {
+		subroutine.(8, { // 8
 			(tatum * 1).wait;
 			seq.(\hatSoft, (tatum * 3));
 			(tatum * 5).wait;
 			seq.(\hatSoft, (tatum * 7));
 		});
-		subroutine.(8, {
+		subroutine.(8, { // 8
 			8.do { |index| seq.(\hat, (tatum * 2), [amp: rrand(0.5, 1.0)]); };
 		});
-		subroutine.(8, {
+		subroutine.(8, { // 8
 			(tatum * 3).wait;
 			seq.(\perc, (tatum * 1));
 			seq.(\clap, (tatum * 4));
@@ -138,45 +138,46 @@ Routine({
 			seq.(\perc, (tatum * 1));
 			seq.(\clap, (tatum * 4));
 		});
-		subroutine.(4, {
+		subroutine.(2, { // 4
+			[7, 9, 7, 3, 6].do { |dur| seq.(\kick, tatum * dur); };
 			[7, 9, 7, 6, 3].do { |dur| seq.(\kick, tatum * dur); };
 		});
-		subroutine.(1, {
+		subroutine.(1, { // 1
 			[
 				// bar 1-4 //////////////////////////////////////////////////////////////////////////////
-				(notes: -5 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.02]), // V7
-				(notes: -4 + [0, 11, 16, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.02, 0.01]), // VI7
+				(notes: -5 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // V7
+				(notes: -4 + [0, 11, 16, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // VI7
 				(notes: \, length: [1]),
-				(notes: 2 + [0, 7 +12, 10, 15], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.02]), // ii7
-				(notes: 1 + [0, 7 +12, 11, 16], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.02, 0.01]), // bII7
+				(notes: 2 + [0, 7 +0, 10, 15], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // ii7
+				(notes: 1 + [0, 7 +0, 11, 16], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // bII7
 				(notes: \, length: [1]),
-				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.02]), // i9
-				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.02, 0.01]), // i7
+				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // i9
+				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // i7
 				(notes: \, length: [1]),
-				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.02]), // i9
-				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.02, 0.01]), // i7
+				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // i9
+				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // i7
 				(notes: \, length: [1]),
 				// bar 5-8 //////////////////////////////////////////////////////////////////////////////
-				(notes: -5 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.02]), // V7
-				(notes: -4 + [0, 11, 16, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.02, 0.01]), // VI7
+				(notes: -5 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // V7
+				(notes: -4 + [0, 11, 16, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // VI7
 				(notes: \, length: [1]),
-				(notes: -7 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.02]), // iv7
-				(notes: -2 + [0, 13, 16, 22], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.02, 0.01]), // bVII7
+				(notes: -7 + [0, 15, 19, 22], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // iv7
+				(notes: -2 + [0, 13, 16, 22], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // bVII7
 				(notes: \, length: [1]),
-				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.02]), // i9
-				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.02, 0.01]), // i7
+				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // i9
+				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // i7
 				(notes: \, length: [1]),
-				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.02]), // i9
-				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.02, 0.01]), // i7
+				(notes: 0 + [0, 3, 10, 14], length: [4, 3], amp: [1, 0.9], rel: [1.5, 1.2], late: [0, 0.01]), // i9
+				(notes: 0 + [0, 10, 15, 19], length: [3, 3, 2], amp: [1, 0.9, 0.9], rel: [1.2, 1.4, 1.2], late: [0, 0.01, 0.01]), // i7
 				(notes: \, length: [1]),
 			].do { |chord|
 				chord[\length].do { |item, index|
 					var dur = item * tatum;
 					if(chord[\notes] != \, {
 						chord[\notes].sort.postln.do { |int|
-							[0].do { |oct|
-								var vel = chord[\amp][index] * oct.linlin(0, 1, 1, 0.1);
-								var rel = chord[\rel][index] * 0.4;
+							[0,1].do { |oct|
+								var vel = chord[\amp][index] * oct.linlin(0, 1, 1, 0.2);
+								var rel = chord[\rel][index] * 0.2;
 								var late = chord[\late][index];
 								play.(\organ, dur, [freq: noteHz.(int, oct), amp: vel, rel: rel, out: 0], latency: late);
 							};

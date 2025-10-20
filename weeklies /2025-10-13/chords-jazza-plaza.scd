@@ -14,6 +14,16 @@ SynthDef(\keys, {
 )
 
 /////////////////////////////////////////////////////////////////
+
+(
+~playChord = { |notes=#[]|
+	notes.sort.postln.do { |int|
+		Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
+	};
+};
+)
+
+/////////////////////////////////////////////////////////////////
 Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 // 1st: [0, 4, 7, 11, 14 (2), 17 (5), 21 (9)] I7
 // 2nd: [2, 5, 9, 12] => (2 + [ 0, 3, 7, 10 ]); => ii7
@@ -25,35 +35,33 @@ Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 /////////////////////////////////////////////////////////////////
 
 ( // i7 (1-3-5-7)
-(0 + [0, 16, 19, 23]).sort.postln.do { |int|
-	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
-};
+~playChord.(0 + [0, 16, 19, 23]);
 )
 
 ( // ii7 (0-b7-b3-5)
-(2 + [0, 15, 19, 22]).sort.postln.do { |int|
-	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
-};
+~playChord.(2 + [0, 15, 19, 22]);
 )
 
 ( // iii7 (0-b7-b3-5)
-(4 + [0, 15, 19, 22]).sort.postln.do { |int|
-	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
-};
+~playChord.(4 + [0, 15, 19, 22]);
 )
 
-( // IV7 (0-7-3-5)
-(5 + [0, 11, 16, 19]).sort.postln.do { |int|
-	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
-};
+( // IV7 (0-3-5-7)
+~playChord.(5 + [0, 16, 19, 23]);
 )
 
 ( // V7 (0-b7-3-5)
-(7 + [0, 10, 16, 19]).sort.postln.do { |int|
-	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
-};
+~playChord.(7 + [0, 10, 16, 19]);
+// ~playChord.(-5 + [0, 16, 19, 22]);
 )
 
+( // vi7
+~playChord.(-3 + [0, 15, 19, 22]);
+)
+
+( // viio7 (0-b7-b3-b5)
+~playChord.(-1 + [0, 15, 18, 22]);
+)
 
 
 /////////////////////////////////////////////////////////////////
@@ -66,17 +74,23 @@ Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 };
 )
 
+( // viio7 (fully diminished [ 0, 3, 6, 9] )
+(-1 + [0, 18, 21, 27]).sort.postln.do { |int|
+	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
+};
+)
+
 /////////////////////////////////////////////////////////////////
 // JAZZY PROGRESSION
 /////////////////////////////////////////////////////////////////
 
-( // ii13 (1-b7-b3-6) - traded out 5th for the 13th
+( // ii13 (1-b7-b3-6) - traded out 5th for the 13th (6)
 (2 + [0, 10, 15, 21]).sort.postln.do { |int|
 	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
 };
 )
 
-( // V9 (1-b7-2-3) - traded out 5th for the 9th
+( // V9 (1-b7-2-3) - traded out 5th for the 9th (2)
 (7 + [0, 10, 14, 16]).sort.postln.do { |int|
 	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
 };
@@ -88,23 +102,25 @@ Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 };
 )
 
-( // V9/ii
+( // V9/ii (1-b7-2-3)
 (9 + [0, 10, 14, 16]).sort.postln.do { |int|
 	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
 };
 )
 
-( // ii9
+( // ii9 (1-b3-b7-2)
 (2 + [0, 15, 22, 26]).sort.postln.do { |int|
 	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
 };
 )
 
-( // viio7/ii
+( // viio7/ii (1-b5-bb7-b3)
 (1 + [0, 18, 21, 27]).sort.postln.do { |int|
 	Synth(\keys, [freq: (42 + int + (12 * 0)).midicps]);
 };
 )
+
+[0, 18, 21, 27] % 12;
 
 /////////////////////////////////////////////////////////////////
 // Section

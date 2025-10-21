@@ -1,11 +1,13 @@
 (
-
+/////////////////////////////////
+// Drums
+/////////////////////////////////
 SynthDef(\kick, {
 	var snd, duration;
 	duration = \duration.kr(1.0);
-	snd = SinOsc.ar(Env.perc(0, 0.15).ar.linexp(0, 1, 50, 300) * XLine.ar(1, 0.5, 0.5));
+	snd = SinOsc.ar(Env.perc(0, 0.15).ar.linexp(0, 1, 50, 250) * XLine.ar(1, 0.5, 0.5));
 	snd = snd * (1 + (3 * Env.perc(0, 0.05).ar));
-	snd = snd + (BPF.ar(Env.perc(0.001, 0.02).ar * Hasher.ar(Sweep.ar), 3240, 0.3) * 10.dbamp);
+	snd = snd + (BPF.ar(Env.perc(0.001, 0.02).ar * Hasher.ar(Sweep.ar), 1840, 0.3) * 10.dbamp);
 	snd = snd.tanh;
 	snd = BHiShelf.ar(snd, 3400, 0.3, 4);
 	snd = BLowShelf.ar(snd, 100, 0.3, 4);
@@ -18,8 +20,9 @@ SynthDef(\kick, {
 SynthDef(\clap, {
 	var snd;
 	snd = BPF.ar(Hasher.ar(Sweep.ar), 1230);
-	snd = snd * 20.dbamp;
-	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.008, 1e-4, 0.005, 1e-4, 0.08] * 0.7, -4).ar(Done.freeSelf);
+	snd = snd * 22.dbamp;
+	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.008, 1e-4, 0.005, 1e-4, 0.08] * 1, -4).ar;
+	snd = snd * Env.perc(0, 0.6, curve: -8).ar(Done.freeSelf);
 	snd = snd * \amp.kr(0.2) ! 2;
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -45,21 +48,28 @@ SynthDef(\hatSoft, {
 	snd = snd * -16.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
-
+/////////////////////////////////
+// Instruments
+/////////////////////////////////
 SynthDef(\keys, {
-	var snd, fm, pm, duration, freq;
+	var snd, pm, duration, freq;
 	duration = \duration.kr(3.0);
-	freq = \freq.kr(260) * ([-0.04, 0, 0.04] * LFNoise2.ar(10 ! 3)).midiratio;
-	// fm = SinOsc.ar(freq * 0.999) * 400 * (1 + Env.perc(0, 0.01).ar);
+	freq = \freq.kr(260) * ([-0.05, 0, 0.05] * LFNoise2.ar(30 ! 3)).midiratio;
 	pm = SinOsc.ar(freq * 1.001) * 1  * (1 + Env.perc(0, 0.01).ar);
-	snd = SinOsc.ar(freq, pm); //  + fm
+	snd = SinOsc.ar(freq, pm);
 	snd = LeakDC.ar(snd);
 	snd = Pan2.ar(snd.sum, \pan.kr(0), (-24.dbamp * \amp.kr(1)));
-	snd = snd * Env.perc(0.001, \rel.kr(4), curve: -8).ar;
+	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5).linlin(-1, 1, 0, 1) * 2e-3);
+	snd = snd * SinOsc.ar(Rand(0.1, 1.0), Rand(0.0, pi) + [0, pi]).linlin(-1, 1, 0.3, 1);
+	snd = BHiShelf.ar(snd, 1200, 0.3, -2);
+	snd = BLowShelf.ar(snd, 500, 0.3, -5);
+	snd = (snd * 3.dbamp).tanh * 0.dbamp;
+	snd = BLowShelf.ar(snd, 500, 0.3, 3);
+	snd = Balance2.ar(snd[0], snd[1]);
+	snd = snd * Env.perc(0.01, \rel.kr(4), curve: -4).ar;
 	snd = snd * Env.linen(0, duration, 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
-
 SynthDef(\keys2, {
 	var snd, freq;
 	freq = \freq.kr(440) * XLine.ar(1.3, 1, 0.005) * XLine.ar(0.015.midiratio, 1, 3.0);
@@ -72,14 +82,13 @@ SynthDef(\keys2, {
 	snd = BLowShelf.ar(snd, 500, 0.3, -5);
 	snd = (snd * 3.dbamp).tanh * -2.dbamp;
 	snd = BLowShelf.ar(snd, 500, 0.3, 3);
-	snd = snd * Env.perc(0.001, \rel.kr(4), curve: -8).ar;
+	snd = snd * Env.perc(0.001, \rel.kr(4), curve: -4).ar;
 	snd = snd * Env.linen(0.01, \duration.kr(1.0), 0.05, curve: -4).ar(Done.freeSelf);
 	snd = snd * SinOsc.ar(Rand(0.5, 1), [0, pi]).linlin(-1, 1, 0.7, 1);
-	snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5).linlin(-1, 1, 0, 1) * 2e-3);
+	// snd = DelayC.ar(snd, 0.2, SinOsc.ar(0.5).linlin(-1, 1, 0, 1) * 2e-3);
 	snd = snd * -28.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
-
 SynthDef(\sub, {
 	var snd, duration, hi, freq;
 	freq = \freq.kr(60);
@@ -95,7 +104,7 @@ SynthDef(\sub, {
 	hi = hi * 5.dbamp;
 	snd = (snd * 2).tanh + hi;
 	snd = snd * -6.dbamp * \amp.kr(1);
-	snd = snd * Env.perc(0.001, \rel.kr(4), curve: -4).ar;
+	snd = snd * Env.perc(0.01, \rel.kr(4), curve: -4).ar;
 	snd = snd * Env.linen(0.01, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -125,7 +134,53 @@ SynthDef(\pad2, {
 	snd = snd * Env.linen(0.01, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
+/////////////////////////////////
+// FX
+/////////////////////////////////
+SynthDef(\reverbFx, {
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = snd + GVerb.ar(snd.sum * -20.dbamp, 30, 8);
+	snd = snd * -4.dbamp;
+	Out.ar(\out.kr(0), snd);
+}).add;
+/*SynthDef(\reverbFx, {
+	var snd, wet;
+	snd = In.ar(\in.kr(0), 2);
+	wet = snd;
+	wet = AllpassC.ar(wet, 0.2, [0.0344, 0.05], 0.1);
+	wet = [wet[0], wet[1], wet[0], wet[1]] + LocalIn.ar(4);
+	wet = DelayC.ar(wet, 1.0, [0.2, 0.343, 0.4335, 0.5242] * 0.2);
+	wet = AllpassC.ar(wet, 0.2, ([0.12, 0.445, 0.31, 0.38] * 0.03) + (LFNoise2.ar(3 ! 4) * 0.0001), [0.3, 0.5, 0.6, 0.7]);
+	wet = AllpassC.ar(wet, 0.2, [0.42, 0.245, 0.11, 0.78] * 0.01, [0.3, 0.5, 0.6, 0.7]);
+	wet = wet * -2.dbamp;
+	wet = LPF.ar(wet, 6000);
+	wet = HPF.ar(wet, 100);
+	wet = wet * ([
+		[1, 1, 1, 1],
+		[1, -1, 1, -1],
+		[1, 1, -1, -1],
+		[1, -1, -1, 1],
+	] / 2);
+	wet = wet.sum;
+	LocalOut.ar(wet);
+	wet = [wet[0] + wet[3], wet[1] + wet[2]];
+	wet = DelayC.ar(wet, 0.05, 0.05);
+	wet = wet * -10.dbamp * \wet.kr(0).lag(0.1);
+	snd = snd + wet;
+	Out.ar(\out.kr(0), snd);
+}).add;*/
 )
+
+/////////////////////////////////////////////////////////////////
+// Bussing
+/////////////////////////////////////////////////////////////////
+
+(
+~reverbBus = Bus.audio(nil, 2);
+)
+
+~reverbBus.index;
 
 /////////////////////////////////////////////////////////////////
 // Functions
@@ -180,28 +235,28 @@ Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 ~playChord.(0 + [0, 16, 19, 23]);
 )
 
-( // ii7 (0-b7-b3-5)
+( // ii7 (1-b7-b3-5)
 ~playChord.(2 + [0, 15, 19, 22]);
 )
 
-( // iii7 (0-b7-b3-5)
+( // iii7 (1-b7-b3-5)
 ~playChord.(4 + [0, 15, 19, 22]);
 )
 
-( // IV7 (0-3-5-7)
+( // IV7 (1-3-5-7)
 ~playChord.(5 + [0, 16, 19, 23]);
 )
 
-( // V7 (0-b7-3-5)
-~playChord.(7 + [0, 10, 16, 19]);
-// ~playChord.(-5 + [0, 16 + 12, 19, 22]);
+( // V7 (1-b7-3-5)
+// ~playChord.(7 + [0, 10, 16, 19]);
+~playChord.(-5 + [0, 16 + 12, 19, 22]);
 )
 
 ( // vi7
 ~playChord.(-3 + [0, 15 +12, 19, 22]);
 )
 
-( // viio7 (0-b3-b5-b7)
+( // viio7 (1-b3-b5-b7)
 ~playChord.(-1 + [0, 15, 18, 22]);
 )
 
@@ -219,7 +274,7 @@ Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 ~playChord.(4 + [0, 11, 16, 19]);
 )
 
-( // viioo7 (0-b7-b3-b5)
+( // viio7 (0-b7-b3-bb5)
 ~playChord.(-1 + [0, 15 +12, 18, 21]);
 )
 
@@ -228,8 +283,146 @@ Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 )
 
 /////////////////////////////////////////////////////////////////
+// Misc
+/////////////////////////////////////////////////////////////////
+
+( // ii7
+~playChord.(2 + [0, 15, 19, 22]);
+)
+
+( // bii7 (0-b3-b5-b7)
+~playChord.(1 + [0, 15, 18, 22]);
+)
+
+
+
+( // V7/iii7 (1-b3-5-b7)
+~playChord.(-1 + [0, 16 + 12, 19, 22]);
+)
+
+( // iii11v(1-b3-5-b7)
+~playChord.(4 + [0, 15, 17, 22]);
+)
+
+
+
+( // ii7
+~playChord.(2 + [0, 7 +12, 10, 15]);
+)
+
+( // bii7 (0-b3-b5-b7)
+~playChord.(1 + [0, 7 +12, 11, 16]);
+)
+
+
+
+
+////////////////////////////////////////
+// IV7 - I7 (mjor)
+
+~root = 44; // Ab
+// https://www.hooktheory.com/theorytab/view/teebs/studie-(feat-panda-bear)
+
+( // I7 (1-3-5-7)
+~playChord.(0 + [0, 16, 19, 23]);
+)
+( // IV9 (1-3-5-7)
+~playChord.(5 + [0, 16, 14, 11]);
+)
+( // I7 4/3
+~playChord.(0 + [12, 16, 7, 23]);
+)
+( // IV9 (1-3-5-7)
+~playChord.(5 + [0, 16, 14, 11]);
+)
+
+////////////////////////////////////////
+// Lone
+
+(
+~root = 49; // F#
+~noteHz = { |int=0, oct=0| (~root + int + (12 * oct)).midicps };
+~playChord = { |notes=#[]|
+	var bassNote = notes.sort[0];
+	bassNote.postln;
+	((notes - bassNote) % 12).sort.postln;
+	Synth(\sub, [freq: ~noteHz.(notes[0], -1)]); // sub
+	notes.do { |int|
+		Synth(\pad2, [freq: ~noteHz.(int, 1)]);
+		Synth(\pad, [freq: ~noteHz.(int, 1)]);
+		Synth(\keys, [freq: ~noteHz.(int, 0)]);
+	};
+};
+)
+// https://www.hooktheory.com/theorytab/view/lone/as-a-child-%28feat-machinedrum%29
+
+( // i7
+~playChord.(0 + [0, 10, 15, 19]);
+)
+
+( // v7
+~playChord.(-5 + [0, 15, 19, 22]);
+)
+
+( // I7
+~playChord.(0 + [0, 11, 16, 19]);
+)
+
+( // V7
+~playChord.(-5 + [0, 16, 19, 23]);
+)
+
+( // bVI7
+~playChord.(-4 + [0, 16, 19, 23]);
+)
+
+( // VII7
+~playChord.(-2 + [0, 16, 19, 11]);
+)
+
+( // V7
+~playChord.(-5 + [0, 16, 19, 23]);
+)
+
+( // bVI7
+~playChord.(-4 + [0, 16, 19, 23]);
+)
+
+// https://www.hooktheory.com/theorytab/view/lone/airglow-fires
+
+( // bII9 (5th->9th)
+~playChord.(1 + [0, 11, 14, 16]);
+)
+
+( // i11 (3rd->9th, 5th->11th)
+~playChord.(0 + [0, 10, 14, 17]);
+)
+
+( // ii 6/5 (7th->6th)
+~playChord.(-7 + [0, 19, 21, 28]);
+)
+
+
+
+/////////////////////////////////////////////////////////////////
 // JAZZY PROGRESSION
 /////////////////////////////////////////////////////////////////
+
+(
+~root = 42; // F#
+~noteHz = { |int=0, oct=0| (~root + int + (12 * oct)).midicps };
+~playChord = { |notes=#[]|
+	var bassNote = notes.sort[0];
+	bassNote.postln;
+	((notes - bassNote) % 12).sort.postln;
+	Synth(\sub, [freq: ~noteHz.(notes[0], -1)]); // sub
+	notes.do { |int|
+		Synth(\pad2, [freq: ~noteHz.(int, 1)]);
+		Synth(\pad, [freq: ~noteHz.(int, 2)]);
+		Synth(\keys, [freq: ~noteHz.(int, 0)]);
+	};
+};
+)
 
 ( // ii13 (1-b7-b3-6) - traded out 5th for the 13th (6)
 ~playChord.(2 + [0, 10, 15, 21]);
@@ -255,6 +448,9 @@ Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 ~playChord.(1 + [0, 18, 21, 27]);
 )
 
+
+
+
 /////////////////////////////////////////////////////////////////
 // Routine
 /////////////////////////////////////////////////////////////////
@@ -275,22 +471,23 @@ seq = { |synth, dur, args=#[], latency=0.0|
 };
 subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 Routine({
+	var reverbFx;
 	'Start Routine'.postln;
+
+	reverbFx = Synth.tail(nil, \reverbFx, [in: ~reverbBus, out: 0, wet: 1]);
+
 	loop {
 		subroutine.(8, { // 8
 			2.do {
 				(beat * 1).wait;
-				seq.(\clap, beat * 1, latency: 0.0);
+				seq.(\clap, beat * 1, latency: 0);
 			};
 		});
 		subroutine.(8, { // 8
-			(tatum * 1).wait;
-			seq.(\hatSoft, (tatum * 3));
-			(tatum * 5).wait;
-			seq.(\hatSoft, (tatum * 7));
+			8.do { |index| seq.(\hat, (tatum * 2), [amp: rrand(0.4, 1.0)]); };
 		});
 		subroutine.(8, { // 8
-			8.do { |index| seq.(\hat, (tatum * 2), [amp: rrand(0.4, 1.0)]); };
+			[6, 8, 2].do { |dur| seq.(\kick, dur * tatum); };
 		});
 		subroutine.(1, { // 2
 			[
@@ -305,23 +502,14 @@ Routine({
 			].do { |chord|
 				[6, 8, 2].do { |item|
 					var dur = (item * tatum);
-					play.(\kick, dur);
-					play.(\sub, dur, [freq: noteHz.(chord.sort[0], -1), rel: 1]);
+
+					play.(\sub, dur, [freq: noteHz.(chord.sort[0], -1), rel: 6]);
 					chord.sort.postln.do { |int|
-						// play.(\pad, dur, [freq: noteHz.(int, 2), rel: 6]);
-						play.(\pad2, dur, [freq: noteHz.(int, 1), rel: 3.4]);
-						play.(\keys2, dur, [freq: noteHz.(int, 0), rel: 3.4]);
-						play.(\keys, dur, [freq: noteHz.(int, 0), rel: 3.4]);
+						// play.(\pad, bar, [freq: noteHz.(int, 1), rel: 2, out: ~reverbBus]);
+						play.(\keys, dur, [freq: noteHz.(int, 0), rel: 2, out: 0]);
 					};
 					dur.wait;
 				};
-				/*play.(\sub, bar, [freq: noteHz.(chord.sort[0], -1)]);
-				chord.sort.postln.do { |int|
-					play.(\pad, bar, [freq: noteHz.(int, 2)]);
-					play.(\pad2, bar, [freq: noteHz.(int, 1)]);
-					play.(\keys, bar, [freq: noteHz.(int, 0)]);
-				};
-				(bar).wait;*/
 			};
 		});
 		// global wait ////////////////////////////////////////////////

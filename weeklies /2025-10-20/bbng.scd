@@ -132,7 +132,7 @@ Routine({
 				# int, dur = spec;
 				dur = dur * beat;
 				if(int != \, {
-					play.(\organ, dur, [freq: noteHz.(int, 0), amp: 1]);
+					play.(\organ, dur, [freq: noteHz.(int, 0), amp: 0.5]);
 					seq.(\organ, dur, [freq: noteHz.(int, 1), amp: 1]);
 				}, { dur.wait; });
 			};
@@ -149,7 +149,7 @@ Routine({
 				chord[\length].do { |len, index|
 					var dur = len * tatum;
 					var rel = chord[\rel][index];
-					// play.(\sub, dur, [freq: noteHz.(chord[\notes].sort[0], -1), rel: rel]);
+					play.(\sub, dur, [freq: noteHz.(chord[\notes].sort[0], -1), rel: rel]);
 					chord[\notes].sort.postln.do { |int|
 						play.(\pad, dur, [freq: noteHz.(int, 1), rel: rel * 3, out: 0]);
 						play.(\keys, dur, [freq: noteHz.(int, 0), rel: rel * 1.5, out: 0]);

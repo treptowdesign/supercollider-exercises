@@ -22,11 +22,11 @@ SynthDef(\clap, {
 	snd = BPF.ar(Hasher.ar(Sweep.ar), 1230);
 	snd = snd * 22.dbamp;
 	snd = snd * Env([0, 1, 0.2, 0.9, 0.1, 0.8, 0], [1e-4, 0.008, 1e-4, 0.005, 1e-4, 0.08] * 1, -4).ar;
-	snd = snd * Env.perc(0, 0.6, curve: -8).ar(Done.freeSelf);
+	snd = snd * Env.perc(0, 0.6, curve: -4).ar(Done.freeSelf);
 	snd = snd * \amp.kr(0.2) ! 2;
 	Out.ar(\out.kr(0), snd);
 }).add;
-SynthDef(\hat, {
+SynthDef(\hat2, {
 	var snd;
 	snd = BPF.ar(Hasher.ar(Sweep.ar), [8312, 12.3e3], 0.1);
 	snd = snd * [0, -3].dbamp;
@@ -34,6 +34,25 @@ SynthDef(\hat, {
 	snd = snd * Env.linen(0.003, 0.01, 0.02, curve: -4).ar(Done.freeSelf);
 	snd = snd * -3.dbamp * \amp.kr(1);
 	snd = Pan2.ar(snd, \pan.kr(0));
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\hat, {
+	var snd, freqs;
+	snd = Hasher.ar(Sweep.ar);
+	freqs = ((0..20) * 134789).sin.linexp(-1, 1, 100, 3e3);
+	snd = CombC.ar(snd, 1 / freqs, 1 / freqs, 0.1);
+	snd = snd.sum * -15.dbamp;
+	snd = FreqShift.ar(snd, -230);
+	snd = HPF.ar(snd, 1000);
+	snd = BPF.ar(snd, [8230, 5240, 1230, 6.5e3, 7243], 0.05);
+	snd = snd * Env.perc(0.01, 2.0 * [1, 0.5, 0.9, 0.1, 0.2, 0.3]).ar;
+	snd = snd.sum;
+	snd = snd * (1 + Env.perc(0, 0.01).ar);
+	snd = snd.clip2;
+	snd = snd + PitchShift.ar(snd, 0.02, 2);
+	snd = snd ! 2;
+	snd = snd * Env.linen(0, \duration.kr(0.3), 0.1, curve: -4).ar(Done.freeSelf);
+	snd = snd * -20.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\hatSoft, {
@@ -140,7 +159,7 @@ SynthDef(\pad2, {
 SynthDef(\reverbFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
-	snd = snd + GVerb.ar(snd.sum * -20.dbamp, 30, 8);
+	snd = snd + GVerb.ar(snd.sum * -25.dbamp, 30, 3);
 	snd = snd * -4.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -350,7 +369,7 @@ Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 	notes.do { |int|
 		Synth(\pad2, [freq: ~noteHz.(int, 1)]);
 		Synth(\pad, [freq: ~noteHz.(int, 1)]);
-		Synth(\keys, [freq: ~noteHz.(int, 0)]);
+		// Synth(\keys, [freq: ~noteHz.(int, 0)]);
 	};
 };
 )
@@ -402,7 +421,7 @@ Scale.ionian.degrees; // [ 0, 2, 4, 5, 7, 9, 11 ]
 ~playChord.(-7 + [0, 19, 21, 28]);
 )
 
-( //V11/VI
+( // V11/VI
 ~playChord.(3 + [0, 5, 10, 14]);
 )
 
@@ -489,9 +508,10 @@ Routine({
 				seq.(\clap, beat * 1, latency: 0);
 			};
 		});
-		subroutine.(8, { // 8
-			8.do { |index| seq.(\hat, (tatum * 2), [amp: rrand(0.4, 1.0)]); };
-		});
+		/*subroutine.(16, { // 8
+			seq.(\hat, (tatum * 2), [amp: 1]);
+			3.do { |index| seq.(\hat, (tatum * 2), [amp: 0.5]); };
+		});*/
 		subroutine.(8, { // 8
 			[6, 8, 2].do { |dur| seq.(\kick, dur * tatum); };
 		});
@@ -508,10 +528,10 @@ Routine({
 			].do { |chord|
 				[6, 8, 2].do { |item|
 					var dur = (item * tatum);
-
 					play.(\sub, dur, [freq: noteHz.(chord.sort[0], -1), rel: 6]);
 					chord.sort.postln.do { |int|
-						// play.(\pad, bar, [freq: noteHz.(int, 1), rel: 2, out: ~reverbBus]);
+						// play.(\pad, bar, [freq: noteHz.(int, 1), rel: 1.5, out: ~reverbBus]);
+						// play.(\keys, dur, [freq: noteHz.(int, 0), rel: 1.5, out: ~reverbBus]);
 						play.(\keys, dur, [freq: noteHz.(int, 0), rel: 2, out: 0]);
 					};
 					dur.wait;
@@ -524,22 +544,139 @@ Routine({
 }).play;
 )
 
+/////////////////////////////////////////////////////////////////
+// Routine
+/////////////////////////////////////////////////////////////////
+
+(
+var s, beat, bar, tatum, root, noteHz, play, seq, subroutine;
+s = Server.default;
+beat = 60 / 112;
+bar = beat * 4;
+tatum = beat / 4;
+root = 49; // 48=C, 50=D, 51=D#
+noteHz = { |int=0, oct=1| (root + int + (12 * oct)).midicps; };
+play = { |synth, dur, args=#[], latency=0.0|
+	fork { latency.wait; s.bind { Synth(synth, [duration: dur] ++ args); }; };
+};
+seq = { |synth, dur, args=#[], latency=0.0|
+	play.(synth, dur, args, latency); (dur).wait;
+};
+subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
+Routine({
+	var reverbFx;
+	'Start Routine'.postln;
+
+	reverbFx = Synth.tail(nil, \reverbFx, [in: ~reverbBus, out: 0, wet: 1]);
+
+	loop {
+		subroutine.(8, { // 8
+			2.do {
+				(beat * 1).wait;
+				seq.(\clap, beat * 1, latency: 0);
+			};
+		});
+		/*subroutine.(16, { // 8
+			seq.(\hat, (tatum * 2), [amp: 1]);
+			3.do { |index| seq.(\hat, (tatum * 2), [amp: 0.5]); };
+		});*/
+		subroutine.(8, { // 8
+			[6, 8, 2].do { |dur| seq.(\kick, dur * tatum); };
+		});
+		subroutine.(1, { // 2
+			[
+				(0 + [0, 10, 15, 19]),
+				(-5 + [0, 15, 19, 22]),
+				(0 + [0, 11, 16, 19]),
+				(-5 + [0, 16, 19, 23]),
+				(-4 + [0, 16, 19, 23]),
+				(-2 + [0, 16, 19, 11]),
+				(-5 + [0, 16, 19, 23]),
+				(-4 + [0, 16, 19, 23])
+			].do { |chord|
+				[6, 8, 2].do { |item|
+					var dur = (item * tatum);
+					play.(\sub, dur, [freq: noteHz.(chord.sort[0], -1), rel: 6]);
+					chord.sort.postln.do { |int|
+						play.(\pad, bar, [freq: noteHz.(int, 1), rel: 4, out: 0]);
+						play.(\pad2, bar, [freq: noteHz.(int, 1), rel: 4, out: 0]);
+						// play.(\keys, dur, [freq: noteHz.(int, 0), rel: 1.5, out: ~reverbBus]);
+						// play.(\keys, dur, [freq: noteHz.(int, 0), rel: 2, out: 0]);
+					};
+					dur.wait;
+				};
+			};
+		});
+		// global wait ////////////////////////////////////////////////
+		(bar * 8).wait;
+	};
+}).play;
+)
 
 
+/////////////////////////////////////////////////////////////////
+// Routine
+/////////////////////////////////////////////////////////////////
 
+(
+var s, beat, bar, tatum, root, noteHz, play, seq, subroutine;
+s = Server.default;
+beat = 60 / 112;
+bar = beat * 4;
+tatum = beat / 4;
+root = 44; // 48=C, 50=D, 51=D#
+noteHz = { |int=0, oct=1| (root + int + (12 * oct)).midicps; };
+play = { |synth, dur, args=#[], latency=0.0|
+	fork { latency.wait; s.bind { Synth(synth, [duration: dur] ++ args); }; };
+};
+seq = { |synth, dur, args=#[], latency=0.0|
+	play.(synth, dur, args, latency); (dur).wait;
+};
+subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
+Routine({
+	var reverbFx;
+	'Start Routine'.postln;
 
+	reverbFx = Synth.tail(nil, \reverbFx, [in: ~reverbBus, out: 0, wet: 1]);
 
-
-
-
-
-
-
-
-
-
-
-
+	loop {
+		subroutine.(8, { // 8
+			2.do {
+				(beat * 1).wait;
+				seq.(\clap, beat * 1, latency: 0);
+			};
+		});
+		/*subroutine.(16, { // 8
+			seq.(\hat, (tatum * 4), [amp: 1]);
+			3.do { |index| seq.(\hat, (tatum * 4), [amp: 0.5]); };
+		});*/
+		subroutine.(8, { // 8
+			[6, 8, 2].do { |dur| seq.(\kick, dur * tatum); };
+		});
+		subroutine.(2, { // 2
+			[
+				(0 + [0, 16, 19, 23]), // I7
+				(5 + [0, 11, 14, 16]), // 1V9
+				(0 + [12, 16, 7, 23]), // I7 (5th in bass)
+				(5 + [0, 11, 14, 16]),
+			].do { |chord|
+				[6, 8, 2].do { |item|
+					var dur = (item * tatum);
+					play.(\sub, dur, [freq: noteHz.(chord.sort[0], -1), rel: 6]);
+					chord.sort.postln.do { |int|
+						// play.(\pad, bar, [freq: noteHz.(int, 1), rel: 1.5, out: ~reverbBus]);
+						// play.(\keys, dur, [freq: noteHz.(int, 0), rel: 1.5, out: ~reverbBus]);
+						play.(\keys, dur, [freq: noteHz.(int, 0), rel: 2, out: 0]);
+					};
+					dur.wait;
+				};
+			};
+		});
+		// global wait ////////////////////////////////////////////////
+		(bar * 8).wait;
+	};
+}).play;
+)
 
 
 

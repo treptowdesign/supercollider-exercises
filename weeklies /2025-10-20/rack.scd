@@ -33,13 +33,13 @@ SynthDef(\hat, {
 	snd = snd * Env.perc(0.01, 0.3, curve: -7).ar;
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -25.dbamp, 0.1, [60e-3, 40e-3]), 1000), 8000);
 	snd = snd * Env.linen(0.0, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * -4.dbamp;
+	snd = snd * -4.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
 
 (
-SynthDef(\hatClosed, {
+SynthDef(\hat, { // Closed
 	var snd, ring;
 	snd = BPF.ar(Hasher.ar(Sweep.ar + [0, 1, 2]), 10320 * [0.7, 1.0, 1.2], 0.1);
 	snd = snd.sum;

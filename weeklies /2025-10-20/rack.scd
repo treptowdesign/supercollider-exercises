@@ -130,7 +130,7 @@ SynthDef(\hat, {
 )
 
 (
-SynthDef(\hat2, {
+SynthDef(\hat, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
 	snd = CombC.ar(snd, 0.1, 1 / [70, 330, 445], 0.3);
@@ -145,7 +145,7 @@ SynthDef(\hat2, {
 )
 
 (
-SynthDef(\hat3, {
+SynthDef(\hat, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
 	snd = CombC.ar(snd, 0.1, 1 / [90, 430, 145], 0.3);

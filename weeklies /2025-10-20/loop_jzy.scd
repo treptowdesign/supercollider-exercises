@@ -51,8 +51,8 @@ SynthDef(\hat3, {
 SynthDef(\keys, {
 	var snd, pm, duration, freq;
 	duration = \duration.kr(3.0);
-	freq = \freq.kr(260) * ([-0.05, 0, 0.05] * LFNoise2.ar(30 ! 3)).midiratio;
-	pm = SinOsc.ar(freq * 1.001) * 1.0  * (1 + Env.perc(0, 0.01).ar);
+	freq = \freq.kr(260) * ([-0.01, 0, 0.01] * LFNoise2.ar(30 ! 3)).midiratio;
+	pm = SinOsc.ar(freq * 1.001) * 0.4  * (1 + Env.perc(0, 0.01).ar);
 	snd = SinOsc.ar(freq, pm);
 	snd = LeakDC.ar(snd);
 	snd = Pan2.ar(snd.sum, \pan.kr(0), (-20.dbamp * \amp.kr(1)));
@@ -62,6 +62,9 @@ SynthDef(\keys, {
 	snd = BLowShelf.ar(snd, 500, 0.3, -5);
 	snd = (snd * 3.dbamp).tanh * 0.dbamp;
 	snd = BLowShelf.ar(snd, 500, 0.3, 3);
+
+	snd = HPF.ar(snd, 200);
+
 	snd = Balance2.ar(snd[0], snd[1]);
 	snd = snd * Env.perc(0.01, \rel.kr(4), curve: -4).ar;
 	snd = snd * Env.linen(0, duration, 0.01).ar(Done.freeSelf);
@@ -99,27 +102,7 @@ SynthDef(\sub, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 
-SynthDef(\rim, {
-	var snd, ratio;
-	ratio = \ratio.kr(1);
-	snd = SinOsc.ar(780 * [0.34, 0.4, 0.5, 0.9, 1.3, 1.45, 1.7] * ratio);
-	snd = snd * Env.perc(0.001, [0.01, 0.005, 0.001, 0.03, 0.023, 0.005, 0.015]).ar;
-	snd = snd.sum;
-	snd = snd * (1 + (2 * Env.perc(0.0, 0.01).ar));
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 6230 * ratio, 0.3) * Env.perc(0.001, 0.01).ar * 1.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 2230 * ratio, 0.3) * Env.perc(0.0, 0.003).ar * 3.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 1230 * ratio, 0.3) * Env.perc(0.002, 0.03).ar * 4.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 2130 * ratio, 0.4) * Env.perc(0.03, 0.1).ar * 4.dbamp);
-	snd = snd.tanh;
-	snd = BPeakEQ.ar(snd, 230, 1.2, 5);
-	snd = snd + GVerb.ar(snd * -1.dbamp, 30, 1);
-	snd = snd + PitchShift.ar(snd * -10.dbamp, 0.025, 1.9);
-	snd = snd + PitchShift.ar(snd * -7.dbamp, 0.035, 1.5);
-	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.015, 2.3);
-	snd = snd * -10.dbamp;
-	snd = snd * Env.perc(0.0, 0.1).ar(Done.freeSelf);
-	Out.ar(\out.kr(0), snd);
-}).add;
+
 
 SynthDef(\kick, { |
 
@@ -152,7 +135,7 @@ SynthDef(\kick, { |
     snd = BHiShelf.ar(snd, 3200, 0.3, 3);
     snd = snd * -4.dbamp;
 
-	snd = snd * Env.perc(0.001, 0.4 * velocity, curve: -4).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.001, 0.3 * velocity, curve: -4).ar(Done.freeSelf);
 	snd = snd * -3.dbamp * \amp.kr(1) ! 2;
 
 	// parallel compression
@@ -175,6 +158,7 @@ SynthDef(\kick, { |
 
 	Out.ar(\out.kr(0), mixed * outGainDB.dbamp);
 }).add;
+
 
 SynthDef(\clap, { |
     // parallel comp controls
@@ -204,7 +188,7 @@ SynthDef(\clap, { |
     snd = (snd * 4.dbamp).tanh;
     snd = BLowShelf.ar(snd, 200, 0.3, 3);
     snd = BHiShelf.ar(snd, 1200, 0.3, 3);
-    snd = snd * 0.dbamp;
+    snd = snd * -2.dbamp;
 
 	snd = snd * \amp.kr(0.2);
 
@@ -232,6 +216,35 @@ SynthDef(\clap, { |
 	Out.ar(\out.kr(0), mixed * outGainDB.dbamp);
 }).add;
 
+SynthDef(\rim, {
+	var snd, ratio;
+	ratio = \ratio.kr(1);
+	snd = SinOsc.ar(780 * [0.34, 0.4, 0.5, 0.9, 1.3, 1.45, 1.7] * ratio);
+	snd = snd * Env.perc(0.001, [0.01, 0.005, 0.001, 0.03, 0.023, 0.005, 0.015]).ar;
+	snd = snd.sum;
+	snd = snd * (1 + (2 * Env.perc(0.0, 0.01).ar));
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 6230 * ratio, 0.3) * Env.perc(0.001, 0.01).ar * 1.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 2230 * ratio, 0.3) * Env.perc(0.0, 0.003).ar * 3.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 1230 * ratio, 0.3) * Env.perc(0.002, 0.03).ar * 4.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 2130 * ratio, 0.4) * Env.perc(0.03, 0.1).ar * 4.dbamp);
+	snd = snd.tanh;
+	snd = BPeakEQ.ar(snd, 230, 1.2, 5);
+	snd = snd + GVerb.ar(snd * -1.dbamp, 30, 1);
+	snd = snd + PitchShift.ar(snd * -10.dbamp, 0.025, 1.9);
+	snd = snd + PitchShift.ar(snd * -7.dbamp, 0.035, 1.5);
+	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.015, 2.3);
+	snd = snd * -12.dbamp;
+	snd = snd * Env.perc(0.0, 0.1).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).add;
+
+SynthDef(\percTst, {
+	var snd;
+	snd = SinOsc.ar(720 * [1, 1.6] * \ratio.kr(1)).sum;
+	snd = snd * Env.perc(0.001, 0.02).ar(Done.freeSelf);
+	snd = snd * -8.dbamp ! 2;
+	Out.ar(\out.kr(0), snd);
+}).add;
 
 // -------- FX UNITS --------
 SynthDef(\reverbFx, {
@@ -242,7 +255,26 @@ SynthDef(\reverbFx, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 
+)
 
+
+(
+SynthDef(\organ, {
+	var snd, duration;
+	duration = \duration.kr(1.0);
+	snd = SinOsc.ar(\freq.kr(260) * [1, 2, 4, 8, 16] * (LFNoise2.kr(10 ! 5) * 0.2).midiratio);
+	snd = snd * Env.perc(0, [5, 10, 1, 2, 1]).ar;
+	snd = snd * [-2, 0, -10, -24, -30].dbamp;
+	snd = snd * (1 + (0.3 * LFNoise2.kr(16 ! snd.size)));
+	snd = snd.sum;
+	snd = LPF.ar(snd, XLine.ar(9000, 600, 2.0));
+	snd = CombC.ar(snd, 0.1, 1 / 114, 0.1);
+	// snd = snd * Select.ar(Sweep.ar > 0.02, [ToggleFF.ar(Dust.ar(200)), DC.ar(1)]);
+	snd = snd + GVerb.ar(snd * -10.dbamp, 10, 3, damping: 0.2);
+	snd = snd * Env.perc(0.03, duration * 14, curve: -8).ar(Done.freeSelf);
+	snd = snd * -24.dbamp * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).play;
 )
 
 
@@ -282,7 +314,7 @@ Routine({
 		subroutine.(8, { // 8
 			2.do {
 				(beat * 1).wait;
-				play.(\perc, (beat * 0.5) * 1, latency: 0.04);
+				play.(\perc, (beat * 0.5) * 1, latency: 0.032);
 				play.(\rim, beat * 1, latency: 0.0);
 				play.(\clap, beat * 1, latency: 0.0);
 				(beat * 1).wait;
@@ -306,11 +338,12 @@ Routine({
 				}, { tatum.wait; });
 			};
 		});
-		subroutine.(8, { // 8
+		subroutine.(1, { // 8
 			[6, 8, 2].do { |dur|
 				seq.(\kick, dur * tatum);
 			};
 		});
+
 		subroutine.(1, { // 2
 			[
 				(2 + [0, 10, 15, 21]),
@@ -326,11 +359,35 @@ Routine({
 					var dur = (item * tatum);
 					play.(\sub, dur, [freq: noteHz.(chord.sort[0], -1), rel: 3]);
 					chord.sort.postln.do { |int|
-						// play.(\pad, dur, [freq: noteHz.(int, 1), rel: 1, out: ~reverbBus]);
+						play.(\pad, dur, [freq: noteHz.(int, 1), rel: 1, out: ~reverbBus]);
 						play.(\keys, dur, [freq: noteHz.(int, 0), rel: 1, out: ~reverbBus]);
 					};
 					dur.wait;
 				};
+			};
+		});
+		subroutine.(1, { // 2
+			[
+				// [ 2, 0, 5, 11 ]
+				[\, 10], [0, 4], [\, 2],
+				// [ 7, 5, 9, 11 ]
+				[\, 2], [11, 4], [5, 4], [7, 2], [9, 6],
+				// [ 2, 0, 5, 11 ]
+				[\, 10], [5, 6],
+				// [ 7, 5, 9, 11 ]
+				[\, 4], [9, 4], [11, 2], [9, 6],
+				// [ 4, 7, 11, 2 ]
+				// [ 9, 7, 11, 1 ]
+				// [ 2, 5, 0, 4 ]
+				// [ 1, 7, 10, 4 ]
+			].do { |spec|
+				var int, dur;
+				# int, dur = spec;
+				dur = dur * tatum;
+				if(int != \, {
+					// play.(\organ, dur, [freq: noteHz.(int, 1), amp: 0.5]);
+					seq.(\organ, dur, [freq: noteHz.(int, 2), amp: 1]);
+				}, { dur.wait; });
 			};
 		});
 		// global wait //
@@ -338,3 +395,13 @@ Routine({
 	};
 }).play;
 )
+
+// Notes
+(2 + [0, 10, 15, 21]) % 12; // [ 2, 0, 5, 11 ]
+(7 + [0, 10, 14, 16]) % 12; // [ 7, 5, 9, 11 ]
+(2 + [0, 10, 15, 21]) % 12; // [ 2, 0, 5, 11 ]
+(7 + [0, 10, 14, 16]) % 12; // [ 7, 5, 9, 11 ]
+(4 + [0, 15, 19, 22]) % 12; // [ 4, 7, 11, 2 ]
+(9 + [0, 10, 14, 16]) % 12; // [ 9, 7, 11, 1 ]
+(2 + [0, 15, 22, 26]) % 12; // [ 2, 5, 0, 4 ]
+(1 + [0, 18, 21, 27]) % 12; // [ 1, 7, 10, 4 ]

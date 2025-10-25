@@ -150,8 +150,8 @@ Routine({
 					var rel = chord[\rel][index];
 					// play.(\sub, dur, [freq: noteHz.(chord[\notes].sort[0], -1), rel: rel]);
 					chord[\notes].sort.postln.do { |int|
-						play.(\pad, dur, [freq: noteHz.(int, 1), rel: rel * 1.5, out: 0]);
-						play.(\keys, dur, [freq: noteHz.(int, 0), rel: rel * 1.5, out: 0]);
+						play.(\pad, dur, [freq: noteHz.(int, 1), rel: rel * 2, out: 0]);
+						play.(\keys, dur, [freq: noteHz.(int, 0), rel: rel * 2, out: 0]);
 					};
 					dur.wait;
 				};

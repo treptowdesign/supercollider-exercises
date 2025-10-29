@@ -99,7 +99,7 @@ SynthDef(\clap, {
 	snd = snd * Env.perc(0, 0.4, curve: -4).ar(Done.freeSelf);
 	snd = snd * -5.dbamp * \amp.kr(0.2) ! 2;
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 SynthDef(\hat, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
@@ -153,8 +153,8 @@ SynthDef(\tom, {
 SynthDef(\sub, {
 	var snd, duration;
 	duration = \duration.kr(1);
-	snd = SinOsc.ar(\freq.kr(87) * (1 + (2 * Env.perc(0.0, 0.02, curve: -8).ar)) * [1, 2, 3]);
-	snd = snd * [1, -14.dbamp, -30.dbamp];
+	snd = SinOsc.ar(\freq.kr(87) * (1 + (3 * Env.perc(0.0, 0.01, curve: -8).ar)) * [1, 2]);
+	snd = snd * [1, -10.dbamp];
 	snd[1] = snd[1] * Env.perc(0, 0.5).ar;
 	snd = snd.sum;
 	snd = snd * Env.perc(0.01, 3.0).ar;
@@ -237,7 +237,7 @@ Routine({
 		subroutine.(1, {
 			[
 				// bar 1
-				\, \, 0.1, \, 1, \, 0.6, \,    0.6, \, 0.1, \, 1, \, \, \,
+				\, \, 0.1, \, 1, \, 0.6, \,    0.6, \, 0.1, \, 1, \, 0.1, \,
 				// bar 2
 				0.3, \, 0.1, \, 1, \, 0.6, \,    0.6, \, 0.2, \, 1, \, 0.4, \,
 			].do { |spec|
@@ -250,7 +250,7 @@ Routine({
 		subroutine.(1, {
 			[
 				[10, 0, -1],
-				[22, 0, -1],
+				[22, tatum/4, -1],
 				// [12, 0, -2],
 			].do { |spec, index|
 				var dur, late, oct;

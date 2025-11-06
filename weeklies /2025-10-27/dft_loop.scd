@@ -161,10 +161,10 @@ SynthDef(\sub, {
 	snd = snd ! 2;
 	snd = snd * -8.dbamp;
 	snd = snd * (1 + (2 * Env.perc(0, 0.02).ar));
-	snd = (snd * 2).tanh;
+	snd = (snd * 1.5).tanh;
 	snd = snd * Env.linen(0, duration, 0.1, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 SynthDef(\sub2, {
 	var snd, duration, hi, freq;
 	freq = \freq.kr(65);

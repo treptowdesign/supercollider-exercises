@@ -15,7 +15,7 @@ SynthDef(\sub, {
 	snd = snd.sum;
 	snd = snd * -14.dbamp ! 2;
 	snd = snd * (1 + (4 * Env.perc(0, 0.02).ar));
-	snd = (snd * 2.dbamp).tanh + ((snd * 4).fold2 * -10.dbamp);
+	snd = (snd * 4.dbamp).tanh + ((snd * 4.5).fold2 * -12.dbamp);
 	snd = LPF.ar(snd, XLine.kr(600, 60, duration));
 	hi = HPF.ar((snd * 2).tanh * -5.dbamp, 3400);
 	hi = hi * (1 + (BPF.ar({ WhiteNoise.ar } ! 2, 1200, 0.5) * 10.dbamp));
@@ -24,7 +24,7 @@ SynthDef(\sub, {
 	snd = snd + hi;
 	snd = snd * -5.dbamp;
 	snd = snd * Env.perc(0.01, rel, curve: 2).ar;
-	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
+	snd = snd * Env.linen(0.2, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\snare, {
@@ -53,7 +53,7 @@ SynthDef(\snare, {
 	snd = snd * -16.dbamp;
 	snd = snd * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
-}).play;
+}).add;
 SynthDef(\kick, {
     var snd;
 	snd = SinOsc.ar(
@@ -127,8 +127,8 @@ Routine({
 		});
 		subroutine.(1, {
 			[
-				[5, -1, 0.65],
-				[11, -1, 0.9]
+				[5, -1, 0.5],
+				[11, -1, 1]
 				/*[5, -1, 0.7],
 				[5, -1, 0.7],
 				[6, -2, 0.8],*/

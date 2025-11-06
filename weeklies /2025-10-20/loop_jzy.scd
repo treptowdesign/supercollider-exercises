@@ -108,10 +108,10 @@ SynthDef(\kick, { |
 
     mix = 0.5,          // 0=dry, 1=all compressed
     threshDB = -8,      // ~ -24..-12 is common
-    ratio = 8,           // 4..10 for drums
-    atkMs = 30,           // 3..10ms (let a little click through)
-    relMs = 60,          // 60..160ms
-    makeupDB = 8,        // +3..+9 usually
+    ratio = 10,           // 4..10 for drums
+    atkMs = 3,           // 3..10ms (let a little click through)
+    relMs = 80,          // 60..160ms
+    makeupDB = 0,        // +3..+9 usually
     outGainDB = -6        // post trim
 |
     var snd, dry, ctrl, comp, mixed, velocity;
@@ -157,7 +157,7 @@ SynthDef(\kick, { |
     mixed = Limiter.ar(mixed);
 
 	Out.ar(\out.kr(0), mixed * outGainDB.dbamp);
-}).add;
+}).play;
 
 
 SynthDef(\clap, { |

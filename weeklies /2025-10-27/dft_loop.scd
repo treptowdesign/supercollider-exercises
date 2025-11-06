@@ -103,7 +103,7 @@ SynthDef(\clap, {
 SynthDef(\hat, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = CombC.ar(snd, 0.2, 1 / 60, 2);
+	snd = CombC.ar(snd, 0.2, 1 / 60, 1);
 	snd = FreqShift.ar(snd, -14);
 	snd = BPF.ar(snd, [12240, 5230, 8832] * XLine.ar(0.9, 1.2, 0.08), 0.3).sum;
 	snd = HPF.ar(snd, 4e3);
@@ -157,14 +157,14 @@ SynthDef(\sub, {
 	snd = snd * [1, -10.dbamp];
 	snd[1] = snd[1] * Env.perc(0, 0.5).ar;
 	snd = snd.sum;
-	snd = snd * Env.perc(0.01, 3.0).ar;
+	snd = snd * Env.perc(0.01, 2.4).ar;
 	snd = snd ! 2;
 	snd = snd * -8.dbamp;
 	snd = snd * (1 + (2 * Env.perc(0, 0.02).ar));
-	snd = snd.tanh;
+	snd = (snd * 2).tanh;
 	snd = snd * Env.linen(0, duration, 0.1, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 SynthDef(\sub2, {
 	var snd, duration, hi, freq;
 	freq = \freq.kr(65);

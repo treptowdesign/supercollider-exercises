@@ -3,8 +3,6 @@
 ///////////////////////////////////////////////////////////////
 
 
-{ (SinOsc.ar(40.midicps) * 2).fold2 * 0.4 * Env.perc(0, 8).ar(Done.freeSelf) ! 2 }.play;
-
 (
 SynthDef(\sub, {
 	var snd, duration, rel, hi;
@@ -15,12 +13,12 @@ SynthDef(\sub, {
 	snd = snd.sum;
 	snd = snd * -14.dbamp ! 2;
 	snd = snd * (1 + (4 * Env.perc(0, 0.02).ar));
-	snd = (snd * 2.dbamp).tanh + ((snd * 4.2).fold2 * -8.dbamp);
+	snd = (snd * (Line.ar(14, 8, 0.3)).dbamp).tanh + ((snd * 4.4).fold2 * -8.dbamp);
 	// snd = LPF.ar(snd, XLine.kr(800, 40, duration));
-	hi = HPF.ar((snd * 2).tanh * -5.dbamp, 3400);
+	hi = HPF.ar((snd * 2).tanh * -5.dbamp, 3100);
 	hi = hi * (1 + (BPF.ar({ WhiteNoise.ar } ! 2, 1200, 0.5) * 10.dbamp));
 	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 1e-3);
-	hi = hi * 10.dbamp;
+	hi = hi * 6.dbamp;
 	snd = snd + hi;
 	snd = snd * -4.dbamp;
 	snd = snd * Env.perc(0.01, rel, curve: 2).ar;
@@ -97,33 +95,28 @@ SynthDef(\shaker, {
 	snd = HPF.ar(snd, 4e3);
 	snd = snd * Env.perc(0.05, 0.03, curve: 4).ar(Done.freeSelf);
 	snd = snd ! 2;
-	snd = snd * -24.dbamp * \amp.kr(1);
+	snd = snd * -20.dbamp * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\reverbFx, {
+	var snd;
+	snd = In.ar(\in.kr(0), 2);
+	snd = snd + GVerb.ar(snd * -10.dbamp, 24, 3, 0.3);
+	snd = snd * -8.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
 
+///////////////////////////////////////////////////////////////
+// Busses
+///////////////////////////////////////////////////////////////
+
+
 (
-SynthDef(\bass, {
-	var snd, velocity, freq;
-	velocity = \velocity.kr(0.5);
-	freq = \freq.kr(40.midicps) * (1 + (0.5 * Env.perc(0.1, \pitchDecay.kr(0.5)).ar * velocity));
-	snd = SinOsc.ar(freq);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar + [0, 1]), 4600, 0.3) * -40.dbamp);
-	snd = snd + ((snd * 2).tanh * -10.dbamp);
-	snd = (snd * 2.dbamp).fold2;
-	snd = snd * Env.perc(0, \timbreDecay.kr(1.0)).ar * velocity;
-	2.do {
-		snd = snd + (PitchShift.ar(snd, 0.1, 2) * -10.dbamp);
-		snd = (snd * 3.dbamp).tanh;
-	};
-	snd = LPF.ar(snd, 150) + HPF.ar(snd, 3000);
-	snd = HPF.ar(snd, freq) + SinOsc.ar(freq);
-	snd = snd * Env.asr(0.3, 1, 0.3).ar(Done.freeSelf, \gate.kr(1));
-	snd = snd * \amp.kr(-18.dbamp);
-	Out.ar(\out.kr(0), snd);
-}).play;
+~reverbBus = Bus.audio(nil, 2);
 )
 
+~reverbBus.index;
 
 ///////////////////////////////////////////////////////////////
 // Pattern
@@ -134,7 +127,7 @@ SynthDef(\bass, {
 (
 var s, beat, bar, tatum, root, noteHz, play, seq, subroutine;
 s = Server.default;
-beat = 60 / 116;
+beat = 60 / 112;
 bar = beat * 4;
 tatum = beat / 4;
 root = 52; // 42=F#, 48=C, 50=D, 51=D#, 52=E
@@ -148,25 +141,28 @@ seq = { |synth, dur, args=#[], latency=0.0|
 };
 subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 Routine({
+	Synth(\reverbFx, [in: ~reverbBus]);
 	loop {
 		subroutine.(1, {
 			(3 * tatum).wait;
-			[9, 4].do { |dur| seq.(\clap, (dur * tatum), latency: 0.018); };
+			[9, 4].do { |dur|
+				seq.(\clap, (dur * tatum), [out: ~reverbBus], latency: 0);
+			};
 		});
 		subroutine.(1, {
 			[
-				0.01, 0.06, 1, 0.3, 0.3, 0.05, 1, 0.01,
-				0.01, 0.06, 1, 0.3, 0.05, 0.05, 1, 0.3,
+				\, 0.1, 1, 0.3, 0.3, 0.05, 1, 0.1,
+				0.01, 0.1, 1, 0.3, \, 0.05, 1, 0.3,
 			].do { |vel, index|
 				var late = 0;
-				if(index % 2 == 1, { late = 0.018; });
+				if(index % 2 == 1, { late = 0.01; });
 				if(vel != \, {
 					seq.(\shaker, tatum, [amp: vel], latency: late);
 				}, { tatum.wait; });
 			};
 		});
 		subroutine.(1, {
-			var late = [0.018, 0, 0.018];
+			var late = [0.02, 0, 0.02];
 			(3 * tatum).wait;
 			[3, 6, 4].do { |dur, index|
 				seq.(\snare, (dur * tatum), latency: late[index]);
@@ -175,10 +171,10 @@ Routine({
 		subroutine.(1, {
 			[
 				[5, -1, 0.5, 0],
-				[11, -1, 1, 0.018]
-				/*[5, -1, 0.7, 0],
-				[5, -1, 0.7, 0.018],
-				[6, -2, 0.8, 0],*/
+				[11, -1, 0.9, 0.03]
+				/*[5, -1, 0.5, 0],
+				[5, -1, 0.9, 0.03],
+				[6, -2, 1, 0],*/
 			].do { |spec, index|
 				var dur, oct, rel, late;
 				# dur, oct, rel, late = spec;

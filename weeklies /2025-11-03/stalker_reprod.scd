@@ -22,7 +22,7 @@ SynthDef(\sub, {
 	hi = hi + DelayC.ar(hi, 0.2, SinOsc.ar(0.5, [0, pi] + Rand(0, pi)).linlin(-1, 1, 0, 1) * 1e-3);
 	hi = hi * 10.dbamp;
 	snd = snd + hi;
-	snd = snd * -6.dbamp;
+	snd = snd * -4.dbamp;
 	snd = snd * Env.perc(0.01, rel, curve: 2).ar;
 	snd = snd * Env.linen(0.2, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -52,7 +52,7 @@ SynthDef(\snare, {
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -25.dbamp, 0.1, [60e-3, 40e-3]), 200), 3000);
 	snd = snd * Env.perc(0.0, 0.45, curve: -4).ar;
 	snd = snd * Env.linen(0.001, 0.5, 0.001, curve: -4).ar(Done.freeSelf);
-	snd = snd * -16.dbamp;
+	snd = snd * -14.dbamp;
 	snd = snd * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -73,7 +73,7 @@ SynthDef(\kick, {
     snd = BLowShelf.ar(snd, 200, 0.3, 4);
     snd = BHiShelf.ar(snd, 1200, 0.3, 4);
 	snd = snd * Env.perc(0, 0.3, curve: -8).ar(Done.freeSelf);
-	snd = snd * -10.dbamp * \amp.kr(1) ! 2;
+	snd = snd * -12.dbamp * \amp.kr(1) ! 2;
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\clap, {
@@ -82,7 +82,7 @@ SynthDef(\clap, {
 	snd = RHPF.ar(snd, 1700, 0.3) * -8.dbamp;
 	snd = LPF.ar(snd, 9000);
 	snd = snd * Env([0, 2, 0.1, 1, 0.1, 1, 0.1, 0], [0.005, 0.01, 0.005, 0.01, 0.005, 0.1, 0.15] * 1, curve: -2).ar;
-	snd = snd.clip2 * -5.dbamp;
+	snd = snd.clip2 * -10.dbamp;
 	snd = snd * (1 + (2 * Env.perc(0, 0.03).ar));
 	snd = snd + GVerb.ar(snd * -25.dbamp, 30, 10, 0.8);
 	snd = snd * Env.linen(0, 0.2, 0.2, curve: -4).ar(Done.freeSelf);
@@ -91,20 +91,38 @@ SynthDef(\clap, {
 SynthDef(\shaker, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = CombC.ar(snd, 0.2, 1 / 90, 1);
-	snd = FreqShift.ar(snd, -44);
-	snd = BPF.ar(snd, [12240, 5230, 8832] * XLine.ar(0.9, 1.2, 0.1), 0.3).sum;
+	snd = CombC.ar(snd, 0.2, 1 / 70, 1);
+	snd = FreqShift.ar(snd, -54);
+	snd = BPF.ar(snd, [12240, 5230, 7832] * XLine.ar(0.8, 1.2, 0.1), 0.2).sum;
 	snd = HPF.ar(snd, 4e3);
-	snd = snd * Env.perc(0.05, 0.025, curve: 4).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.05, 0.03, curve: 4).ar(Done.freeSelf);
 	snd = snd ! 2;
-	snd = snd * -28.dbamp * \amp.kr(1);
+	snd = snd * -24.dbamp * \amp.kr(1);
 	Out.ar(\out.kr(0), snd);
 }).add;
 )
 
-
-
-{ (1 + (BPF.ar({ WhiteNoise.ar } ! 2, 1200, 0.5) * 10.dbamp)) }.plot(0.5);
+(
+SynthDef(\bass, {
+	var snd, velocity, freq;
+	velocity = \velocity.kr(0.5);
+	freq = \freq.kr(40.midicps) * (1 + (0.5 * Env.perc(0.1, \pitchDecay.kr(0.5)).ar * velocity));
+	snd = SinOsc.ar(freq);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar + [0, 1]), 4600, 0.3) * -40.dbamp);
+	snd = snd + ((snd * 2).tanh * -10.dbamp);
+	snd = (snd * 2.dbamp).fold2;
+	snd = snd * Env.perc(0, \timbreDecay.kr(1.0)).ar * velocity;
+	2.do {
+		snd = snd + (PitchShift.ar(snd, 0.1, 2) * -10.dbamp);
+		snd = (snd * 3.dbamp).tanh;
+	};
+	snd = LPF.ar(snd, 150) + HPF.ar(snd, 3000);
+	snd = HPF.ar(snd, freq) + SinOsc.ar(freq);
+	snd = snd * Env.asr(0.3, 1, 0.3).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * \amp.kr(-18.dbamp);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
 
 
 ///////////////////////////////////////////////////////////////
@@ -131,24 +149,24 @@ seq = { |synth, dur, args=#[], latency=0.0|
 subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 Routine({
 	loop {
-		subroutine.(0, {
+		subroutine.(1, {
 			(3 * tatum).wait;
-			[9, 4].do { |dur| seq.(\clap, (dur * tatum)); };
+			[9, 4].do { |dur| seq.(\clap, (dur * tatum), latency: 0.018); };
 		});
 		subroutine.(1, {
 			[
-				\, 0.1, 1, 0.3, 0.3, 0.1, 1, \,
-				\, 0.1, 1, 0.3, \, 0.1, 1, 0.3,
+				0.01, 0.06, 1, 0.3, 0.3, 0.05, 1, 0.01,
+				0.01, 0.06, 1, 0.3, 0.05, 0.05, 1, 0.3,
 			].do { |vel, index|
 				var late = 0;
-				if(index % 2 == 0, { late = 0.02; });
+				if(index % 2 == 1, { late = 0.018; });
 				if(vel != \, {
 					seq.(\shaker, tatum, [amp: vel], latency: late);
 				}, { tatum.wait; });
 			};
 		});
 		subroutine.(1, {
-			var late = [0.02, 0, 0.02];
+			var late = [0.018, 0, 0.018];
 			(3 * tatum).wait;
 			[3, 6, 4].do { |dur, index|
 				seq.(\snare, (dur * tatum), latency: late[index]);
@@ -157,10 +175,10 @@ Routine({
 		subroutine.(1, {
 			[
 				[5, -1, 0.5, 0],
-				[11, -1, 1, 0.02]
-				/*[5, -1, 0.7],
-				[5, -1, 0.7],
-				[6, -2, 0.8],*/
+				[11, -1, 1, 0.018]
+				/*[5, -1, 0.7, 0],
+				[5, -1, 0.7, 0.018],
+				[6, -2, 0.8, 0],*/
 			].do { |spec, index|
 				var dur, oct, rel, late;
 				# dur, oct, rel, late = spec;

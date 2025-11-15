@@ -175,7 +175,7 @@ SynthDef(\kick, {
 	snd = snd + HPF.ar((snd * 10.dbamp).fold2, 1200);
 	snd = snd + HPF.ar((snd * 5.dbamp).wrap2, 923);
 	snd = snd * Env.linen(0, duration, 0.01, curve: -4).ar(Done.freeSelf);
-	snd = snd * -2.dbamp;
+	snd = snd * -20.dbamp;
 	snd = snd ! 2;
 	Out.ar(\out.kr(0), snd);
 }).play;

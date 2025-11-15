@@ -2,6 +2,21 @@
 
 
 (
+SynthDef(\bass2, {
+	var snd, freq, dry;
+	freq = \freq.kr(60);
+	snd = Pulse.ar(freq);
+	snd = MoogFF.ar(snd, (Line.kr(0, 1, 0.9) ** 0.6).linexp(0, 1, 200, 400), 0.9) * 5.dbamp;
+	snd = Pan2.ar(snd, \pan.kr(0));
+	snd = snd * Env.asr(0.1, 1, 0.03).ar(Done.freeSelf, \gate.kr(1));
+	snd = snd * -8.dbamp;
+	snd = snd * \amp.kr(1);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+
+(
 SynthDef(\kick, { |
 
     mix = 0.5,          // 0=dry, 1=all compressed

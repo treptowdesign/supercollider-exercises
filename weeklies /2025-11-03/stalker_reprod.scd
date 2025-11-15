@@ -13,7 +13,7 @@ SynthDef(\sub, {
 	snd = snd.sum;
 	snd = snd * -14.dbamp ! 2;
 	snd = snd * (1 + (4 * Env.perc(0, 0.02).ar));
-	snd = (snd * (Line.ar(14, 8, 0.3)).dbamp).tanh + ((snd * 4.4).fold2 * -8.dbamp);
+	snd = (snd * Line.ar(14, 8, 0.4).dbamp).clip2 + ((snd * 4.4).fold2 * -8.dbamp);
 	// snd = LPF.ar(snd, XLine.kr(800, 40, duration));
 	hi = HPF.ar((snd * 2).tanh * -5.dbamp, 3100);
 	hi = hi * (1 + (BPF.ar({ WhiteNoise.ar } ! 2, 1200, 0.5) * 10.dbamp));
@@ -31,24 +31,25 @@ SynthDef(\snare, {
 		248 * (1 + (4 * Env.perc(0.001, 0.01).ar))
 		// * XLine.ar(1, 0.9, 0.5)
 		* (1 + (1 * Env.perc(0.0, 0.02).ar))
-		* [1, 1.4, 3.6, 4.2]
+		* [1, 1.2, 3.4, 6.6]
 	);
 	snd = snd * [0, -7, -12, -14].dbamp;
 	snd = snd * Env.perc(0, [1.0, 0.1, 0.01, 0.05]).ar;
 	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
 	snd = snd.sum;
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 2110, 0.3) * Env.perc(0.02, 0.2).ar * 4.dbamp);
-	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 4680, 0.2) * Env.perc(0.02, 0.2).ar * 2.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 2310, 0.2) * Env.perc(0.02, 0.2).ar * 4.dbamp);
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 5280, 0.3) * Env.perc(0.02, 0.2).ar * 2.dbamp);
 	snd = Pan2.ar(snd, \pan.kr(0));
-	snd = snd + GVerb.ar(snd.sum * -25.dbamp, 30, 1, 0.9);
+	snd = snd + GVerb.ar(snd.sum * -20.dbamp, 30, 1, 0.9);
 	snd = snd.blend(CombC.ar(snd, 0.2, 1 / 90, 0.1), \comb.kr(0));
 	snd = snd + PitchShift.ar(snd, 0.02, 1.2);
-	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.01, 1.8);
+	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.01, 1.9);
 	snd = (snd * 5.dbamp).tanh;
-	snd = HPF.ar(snd, 200);
+	snd = HPF.ar(snd, 180);
 	snd = FreqShift.ar(snd, -50);
 	snd = snd + LPF.ar(HPF.ar(DelayC.ar(snd * -25.dbamp, 0.1, [60e-3, 40e-3]), 200), 3000);
-	snd = snd * Env.perc(0.0, 0.45, curve: -4).ar;
+	snd = BHiShelf.ar(snd, 8000, 1, -4);
+	snd = snd * Env.perc(0.0, 0.6, curve: -4).ar;
 	snd = snd * Env.linen(0.001, 0.5, 0.001, curve: -4).ar(Done.freeSelf);
 	snd = snd * -14.dbamp;
 	snd = snd * \amp.kr(1);
@@ -77,8 +78,8 @@ SynthDef(\kick, {
 SynthDef(\clap, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = RHPF.ar(snd, 1700, 0.3) * -8.dbamp;
-	snd = LPF.ar(snd, 9000);
+	snd = RHPF.ar(snd, 1900, 0.3) * -8.dbamp;
+	snd = LPF.ar(snd, 9500);
 	snd = snd * Env([0, 2, 0.1, 1, 0.1, 1, 0.1, 0], [0.005, 0.01, 0.005, 0.01, 0.005, 0.1, 0.15] * 1, curve: -2).ar;
 	snd = snd.clip2 * -10.dbamp;
 	snd = snd * (1 + (2 * Env.perc(0, 0.03).ar));
@@ -140,19 +141,22 @@ seq = { |synth, dur, args=#[], latency=0.0|
 	(dur).wait;
 };
 subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
+
+
+
 Routine({
 	Synth(\reverbFx, [in: ~reverbBus]);
 	loop {
 		subroutine.(1, {
 			(3 * tatum).wait;
 			[9, 4].do { |dur|
-				seq.(\clap, (dur * tatum), [out: ~reverbBus], latency: 0);
+				seq.(\clap, (dur * tatum), [out: ~reverbBus], latency: 0.02);
 			};
 		});
 		subroutine.(1, {
 			[
-				\, 0.1, 1, 0.3, 0.3, 0.05, 1, 0.1,
-				0.01, 0.1, 1, 0.3, \, 0.05, 1, 0.3,
+				\, 0.1, 0.3, 1, 0.3, 0.05, 1, 0.1,
+				\, 0.1, 1, 0.3, \, 0.05, 1, 0.3,
 			].do { |vel, index|
 				var late = 0;
 				if(index % 2 == 1, { late = 0.01; });

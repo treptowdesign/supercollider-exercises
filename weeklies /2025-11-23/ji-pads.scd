@@ -6,8 +6,8 @@ SynthDef(\pad, {
 		(LFNoise2.kr(rate) + (LFNoise2.kr(rate * 2) / 2)).fold2;
 	};
 	// env = Env.linen(0.001, duration, 0.1).ar(Done.freeSelf);
-	env = Env.linen(0.001, duration * 0.7, duration * 0.3).ar(Done.freeSelf);
-	// env = Env.perc(0.001, duration, curve: 8).ar(Done.freeSelf);
+	// env = Env.linen(0.001, duration * 0.7, duration * 0.3).ar(Done.freeSelf);
+	env = Env.perc(0.001, duration, curve: 16).ar(Done.freeSelf);
 	// env = Env.asr(0.001, 1, 5, curve: \sin).ar(Done.freeSelf, \gate.kr(1));
 	freq = \freq.kr(440);
 	freq = freq * [1, 2, 1, 2, 2, 1, 2, 1];
@@ -17,42 +17,19 @@ SynthDef(\pad, {
 	snd = snd * (1 + ({ lfo.(5) } ! snd.size));
 	snd = Splay.ar(snd);
 	snd = snd + BPF.ar({ PinkNoise.ar } ! 2, freq * 2, 0.1);
-	snd = snd + Latch.ar(snd * -25.dbamp, Impulse.ar(ExpRand(4e3, 16e3)));
+	snd = snd + Latch.ar(snd * -25.dbamp, Impulse.ar(ExpRand(9e3, 16e3)));
 	snd = snd * -18.dbamp;
 	snd = snd * env;
 	Out.ar(\out.kr(0), snd);
 }).add;
-)
-
-//////////////////
-
-( // Midi - Major7
-(50 + 0 + [0, 16, 19, 23]).do { |int|
-	Synth(\pad, [freq: (int).midicps]);
-};
-)
-
-( // Midi - Major9
-(50 + 0 + [0, 16, 14, 23]).do { |int|
-	Synth(\pad, [freq: (int).midicps]);
-};
-)
-
-( // Midi - Major9
-(50 + 5 + [0, 16, 14, 23]).do { |int|
-	Synth(\pad, [freq: (int).midicps]);
-};
-)
-
-(
 SynthDef(\kick, {
 	var snd, duration, velocity;
 	duration = \duration.kr(1.0);
 	velocity = \velocity.kr(1.0);
 	snd = SinOsc.ar(Env.perc(0, 0.06).ar.linexp(0, 1, 56, velocity.linexp(0, 1, 500, 2320)) * XLine.ar(2, 1, 0.01) * XLine.ar(1, 0.5, 0.5));
 	snd = snd * Env.perc(0.01, 0.5).ar;
-	snd = snd + (Env.perc(0.001, 0.03).ar * BPF.ar(Hasher.ar(Sweep.ar), 6520, 0.3));
-	snd = snd + (Env.perc(0.03, 0.03).delay(0.01).ar * BPF.ar(Hasher.ar(Sweep.ar), 9520, 0.3) * -15.dbamp);
+	snd = snd + (Env.perc(0.001, 0.03).ar * BPF.ar(Hasher.ar(Sweep.ar), 5520, 0.3));
+	snd = snd + (Env.perc(0.03, 0.03).delay(0.01).ar * BPF.ar(Hasher.ar(Sweep.ar), 8520, 0.3) * -15.dbamp);
 	snd = snd * (1 + (10 * Env.perc(0.001, 0.01).ar));
 	snd = snd * 5.dbamp;
 	snd = snd * velocity.linlin(0, 1, 0.5, 1);
@@ -92,6 +69,27 @@ SynthDef(\shaker, {
 
 
 (
+SynthDef(\clank, {
+	var snd, duration, velocity;
+	duration = \duration.kr(1.0);
+	velocity = \velocity.kr(1.0);
+	snd = SinOsc.ar([2534, 2440, 5520] * 0.7);
+	snd = snd * Env.perc(0.001, 0.1 * [1, 0.3, 0.5]).ar;
+	snd = snd.sum;
+	snd = snd * velocity.linlin(0, 1, 0.5, 1);
+	snd = snd * (1 + (Env.perc(0.01, 0.3).ar * SinOsc.ar(4000)));
+	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar) * Env.perc(0.001, 0.03).ar, 2340, 0.1));
+	snd = snd + PitchShift.ar(snd, 0.03, 1.3);
+	snd = Pan2.ar(snd * 3.dbamp, \pan.kr(0)) + GVerb.ar(snd * -15.dbamp, 30, 2);
+	snd = snd * -13.dbamp;
+	snd = snd * Env.linen(0.0, duration, 0.9, curve: -4).ar(Done.freeSelf);
+	Out.ar(\out.kr(0), snd);
+}).play;
+)
+
+
+
+(
 var s, beat, bar, tatum, root, noteHz, play, seq, subroutine;
 s = Server.default;
 beat = 60 / 146;
@@ -110,24 +108,39 @@ subroutine = { |num=1, sequence| fork { num.do { sequence.() }; }; };
 
 Routine({
 	loop {
-		subroutine.(4, {
+		subroutine.(8, {
 			1.do {
 				seq.(\kick, beat * 3);
-				seq.(\kick, beat * 1, [velocity: 0.6], latency: 0.02);
-			};
-		});
-		subroutine.(4, {
-			1.do {
-				(beat * 2).wait;
-				seq.(\clap, beat * 2, latency: 0.02);
+				seq.(\kick, beat, [velocity: 0.6], latency: 0.02);
 			};
 		});
 		subroutine.(8, {
-			[0.1, 1, 0.6, 0.4].do { |vel|
+			1.do {
+				(beat * 1).wait;
+				seq.(\clank, beat);
+				seq.(\clap, beat * 2, latency: 0.02);
+			};
+		});
+		subroutine.(16, {
+			[0.01, 1, 0.4, 0.2].do { |vel|
 				seq.(\shaker, beat/2, [amp: vel]);
 			};
 		});
 		subroutine.(1, {
+			// 4 bars
+			[4, 2, 4, 2, 4, 4, 2, 4, 2, 4].do { |dur|
+				(root + [0, 16, 14, 23]).postln.do { |note|
+					play.(\pad, (tatum * dur), [freq: note.midicps], latency: 0.01);
+				};
+				(tatum * dur).wait;
+			};
+			[4, 2, 4, 2, 4, 4, 2, 4, 2, 4].do { |dur|
+				(root + 5 + [0, 16, 14, 23]).postln.do { |note|
+					play.(\pad, (tatum * dur), [freq: note.midicps], latency: 0.01);
+				};
+				(tatum * dur).wait;
+			};
+			// 4 bars
 			[4, 2, 4, 2, 4, 4, 2, 4, 2, 4].do { |dur|
 				(root + [0, 16, 14, 23]).postln.do { |note|
 					play.(\pad, (tatum * dur), [freq: note.midicps], latency: 0.01);
@@ -148,7 +161,7 @@ Routine({
 			};
 		});
 		// global wait
-		(bar * 4).wait;
+		(bar * 8).wait;
 	};
 }).play;
 )

@@ -7,7 +7,7 @@ SynthDef(\pad, {
 	};
 	// env = Env.linen(0.001, duration, 0.1).ar(Done.freeSelf);
 	// env = Env.linen(0.001, duration * 0.6, duration * 0.4).ar(Done.freeSelf);
-	env = Env.perc(0.01, duration * 0.8, curve: 16).ar(Done.freeSelf);
+	env = Env.perc(0.01, duration * 0.7, curve: 16).ar(Done.freeSelf);
 	// env = Env.asr(0.001, 1, 5, curve: \sin).ar(Done.freeSelf, \gate.kr(1));
 	freq = \freq.kr(440);
 	freq = freq * [1, 2, 1, 2, 2, 1, 2, 1];
@@ -17,7 +17,7 @@ SynthDef(\pad, {
 	snd = snd * (1 + ({ lfo.(5) } ! snd.size));
 	snd = Splay.ar(snd);
 	snd = snd + (BPF.ar({ PinkNoise.ar } ! 2, freq * 2, 0.1) * -4.dbamp);
-	snd = snd + Latch.ar(snd * -25.dbamp, Impulse.ar(ExpRand(6e3, 9e3)));
+	snd = snd + Latch.ar(snd * -25.dbamp, Impulse.ar(ExpRand(9e3, 16e3)));
 	snd = snd * -18.dbamp;
 	// snd = snd * (1 + (1 * Env.perc(0.001, 0.01).ar));
 	snd = snd * env;
@@ -46,7 +46,7 @@ SynthDef(\clap, {
 	var snd, duration;
 	duration = \duration.kr(1);
 	snd = BPF.ar(Hasher.ar(Sweep.ar + [0, 1, 2]), 1232 * [0.95, 1, 1.2], 0.2) * 10.dbamp;
-	snd = snd * Env([0, 5, 1, 0], [0.001, 0.01, 0.1]).delay([0.045, 0, 0.024]).ar;
+	snd = snd * Env([0, 5, 1, 0], [0.001, 0.01, 0.1]).delay([0.015, 0, 0.034]).ar;
 	snd = snd.clip2;
 	snd = Splay.ar(snd, 0.5);
 	snd = snd + LPF.ar(GVerb.ar(snd.sum * -20.dbamp, 50, 2), 8000);
@@ -294,9 +294,8 @@ Routine({
 		});
 	};
 	///////////////////////////////////////////////////////////////////
-
-	~loopChords.();
-	(bar * 8).wait;
+	// ~loopChords.();
+	// (bar * 8).wait; // global wait
 
 	loop {
 		~loopClap.();
@@ -306,9 +305,9 @@ Routine({
 		~loopShaker.();
 		~loopBass.();
 		~loopChords.();
-		// global wait
-		(bar * 8).wait;
+		(bar * 8).wait; // global wait
 	};
+	///////////////////////////////////////////////////////////////////
 }).play;
 )
 

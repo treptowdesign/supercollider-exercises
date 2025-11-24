@@ -17,7 +17,7 @@ SynthDef(\pad, {
 	snd = snd * (1 + ({ lfo.(5) } ! snd.size));
 	snd = Splay.ar(snd);
 	snd = snd + (BPF.ar({ PinkNoise.ar } ! 2, freq * 2, 0.1) * -4.dbamp);
-	snd = snd + Latch.ar(snd * -25.dbamp, Impulse.ar(ExpRand(9e3, 16e3)));
+	// snd = snd + Latch.ar(snd * -25.dbamp, Impulse.ar(ExpRand(9e3, 16e3)));
 	snd = snd * -18.dbamp;
 	// snd = snd * (1 + (1 * Env.perc(0.001, 0.01).ar));
 	snd = snd * env;
@@ -294,8 +294,8 @@ Routine({
 		});
 	};
 	///////////////////////////////////////////////////////////////////
-	// ~loopChords.();
-	// (bar * 8).wait; // global wait
+	~loopChords.();
+	(bar * 8).wait; // global wait
 
 	loop {
 		~loopClap.();

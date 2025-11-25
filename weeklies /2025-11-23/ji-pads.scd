@@ -16,7 +16,10 @@ SynthDef(\pad, {
 	snd = snd * [0, -10, 0, -10, -10, 0, -10, 0].dbamp;
 	snd = snd * (1 + ({ lfo.(5) } ! snd.size));
 	snd = Splay.ar(snd);
-	snd = snd + (BPF.ar({ PinkNoise.ar } ! 2, freq * 2, 0.1) * -4.dbamp);
+	snd.size.postln;
+	snd = snd + (BPF.ar({ PinkNoise.ar } ! 2, freq * 4, 0.1) * -34.dbamp).sum;
+	snd = snd + (BPF.ar({ PinkNoise.ar } ! 2, freq * 2, 0.1) * -28.dbamp).sum;
+	snd.size.postln;
 	// snd = snd + Latch.ar(snd * -25.dbamp, Impulse.ar(ExpRand(9e3, 16e3)));
 	snd = snd * -18.dbamp;
 	// snd = snd * (1 + (1 * Env.perc(0.001, 0.01).ar));
@@ -127,9 +130,7 @@ SynthDef(\hat2, {
 	snd = FreqShift.ar(snd, 165);
 	snd = snd + (Hasher.ar(Sweep.ar) * -20.dbamp);
 	snd = BPF.ar(snd, (0..3).normalize.linexp(0, 1, 5000, 9000), 0.02).sum;
-	3.do {
-		snd = HPF.ar(snd, 3000);
-	};
+	3.do { snd = HPF.ar(snd, 3000); };
 	snd = snd * 30.dbamp;
 	snd = snd + (HPF.ar(SinOsc.ar(XLine.ar(16e3, 1e3, 0.01)) * Env.perc(0.001, 0.01).ar, 200) * -10.dbamp);
 	snd = snd * Env.linen(0.001, 0.01, 0.02, curve: -4).ar;

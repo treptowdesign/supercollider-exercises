@@ -20,26 +20,38 @@ SynthDef(\src, {
 }).add;
 )
 
+
 (
 var s, beat, tatum, root, scale, noteHz, play, makeStep;
 s = Server.default;
-beat = 60 / 138;
+beat = 60 / 72;
 tatum = beat / 4;
 root = 50;
-scale = Scale.dorian.degrees;
+scale = Scale.mixolydian.degrees ++ [0];
 noteHz = { |int=0, oct=0| (root + int + (12 * oct)).midicps; };
 play = { |synth, args| s.bind { Synth(synth, args); }; };
 makeStep = {  (note: scale.choose, oct: (-1..3).choose, dur: [1, 2, 4].choose ) };
 Routine({
+	fork {
+		loop {
+			var steps = [2, 4, 8, 12].choose, repeat = [2, 4, 8, 12].choose;
+			var pattern = makeStep ! steps;
+			repeat.do {
+				pattern.do { |spec|
+					var args = [amp: rrand(0.1, 1.0), pan: rrand(-0.5, 0.5)];
+					play.(\src, [freq: noteHz.(spec[\note], spec[\oct])] ++ args);
+					(tatum * spec[\dur]).wait;
+				};
+			};
+		};
+	};
 	loop {
-		var steps = [2, 4, 8].choose, repeat = [2, 4, 8].choose;
+		var steps = [2, 4, 8, 12].choose, repeat = [2, 4, 8, 12].choose;
 		var pattern = makeStep ! steps;
-		steps.postln;
-		repeat.postln;
-		pattern.postln;
 		repeat.do {
 			pattern.do { |spec|
-				play.(\src, [freq: noteHz.(spec[\note], spec[\oct])]);
+				var args = [amp: rrand(0.1, 1.0), pan: rrand(-0.5, 0.5)];
+				play.(\src, [freq: noteHz.(spec[\note], spec[\oct])] ++ args);
 				(tatum * spec[\dur]).wait;
 			};
 		};

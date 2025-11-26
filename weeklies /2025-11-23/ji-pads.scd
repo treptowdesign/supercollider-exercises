@@ -11,18 +11,16 @@ SynthDef(\pad, {
 	// env = Env.asr(0.001, 1, 5, curve: \sin).ar(Done.freeSelf, \gate.kr(1));
 	freq = \freq.kr(440);
 	freq = freq * [1, 2, 1, 2, 2, 1, 2, 1];
-	freq = freq * (({ lfo.(8) } ! freq.size) * 0.2).midiratio;
+	freq = freq * (({ lfo.(8) } ! freq.size) * 0.14).midiratio;
 	snd = SinOsc.ar(freq);
 	snd = snd * [0, -10, 0, -10, -10, 0, -10, 0].dbamp;
 	snd = snd * (1 + ({ lfo.(5) } ! snd.size));
 	snd = Splay.ar(snd);
-	snd.size.postln;
-	snd = snd + (BPF.ar({ PinkNoise.ar } ! 2, freq * 4, 0.1) * -34.dbamp).sum;
+	snd = snd + (BPF.ar({ PinkNoise.ar } ! 2, freq * 4, 0.1) * -32.dbamp).sum;
 	snd = snd + (BPF.ar({ PinkNoise.ar } ! 2, freq * 2, 0.1) * -28.dbamp).sum;
-	snd.size.postln;
-	// snd = snd + Latch.ar(snd * -25.dbamp, Impulse.ar(ExpRand(9e3, 16e3)));
+	snd = snd + Latch.ar(snd * -30.dbamp, Impulse.ar(ExpRand(9e3, 16e3)));
+	snd = snd * (1 + (2 * Env.perc(0.001, 0.01).ar));
 	snd = snd * -18.dbamp;
-	// snd = snd * (1 + (1 * Env.perc(0.001, 0.01).ar));
 	snd = snd * env;
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -49,23 +47,24 @@ SynthDef(\clap, {
 	var snd, duration;
 	duration = \duration.kr(1);
 	snd = BPF.ar(Hasher.ar(Sweep.ar + [0, 1, 2]), 1232 * [0.95, 1, 1.2], 0.2) * 10.dbamp;
-	snd = snd * Env([0, 5, 1, 0], [0.001, 0.01, 0.1]).delay([0.015, 0, 0.034]).ar;
+	snd = snd * Env([0, 5, 1, 0], [0.001, 0.01, 0.1]).delay([0.018, 0, 0.044]).ar;
 	snd = snd.clip2;
-	snd = Splay.ar(snd, 0.5);
-	snd = snd + LPF.ar(GVerb.ar(snd.sum * -20.dbamp, 50, 2), 8000);
+	snd = Pan2.ar(snd.sum, 0);
+	// snd = Splay.ar(snd, 0.5);
+	snd = snd + LPF.ar(GVerb.ar(snd.sum * -25.dbamp, 30, 2), 8000);
 	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.13, 1.2);
-	snd = snd * 4.dbamp;
+	snd = snd * -2.dbamp;
 	snd = snd * Env.linen(0.0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\shaker, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = CombC.ar(snd, 0.2, 1 / 80, 1);
+	snd = CombC.ar(snd, 0.2, 1 / 90, 1);
 	snd = FreqShift.ar(snd, -54);
-	snd = BPF.ar(snd, [12240, 5230, 7832] * 1.1 * XLine.ar(0.8, 1.2, 0.1), 0.2).sum;
+	snd = BPF.ar(snd, [12240, 5230, 7832] * 1.1 * XLine.ar(0.7, 1.2, 0.1), 0.2).sum;
 	snd = HPF.ar(snd, 4e3);
-	snd = snd * Env.perc(0.05, 0.02, curve: 4).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.05, 0.01, curve: 4).ar(Done.freeSelf);
 	snd = snd * -18.dbamp * \amp.kr(1) ! 2;
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -90,14 +89,14 @@ SynthDef(\woodblock, {
 	duration = \duration.kr(1.0);
 	velocity = \velocity.kr(1.0);
 	tone = \tone.kr(0.4);
-	snd = SinOsc.ar([1200, 1934, 3340] * tone * XLine.ar(2.3, 1.0, 0.001));
+	snd = SinOsc.ar([1200, 1834, 3340] * tone * XLine.ar(2.3, 1.0, 0.003));
 	snd = snd * [0, 0, -9].dbamp;
 	snd = snd.sum;
 	snd = snd * Env.perc(0.001, 0.05).ar;
 	snd = snd * (1 + (3 * Env.perc(0, 0.01).ar));
 	snd = snd * velocity.linlin(0, 1, 0.5, 1);
 	snd = snd.tanh;
-	snd = Pan2.ar(snd * 3.dbamp, \pan.kr(0)) + GVerb.ar(snd * -10.dbamp, 30, 1);
+	snd = Pan2.ar(snd * 3.dbamp, \pan.kr(0)) + GVerb.ar(snd * -30.dbamp, 40, 1, 0.2);
 	snd = snd * -10.dbamp;
 	snd = snd * Env.linen(0.0, duration, 0.3, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -116,8 +115,9 @@ SynthDef(\hat, {
 	snd = snd + (HPF.ar(SinOsc.ar(XLine.ar(16e3, 1e3, 0.01)) * Env.perc(0.001, 0.01).ar, 200) * -10.dbamp);
 	snd = snd * Env.linen(0.001, 0.01, 0.02, curve: -4).ar;
 	snd = snd * (1 + Env.perc(0, 0.01).ar);
+	snd = Pan2.ar(snd, \pan.kr(0));
 	snd = snd + GVerb.ar(snd * -10.dbamp, 10, 3);
-	snd = snd * -18.dbamp * \amp.kr(1);
+	snd = snd * -17.dbamp * \amp.kr(1);
 	snd = snd * Env.linen(0.0, duration, 0.01, curve: -4).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
 }).add;
@@ -147,9 +147,8 @@ SynthDef(\bass, {
 	freq = \freq.kr(60);
 	snd = Pulse.ar(freq * [-0.1, 0.1].midiratio, lfo.(4).linlin(-1, 1, 0.4, 0.6));
 	snd = snd * -12.dbamp;
-	snd = RLPF.ar(snd, LFNoise2.kr(0.5).linexp(-1, 1, 100, 1000), 0.3);
-	snd = LPF.ar(snd, 530);
-	// snd = snd * Env.asr(0.01, 1, 0.01).ar(Done.freeSelf, \gate.kr(1));
+	snd = RLPF.ar(snd, LFNoise2.kr(0.5).linexp(-1, 1, 100, 1000), 0.4);
+	snd = LPF.ar(snd, 520);
 	snd = snd * Env.perc(0.001, 8).ar;
 	snd = snd * Env.linen(0, duration, 0.01).ar(Done.freeSelf);
 	Out.ar(\out.kr(0), snd);
@@ -191,36 +190,36 @@ Routine({
 	///////////////////////////////////////////////////////////////////
 	~loopChords = {
 		subroutine.(1, {
-			var padsOut = 0;
+			var late = 0.01, padsOut = 0;
 			// 4 bars
 			[4, 2, 4, 2, 4, 4, 2, 4, 2, 4].do { |dur|
 				(root + [0, 16, 14, 23]).do { |note|
-					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: 0.01);
+					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: late);
 				};
 				(tatum * dur).wait;
 			};
 			[4, 2, 4, 2, 4, 4, 2, 4, 2, 4].do { |dur|
 				(root + 5 + [0, 16, 14, 23]).do { |note|
-					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: 0.01);
+					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: late);
 				};
 				(tatum * dur).wait;
 			};
 			// 4 bars
 			[4, 2, 4, 2, 4, 4, 2, 4, 2, 4].do { |dur|
 				(root + [0, 16, 14, 23]).do { |note|
-					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: 0.01);
+					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: late);
 				};
 				(tatum * dur).wait;
 			};
 			[4, 2, 4, 2, 4, 4, 2, 4, 2].do { |dur|
 				(root + 5 + [0, 16, 14, 23]).do { |note|
-					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: 0.01);
+					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: late);
 				};
 				(tatum * dur).wait;
 			};
 			[4].do { |dur|
 				(root + 7 + [0, 16, 19, 23]).do { |note|
-					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: 0.01);
+					play.(\pad, (tatum * dur), [freq: note.midicps, out: padsOut], latency: late);
 				};
 				(tatum * dur).wait;
 			};
@@ -251,11 +250,12 @@ Routine({
 	};
 	~loopHat = {
 		subroutine.(8, {
-			var late = 0.02;
+			var late = 0.02, pan=0.4;
 			[\, \, 0.5, \, \, \, \, \, \, \, 0.1, \, 0.8, 0.1, 0.6, \].do { |vel, index|
 				if(index % 2 == 1, { late = 0.01; });
+				if(index % 2 == 1, { pan = pan * -1; });
 				if(vel != \, {
-					seq.(\hat, tatum, [amp: vel], latency: late);
+					seq.(\hat, tatum, [amp: vel, pan: pan], latency: late);
 				}, { tatum.wait; });
 			};
 		});

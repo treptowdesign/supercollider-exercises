@@ -12,7 +12,7 @@ SynthDef(\src, {
 	snd = snd + BPF.ar(PinkNoise.ar(-4.dbamp), freq * 2, 0.2);
 	snd = (snd * 2.dbamp).tanh;
 	snd = LPF.ar(snd, Env.perc(0.02, 0.3).ar.linexp(0, 1, 500, 6000));
-	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.001, 2);
+	snd = snd + PitchShift.ar(snd * -5.dbamp, 0.1, 2);
 	snd = Pan2.ar(snd, \pan.kr(0), amp);
 	snd = snd * env;
 	snd = LeakDC.ar(snd);

@@ -7,7 +7,7 @@ SynthDef(\reese, {
 	var snd, detune;
 	detune = (-4..4).linlin(-4, 4, -1, 1); // -1, to 1, intervals of 0.25, includes 0
 	snd = LFSaw.ar(\freq.kr(60).lag(0.3) * (detune * 0.1).midiratio, Rand(0.0, 2.0 ! 9));
-	snd = RLPF.ar(snd, SinOsc.ar(0.2, (0..8).normalize * 0.4 * 2pi).linexp(-1, 1, 100, 2430), 0.1);
+	snd = RLPF.ar(snd, SinOsc.ar(0.2, (0..8).normalize * 0.4 * 2pi).linexp(-1, 1, 100, 2130), 0.1);
 	snd = Splay.ar(snd);
 	snd = (snd * 1).clip2;
 	snd = snd + GVerb.ar(snd * -25.dbamp, 60, 3);
@@ -42,7 +42,7 @@ SynthDef(\reese, {
 SynthDef(\reese, {
 	var snd, detune;
 	detune = (-4..4).linlin(-4, 4, -1, 1); // -1, to 1, intervals of 0.25, includes 0
-	snd = LFSaw.ar(\freq.kr(60).lag(0.3) * (detune * 0.1).midiratio, Rand(0.0, 2.0 ! 9));
+	snd = LFSaw.ar(\freq.kr(60).lag(0.5) * (detune * 0.1).midiratio, Rand(0.0, 2.0 ! 9));
 	snd = RLPF.ar(snd, SinOsc.ar(0.2, (0..8).normalize * 0.4 * 2pi).linexp(-1, 1, 100, 5430), 0.1);
 	snd = Splay.ar(snd);
 	snd = (snd * 1).clip2;

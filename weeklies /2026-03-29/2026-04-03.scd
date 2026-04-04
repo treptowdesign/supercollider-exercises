@@ -346,9 +346,10 @@ Routine({
 				16.do { |item, index|
 					oct = (0..5).choose;
 					freq = (root + notes.choose + (12 * oct)).midicps;
+					// amp = (index.linlin(0, 15, 0.001, 0.3)) * (oct.linlin(0, 5, 1, 0.3)) * [0.5, 1.25].choose;
 					amp = (index.linlin(0, 15, 0.01, 0.3)) * (oct.linlin(0, 5, 1, 0.3)) * 1.25;
 					rel = (1..4).choose;
-					play.(\src, beat/4, [freq: freq, amp: amp, rel: rel]);
+					play.(\src, tatum, [freq: freq, amp: amp, rel: rel]);
 				};
 			};
 		};

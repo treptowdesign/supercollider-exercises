@@ -60,17 +60,17 @@ SynthDef(\chords1, {
 	freq = \freq.kr(440);
 	ampEnv = Env.perc(0.001, 4, curve: -4).ar(Done.freeSelf);
 	snd = SinOsc.ar(freq * 8.991) * 0.1;
-	snd = SinOsc.ar(freq * 4.009, snd.mod(2pi)) * 0.1;
+	snd = SinOsc.ar(freq * 4.009, snd.mod(2pi)) * 0.2;
 	snd = SinOsc.ar(freq, snd.mod(2pi), -12.dbamp);
 	snd = Pan2.ar(snd * ampEnv, \pan.kr(0), \amp.kr(1.0));
 	Out.ar(\out.kr(0), snd);
 }).add;
 SynthDef(\chords, {
 	var snd, freq, ampEnv;
-	freq = \freq.kr(440) * (1 - (1 * Env.perc(0, 0.4).ar));
-	ampEnv = Env.perc(0.3, 4, curve: -4).ar(Done.freeSelf);
+	freq = \freq.kr(440) * (1 - (1 * Env.perc(0, 0.2).ar));
+	ampEnv = Env.perc(0.2, 4, curve: -4).ar(Done.freeSelf);
 	snd = SinOsc.ar(freq * 13.991) * 1;
-	snd = SinOsc.ar(freq * 4.009, snd.mod(2pi)) * 0.2;
+	snd = SinOsc.ar(freq * 4.009, snd.mod(2pi)) * 0.25;
 	snd = SinOsc.ar(freq, snd.mod(2pi), -12.dbamp);
 	// snd = (snd).tanh;
 	snd = Pan2.ar(snd * ampEnv, \pan.kr(0), \amp.kr(1.0));
@@ -307,11 +307,11 @@ Routine({
 (
 var s, bpm, beat, bar, tatum, root, scale, play, playInline;
 s = Server.default;
-bpm = 87;
+bpm = 97;
 beat = 60 / bpm;
 bar = beat * 4;
 tatum = beat / 4;
-root = 32;
+root = 32; // 32 = G#1/Ab1
 scale = Scale.ionian.degrees;
 play = { |synth, duration, args=#[]|
 	s.bind { Synth(synth, [duration: duration] ++ args) };
@@ -346,8 +346,8 @@ Routine({
 				16.do { |item, index|
 					oct = (0..5).choose;
 					freq = (root + notes.choose + (12 * oct)).midicps;
-					// amp = (index.linlin(0, 15, 0.001, 0.3)) * (oct.linlin(0, 5, 1, 0.3)) * [0.5, 1.25].choose;
-					amp = (index.linlin(0, 15, 0.01, 0.3)) * (oct.linlin(0, 5, 1, 0.3)) * 1.25;
+					// amp = (index.linlin(0, 15, 0.001, 0.3)) * (oct.linlin(0, 5, 1, 0.3)) * [0.5, 1, 1.5].choose;
+					amp = (index.linlin(0, 15, 0.01, 0.3)) * (oct.linlin(0, 5, 1, 0.3)) * 1.5;
 					rel = (1..4).choose;
 					play.(\src, tatum, [freq: freq, amp: amp, rel: rel]);
 				};
@@ -361,15 +361,14 @@ Routine({
 			(notes: (9 + [0, 15, 7, 10]), length: bar/2),
 			(notes: (0 + [0, 16, 19, 23]), length: bar/2)
 		].do { |chord|
-			var notes, length;
-			// # notes, length = chord;
+			var notes, length, freq, amp;
 			notes = chord[\notes];
 			length = chord[\length];
 			notes.do { |note, index|
 				[0, 1, 2].do { |oct, index|
-					playInline.(\chords, length,
-						[freq: (root + note + (12 * oct)).midicps, amp: index.linlin(0, 2, 0.4, 0.05)]
-					);
+					freq = (root + note + (12 * oct)).midicps;
+					amp = index.linlin(0, 2, 0.3, 0.15);
+					playInline.(\chords, length, [freq: freq, amp: amp]);
 				};
 			};
 			length.wait;
@@ -380,7 +379,12 @@ Routine({
 	loop {
 		// bar /////////////////////////////
 		play.(\kick, beat * 0.5);
-		play.(\hat, beat * 0.5);
+		if(0.5.coin, {
+			play.(\hat, beat * 0.5);
+		}, {
+			play.(\hat, beat * 0.25);
+			play.(\hat, beat * 0.25);
+		});
 		play.(\clap, beat * 0.5);
 		play.(\hat, beat * 0.25);
 		play.(\kick, beat * 0.25);
@@ -396,21 +400,32 @@ Routine({
 		play.(\hat, beat * 0.5);
 		play.(\clap, beat * 0.5);
 		play.(\hat, beat * 0.25);
-		play.(\clap, beat * 0.25);
+		if(0.5.coin, {
+			play.(\clap, beat * 0.25);
+		}, {
+			play.(\clap, beat * 0.125);
+			play.(\clap, beat * 0.125);
+		});
 		// bar /////////////////////////////
 		play.(\kick, beat * 0.25);
 		play.(\kick, beat * 0.25);
 		play.(\hat, beat * 0.25);
 		play.(\kick, beat * 0.25);
 		play.(\clap, beat * 0.5);
-		play.(\hat, beat * 0.125);
-		play.(\hat, beat * 0.125);
-		play.(\hat, beat * 0.25);
+		if(0.5.coin, {
+			2.do { play.(\hat, beat * 0.125); };
+			play.(\hat, beat * 0.25);
+		}, {
+			4.do { play.(\hat, beat * 0.125); };
+		});
 		////////////////////////////////////
 	};
 }).play;
 )
 
+
+
+0.5.coin;
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////

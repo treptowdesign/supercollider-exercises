@@ -86,7 +86,7 @@ SynthDef(\pianoFx, {
 	snd = LPF.ar(snd, 2000);
 	// snd = snd + DelayC.ar(snd * -5.dbamp, 0.2, SinOsc.ar(0.3, [0, pi]).linlin(-1, 1, 0, 1) * 2e-3);
 	snd = snd + GVerb.ar(snd.sum * -14.dbamp, 30, 3);
-	snd = snd * -8.dbamp;
+	snd = snd * -12.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 
@@ -112,10 +112,11 @@ SynthDef(\pad, {
 
 
 (
-var s, beat, bar, tatum, play, playP, wait, noteToFreq;
+var s, root, beat, bar, tatum, play, playP, wait, noteToFreq;
 
 s = Server.default;
 
+root = 60;
 beat = 60 / 121;
 bar = beat * 4;
 tatum = beat / 4;
@@ -134,7 +135,7 @@ wait = { |duration|
 };
 
 noteToFreq = { |note, octave = 0|
-	(60 + note + (octave * 12)).midicps;
+	(root + note + (octave * 12)).midicps;
 };
 
 Routine({
@@ -168,8 +169,9 @@ Routine({
 			notes.sort.do { |note, i|
 				// var amp = i.linlin(0, 4, 1.1, 0.9) * vol;
 				var amp = vol;
-				playP.(\keys, 1 / 2, [ freq: noteToFreq.(note), amp: amp, out: pianoBus]);
-				wait.(rrand(1 / 16, 1 / 8));
+				playP.(\keys, 1/2, [ freq: noteToFreq.(note), amp: amp, out: pianoBus]);
+				// wait.(rrand(1/16, 1/8));
+				// wait.(1/16);
 			};
 		};
 		wait.(length);

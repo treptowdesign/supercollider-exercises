@@ -31,7 +31,7 @@ SynthDef(\clap, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
 	snd = (BPF.ar(snd, [1223, 1400], 0.4) * [20, 10].dbamp).sum;
-	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.013, 0.001, 0.013, 0.001, 0.07] * 0.8, curve: -4).ar;
+	snd = snd * Env([0, 1, 0.1, 1, 0.1, 1, 0], [0.001, 0.013, 0.001, 0.013, 0.001, 0.07] * 0.9, curve: -4).ar;
 	snd = snd.clip2;
 	snd = snd + GVerb.ar(snd * -35.dbamp, 30, 0.4);
 	snd = BHiShelf.ar(snd, 2300, 0.3, -3);
@@ -56,8 +56,8 @@ SynthDef(\clap2, {
 
 SynthDef(\hat, {
 	var snd;
-	snd = Hasher.ar(Sweep.ar(Impulse.ar(230))) + Hasher.ar(Sweep.ar + 1);
-	snd = BPF.ar(snd, [7223, 9.234e3], 0.4);
+	snd = Hasher.ar(Sweep.ar(Impulse.ar(220))) + Hasher.ar(Sweep.ar + 1);
+	snd = BPF.ar(snd, [7223, 9234], 0.4);
 	snd = snd.sum;
 	snd = HPF.ar(snd, 6e3);
 	snd = snd * Env.perc(0.003, 0.09, curve: -8).ar(Done.freeSelf);
@@ -113,17 +113,17 @@ SynthDef(\saw, {
 	count = 10;
 	duration = \duration.kr(1);
 	freq = \freq.kr(440) * Line.kr(\bend.kr(0), 0, 0.2).midiratio;
-	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.6) } ! count) * 0.3).midiratio, { Rand(0, 4) } ! count);
+	snd = LFSaw.ar(freq * (({LFNoise2.kr(0.6) } ! count) * 0.4).midiratio, { Rand(0, 4) } ! count);
 	snd = snd + PitchShift.ar(snd * 0.dbamp, 0.12, 0.5);
 	snd = Splay.ar(snd) * -8.dbamp;
-	snd = snd + (MoogFF.ar(snd, XLine.kr(6000, freq, duration), 3) * -8.dbamp);
+	snd = snd + (MoogFF.ar(snd, XLine.kr(6000, freq, duration), 2) * -2.dbamp);
 	snd = snd * Env.perc(0.06, duration * 3, curve: -8).ar(Done.freeSelf);
 	snd = snd * -5.dbamp * \amp.kr(1.0);
 	Out.ar(\out.kr(0), snd);
 }).add;
 
 
-SynthDef(\pianoFx2, {
+/*SynthDef(\pianoFx2, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
 	snd = CombC.ar(snd, 0.2, 1 / 46, 0.2);
@@ -139,16 +139,16 @@ SynthDef(\pianoFx2, {
 	snd = snd + GVerb.ar(snd.sum * -12.dbamp, 30, 4);
 	snd = snd * -8.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).add;*/
 
 SynthDef(\pianoFx, {
 	var snd;
 	snd = In.ar(\in.kr(0), 2);
 	// snd = CombC.ar(snd, 0.2, 1 / 45, 0.2);
-	snd = snd + (FreqShift.ar(CombC.ar(FreqShift.ar(snd, -31), 0.2, 1 / 58, -0.12), 31) * -8.dbamp);
+	snd = snd + (FreqShift.ar(CombC.ar(FreqShift.ar(snd, -41), 0.2, 1 / 58, -0.17), 41) * -8.dbamp);
 	snd = LPF.ar(snd, 5000);
 	snd = snd + GVerb.ar(snd.sum * -2.dbamp, 30, 2);
-	snd = snd * -20.dbamp;
+	snd = snd * -12.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).add;
 
@@ -257,12 +257,8 @@ Routine({
 
 	~playKick_16beat = {
 		fork {
-			4.do {
+			16.do {
 				playKick.(1, [freq: noteToFreq.(0, -3)]);
-				playKick.(1, [freq: noteToFreq.(0, -3)]);
-				playKick.(1, [freq: noteToFreq.(0, -3)]);
-				playKick.(1, [freq: noteToFreq.(0, -3)]);
-				/*playKick.(4, [freq: noteToFreq.(0, -3)]);*/
 			};
 		};
 	};
@@ -284,7 +280,6 @@ Routine({
 				wait.(0.75);
 				play.(\clap, 0.75);
 				play.(\clap, 0.5);
-
 			};
 		};
 	};
@@ -302,7 +297,6 @@ Routine({
 				play.(\clap, 0.75);
 				playP.(\clap2, 0.5);
 				play.(\clap, 0.5);
-
 			};
 		};
 	};
@@ -331,6 +325,7 @@ Routine({
 
 	inf.do {
 
+		~playHat_16beat.();
 		~playKick2_16beat.();
 		~playClap_16beat.();
 		~playSaw_16beat.(octave: 0);
@@ -342,8 +337,23 @@ Routine({
 		~playSaw_16beat.(octave: 1);
 		wait.(16); // GLOBAL WAIT
 
+
+
+
 	};
 }).play;
+)
+
+
+
+{ Hasher.ar(Sweep.ar(Impulse.ar(310))) + Hasher.ar(Sweep.ar + 1) * 0.01 ! 2}.play;
+
+
+( // Start Up for Headphones
+Server.default.options.outDevice_("External Headphones");
+s.options.memSize = 1048576;
+s.options.numWireBufs = 128;
+s.boot;
 )
 
 

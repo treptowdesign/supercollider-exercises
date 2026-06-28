@@ -129,14 +129,13 @@ SynthDef(\sidechainFx, {
 SynthDef(\sub, {
     var snd, gate, freq, trigger;
     gate = \gate.kr(1);
-    freq = \freq.kr(60);
+    freq = \freq.kr(60).cpsmidi.lag(\lag.kr(0.3)).midicps;
     trigger = T2A.ar(\trigger.tr(0));
-	snd = SinOsc.ar(freq, mul: 0.2);
-    snd = SinOsc.ar(freq, snd % 2pi);
+    snd = SinOsc.ar(freq);
     snd = snd * 12.dbamp;
     snd = snd.tanh;
     snd = BLowShelf.ar(snd, 200, 0.3, 2);
-    snd = snd * -14.dbamp ! 2;
+    snd = snd * -16.dbamp ! 2;
     snd = snd * Env.asr(0.01, 1.0, 0.01, curve: -4).ar(Done.freeSelf, gate);
     Out.ar(\out.kr(0), snd);
 }).add;
@@ -147,21 +146,15 @@ SynthDef(\lead, {
     freq = \freq.kr(440).cpsmidi.lag(\lag.kr(0.01)).midicps;
     freq = freq * (SinOsc.ar(4.34) * 0.02).midiratio;
     freq = freq * (SinOsc.ar(0.5) * 0.1).midiratio;
-
 	timbreEnv = Env.asr(2.0, 1.0, 1.0, curve: -8).ar(gate: gate);
 	combLfo = SinOsc.ar(0.25, pi).linlin(-1, 1, 62, 68);
-
 	snd = SinOsc.ar(freq * [1, 0.5]) * timbreEnv * SinOsc.ar(0.45, [0, pi]).linexp(-1, 1, 6, 8);
     snd = SinOsc.ar(freq, snd % 2pi);
     snd = snd * [0, -8].dbamp;
     snd = snd.sum * -15.dbamp;
     snd = snd * Env.asr(0.01, 1.0, 3.0, curve: -4).ar(Done.none, gate);
-
 	snd = snd + FreqShift.ar(CombC.ar(FreqShift.ar(snd, -32), 0.2, 1 / combLfo, 0.22), 32, mul: -4.dbamp);
-
     snd = LPF.ar(snd, 2600);
-
-
 	// delay...
     fb = snd;
     fb = fb + LocalIn.ar(2);
@@ -170,9 +163,8 @@ SynthDef(\lead, {
     fb = HPF.ar(fb, 100);
     fb = fb * -3.dbamp;
     LocalOut.ar(fb);
-
+	// delay...
     snd = snd + fb;
-
     Out.ar(\out.kr(0), snd);
 }).add;
 
@@ -348,18 +340,18 @@ Routine({
         };
         loop {
             [
-				// 8 beats
-                [0, 3],
-                [5, 1],
-                [-2, 2],
-                [-5, 1],
-				[0, 1],
-				// 8 beats
-                [0, 3],
-                [7, 1],
-                [-4, 2],
-                [-5, 1],
-				[0, 1],
+				// 16 beats
+				[0, 2],
+				[5, 2],
+				[-2, 2],
+				[7, 1],
+				[-5, 1],
+
+				[0, 2],
+				[5, 2],
+				[-2, 2],
+				[-5, 1],
+				[7, 1],
             ].do { |spec|
                 var root, duration;
                 # root, duration = spec;

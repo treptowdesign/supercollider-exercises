@@ -149,11 +149,23 @@ SynthDef(\clank, {
     var snd, ratio, duration;
     duration = \duration.kr(1);
 	ratio = \ratio.kr(1);
-	snd = SinOsc.ar(820 * [1, 1.3] * Line.kr(0.9, 1.1, duration), SinOsc.ar([98, 250] * ratio) % 2pi).sum;
+	snd = SinOsc.ar(780 * [1, 1.3] * Line.kr(0.9, 1.1, duration), SinOsc.ar([98, 250] * ratio) % 2pi).sum;
     snd = snd * Env.perc(0.001, 0.1).ar;
-    snd = snd * -1.dbamp;
+    snd = snd * -3.dbamp;
+	snd = Latch.ar(snd, Impulse.ar(12e3));
     snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1));
-    snd = snd * Env.linen(0.001, duration, 0.03, curve: -4).ar(Done.freeSelf);
+    snd = snd * Env.linen(0.001, duration, 0.08, curve: -4).ar(Done.freeSelf);
+    Out.ar(\out.kr(0), snd);
+}).add;
+SynthDef(\clank2, {
+    var snd, ratio, duration;
+    duration = \duration.kr(1);
+	ratio = \ratio.kr(1);
+	snd = SinOsc.ar(810 * [1, 1.3] * Line.kr(0.9, 1.2, duration), SinOsc.ar([398, 150] * ratio) % 2pi).sum;
+    snd = snd * Env.perc(0.001, 0.1).ar;
+    snd = snd * -10.dbamp;
+    snd = Pan2.ar(snd, \pan.kr(0), \amp.kr(1));
+    snd = snd * Env.linen(0.001, duration, 0.1, curve: -4).ar(Done.freeSelf);
     Out.ar(\out.kr(0), snd);
 }).add;
 )
@@ -280,6 +292,23 @@ SynthDef(\sub, {
     snd = snd * Env.linen(atk, sus, rel, curve: -4).ar(Done.freeSelf);
     Out.ar(\out.kr(0), snd);
 }).add;
+SynthDef(\sub2, {
+    var snd, freq, duration, atk, rel, sus;
+    duration = \duration.kr(1);
+	atk = 0.01;
+	rel = 0.1;
+	sus = duration - (atk + rel);
+    freq = \freq.kr(60);
+	snd = SinOsc.ar(freq * 2) * 0.6;
+    snd = SinOsc.ar(freq, snd % 2pi);
+    snd = snd * 9.dbamp;
+	snd = (snd * 4.dbamp).tanh;
+    snd = BLowShelf.ar(snd, 200, 0.3, 2);
+    snd = snd * -8.dbamp ! 2;
+	snd = snd * (1 + Env.perc(0.001, 0.02).ar);
+    snd = snd * Env.linen(atk, sus, rel, curve: -4).ar(Done.freeSelf);
+    Out.ar(\out.kr(0), snd);
+}).add;
 )
 
 (
@@ -346,108 +375,127 @@ Routine({
 		// kick + snare + percs
 		fork {
 			1.do {
-				play.(\kick, tatum * 1);
-				play.(\kick, tatum * 1, [amp: 0.6]);
+				play.(\kick, tatum * 2);
+				play.(\kick, tatum * 2, [amp: 0.6]);
 				play.(\clank, tatum * 1, [amp: 0.7, ratio: 0.5]);
-				play.(\kick, tatum * 1, [amp: 0.4]);
-				play.(\snare, tatum * 1);
-				play.(\clank, tatum * 1, [amp: 0.7, ratio: 1]);
-				(tatum * 1).wait;
-				play.(\kick, tatum * 1, [amp: 0.75]);
-
-				play.(\kick, tatum * 1);
-				play.(\clank, tatum * 0.5, [amp: 0.3, ratio: 0.5]);
-				play.(\clank, tatum * 0.5, [amp: 0.2, ratio: 3.5]);
-				play.(\clank, tatum * 1, [amp: 0.7, ratio: 2]);
-				play.(\kick, tatum * 1, [amp: 0.4]);
-				play.(\snare, tatum * 1);
-				play.(\clank, tatum * 1, [amp: 0.6, ratio: 1.5]);
-				play.(\crash, tatum * 1);
-				play.(\kick, tatum * 1, [amp: 0.75]);
-
-				play.(\kick, tatum * 1);
-				play.(\kick, tatum * 1, [amp: 0.6]);
+				play.(\clank, tatum * 1, [amp: 0.3, ratio: 1.5]);
+				play.(\kick, tatum * 2, [amp: 0.4]);
+				play.(\snare, tatum * 2);
+				play.(\clank, tatum * 2, [amp: 0.7, ratio: 1]);
 				play.(\clank, tatum * 1, [amp: 0.7, ratio: 0.5]);
-				play.(\kick, tatum * 1, [amp: 0.4]);
-				play.(\snare, tatum * 1);
-				play.(\clank, tatum * 1, [amp: 0.7, ratio: 1]);
-				(tatum * 1).wait;
-				play.(\kick, tatum * 1, [amp: 0.75]);
+				play.(\clank, tatum * 1, [amp: 0.3, ratio: 1.5]);
+				play.(\kick, tatum * 2, [amp: 0.75]);
 
-				play.(\kick, tatum * 1);
-				play.(\kick, tatum * 1, [amp: 0.6]);
+				play.(\kick, tatum * 2);
+				play.(\clank, tatum * 1, [amp: 0.3, ratio: 0.5]);
+				play.(\clank, tatum * 1, [amp: 0.2, ratio: 3.5]);
+				play.(\clank, tatum * 2, [amp: 0.7, ratio: 2]);
+				play.(\kick, tatum * 2, [amp: 0.4]);
+				play.(\snare, tatum * 2);
+				play.(\clank, tatum * 2, [amp: 0.6, ratio: 1.5]);
+				play.(\crash, tatum * 2);
+				play.(\kick, tatum * 2, [amp: 0.75]);
+
+				play.(\kick, tatum * 2);
+				play.(\kick, tatum * 2, [amp: 0.6]);
 				play.(\clank, tatum * 1, [amp: 0.7, ratio: 0.5]);
-				play.(\kick, tatum * 1, [amp: 0.4]);
-				play.(\snare, tatum * 1);
-				play.(\clank, tatum * 1, [amp: 0.7, ratio: 1]);
-				play.(\crash, tatum * 1);
-				play.(\kick, tatum * 1, [amp: 0.75]);
+				play.(\clank, tatum * 1, [amp: 0.3, ratio: 1.5]);
+				play.(\kick, tatum * 2, [amp: 0.4]);
+				play.(\snare, tatum * 2);
+				play.(\clank, tatum * 2, [amp: 0.7, ratio: 1]);
+				play.(\clank, tatum * 1, [amp: 0.7, ratio: 0.5]);
+				play.(\clank, tatum * 1, [amp: 0.3, ratio: 1.5]);
+				play.(\kick, tatum * 2, [amp: 0.75]);
+
+				play.(\kick, tatum * 2);
+				play.(\kick, tatum * 2, [amp: 0.6]);
+				play.(\clank, tatum * 1, [amp: 0.7, ratio: 0.5]);
+				play.(\clank, tatum * 1, [amp: 0.3, ratio: 1.5]);
+				play.(\kick, tatum * 2, [amp: 0.4]);
+				play.(\snare, tatum * 2);
+				play.(\clank, tatum * 2, [amp: 0.7, ratio: 1]);
+				play.(\crash, tatum * 2);
+				play.(\kick, tatum * 2, [amp: 0.75]);
 			};
 		};
 		// hats
 		fork {
-			7.do {
-				4.do { |index|
-					play.(\hat, tatum, [amp: index.linlin(0, 3, 0.25, 1.25)]);
+			2.do {
+				7.do {
+					4.do { |index|
+						play.(\hat, tatum, [amp: index.linlin(0, 3, 0.25, 1.25)]);
+					};
 				};
-			};
-			1.do {
-				2.do { |index|
-					play.(\hat, tatum/2, [amp: 0.25]);
-					play.(\hat, tatum/2, [amp: 0.75]);
-					play.(\hat, tatum/2, [amp: 0.5]);
-					play.(\hat, tatum/2, [amp: 1.25]);
+				1.do {
+					2.do { |index|
+						play.(\hat, tatum/2, [amp: 0.25]);
+						play.(\hat, tatum/2, [amp: 0.75]);
+						play.(\hat, tatum/2, [amp: 0.5]);
+						play.(\hat, tatum/2, [amp: 1.25]);
+					};
 				};
 			};
 		};
 		// chords
 		fork {
-			[
+			var chordsA = [
 				(0 + [0, 2, 7, 10]),
 				(-2 + [0, 3, 7, 10]),
-			].do { |chord|
-				chord.do { |int|
-					fork { play.(\lead, bar, [freq: noteHz.(int, 2), amp: 0.4]); };
-					fork { play.(\lead, bar, [freq: noteHz.(int, -1), amp: 0.6]); };
+			];
+			var chordsB = [
+				(0 + [0, 2, 7, 10]),
+				(5 + [0, 3, 7-12, 10-12]),
+			];
+			[chordsA, chordsB].do { |chords|
+				chords.do { |chord|
+					chord.do { |int|
+						fork { play.(\lead, bar, [freq: noteHz.(int, 2), amp: 0.4]); };
+						fork { play.(\lead, bar, [freq: noteHz.(int, -1), amp: 0.4]); };
+					};
+					(bar).wait;
 				};
-				(bar).wait;
 			};
 		};
 		// arp
 		fork {
-			8.do {
-				(0 + [0, 2, 7, 10]).reverse.do { |int|
-					play.(\arp, tatum/2, [freq: noteHz.(int, 1), curve: -4]);
+			(tatum * 32).wait;
+			1.do {
+				8.do {
+					(0 + [0, 2, 7, 10]).reverse.do { |int|
+						play.(\arp, tatum/2, [freq: noteHz.(int, 1), curve: -4]);
+					};
 				};
-			};
-			8.do {
-				(-2 + [0, 3, 7, 10]).do { |int|
-					play.(\arp, tatum/2, [freq: noteHz.(int, 1), curve: -4]);
+				8.do {
+					(-2 + [0, 3, 7, 10]).do { |int|
+						play.(\arp, tatum/2, [freq: noteHz.(int, 1), curve: -4]);
+					};
 				};
 			};
 		};
 		// bass
-		[
-			// 16 tatums / 1 Bar
-			[2, 2, -4],
-			[10-12, 3, -4],
-			[7-12, 3, -4],
-			[7-12, 8, -4],
-			// 16 tatums / 1 Bar
-			[5-12, 2, -4],
-			[5-12, 1, -4],
-			[5-12, 1, -4],
-			[5-12, 1, -4],
-			[5-12, 2, -4],
-			[8-12, 1, -4],
-			[10-12, 2, -4],
-			[5-12, 2, -4],
-			[10-12, 4, -4],
-		].do { |spec|
-			var int, dur, curve;
-			# int, dur, curve = spec;
-			play.(\sub, dur * tatum, [freq: noteHz.(int, -2), curve: -4]);
-			// (dur * tatum).wait;
+		2.do {
+			[
+				// 16 tatums / 1 Bar
+				[2, 2, -4],
+				[10-12, 3, -4],
+				[7-12, 3, -4],
+				[7-12, 8, -4],
+				// 16 tatums / 1 Bar
+				[5-12, 2, -4],
+				[5-12, 1, -4],
+				[5-12, 1, -4],
+				[5-12, 1, -4],
+				[5-12, 2, -4],
+				[8-12, 1, -4],
+				[10-12, 2, -4],
+				[5-12, 2, -4],
+				[10-12, 4, -4],
+			].do { |spec|
+				var int, dur, curve;
+				# int, dur, curve = spec;
+				play.(\sub, dur * tatum, [freq: noteHz.(int, -2), curve: -4]);
+				// (dur * tatum).wait;
+			};
 		};
 	};
 
@@ -457,8 +505,8 @@ Routine({
 
 
 
-
-
+2.pow(2);
+[32, 16, 8, 4];
 
 
 ///////////////////////////////////////////////////////////////////////

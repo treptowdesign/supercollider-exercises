@@ -27,7 +27,7 @@ SynthDef(\lead, {
     fb = fb * -2.dbamp;
     LocalOut.ar(fb);
     snd = snd + fb;
-	snd = snd * -2.dbamp * \amp.kr(1);
+	snd = snd * 4.dbamp * \amp.kr(1);
 	snd = snd * Env.linen(0.01, \duration.kr(3), 0.1).ar(Done.freeSelf);
     Out.ar(\out.kr(0), snd);
 }).add;
@@ -308,7 +308,7 @@ SynthDef(\arp, {
     snd = BLowShelf.ar(snd, 200, 0.3, -5);
     snd = snd.tanh;
     snd = BLowShelf.ar(snd, 200, 0.3, 2);
-    snd = snd * -20.dbamp;
+    snd = snd * -18.dbamp;
     snd = snd * Env.perc(0, 2.0, curve: -4).ar(Done.freeSelf, gate);
     Out.ar(\out.kr(0), snd);
 }).play;
@@ -322,9 +322,10 @@ SynthDef(\arp, {
 ///////////////////////////////////////////////////////////////////////
 
 (
-var s, beat, tatum, bar, root, noteHz, play;
+var s, bpm, beat, tatum, bar, root, noteHz, play;
 s = Server.default;
-beat = 60 / 93;
+bpm = 93;
+beat = 60 / bpm;
 tatum = beat / 4;
 bar = beat * 4;
 root = 58;

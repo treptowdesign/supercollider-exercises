@@ -13,7 +13,7 @@ SynthDef(\kick, {
     snd = SinOsc.ar(
 		Env.perc(0, 0.15, curve: -6).ar.linexp(0, 1, 59, 200) *
 		XLine.ar(2, 1, 0.01) *
-		XLine.ar(1, 0.5, 0.5) * [1, 1.4, 2.1]
+		XLine.ar(1, 0.5, 0.5) * [1, 1.4, 2.2]
 	);
     snd = snd * Env.perc(0.001, [0.9, 0.4, 0.05]).ar * [0, -14, -22].dbamp;
     snd = snd.sum;
@@ -101,7 +101,7 @@ SynthDef(\arp, {
     Out.ar(\out.kr(0), snd);
 }).add;
 
-SynthDef(\arpFx, {
+SynthDef(\chordFx, {
     var snd, fb, beat;
     beat = \beat.kr(1);
     snd = In.ar(\in.kr(0), 2);
@@ -173,7 +173,7 @@ SynthDef(\marker, {
 	var snd, freq, rel;
 	freq = \freq.kr(110);
 	rel = \rel.kr(6.0);
-	snd = (freq * (1..8) * \ratio.kr(1)).collect { |freq, index|
+	snd = (freq * (1..10) * \ratio.kr(1)).collect { |freq, index|
 		var snd;
 		var amp = (1 / (index + 1)).sqrt;
 		snd = LFTri.ar(freq * (LFNoise2.kr(8 ! 2) * 0.2).midiratio, mul: amp) * LFNoise2.kr(2 ! 2);
@@ -219,14 +219,18 @@ noteToFreq = { |note, octave = 0|
     1 / ((1 / (midiNote.midicps - 1e-3)) + 5e-6)
 };
 
+/*noteToFreq = { |note, octave = 0|
+	(63 + note + (12 * octave)).midicps;
+};*/
+
 Routine({
-    var arpBus, sidechainBus, sidechainFx, pump;
+    var chordBus, sidechainBus, sidechainFx, pump;
     var drumsA, drumsAFill, drumsB, drumsBFill;
 
     s.bind {
-        arpBus = Bus.audio(nil, 2);
+        chordBus = Bus.audio(nil, 2);
         sidechainBus = Bus.audio(nil, 2);
-        Synth.tail(nil, \arpFx, [in: arpBus, out: sidechainBus, beat: beat]);
+        Synth.tail(nil, \chordFx, [in: chordBus, out: sidechainBus, beat: beat]);
         sidechainFx = Synth.tail(nil, \sidechainFx, [in: sidechainBus, out: 0]);
     };
 
@@ -236,17 +240,18 @@ Routine({
 
 	fork {
 		loop {
-			[-12, 3, 7-12, 10, 14].sort.do { |int, index|
+			(0 + [-12, 3, 7-12, 10, 14]).sort.do { |int, index|
 				[-1, 0].do { |oct|
 					playP.(\marker, 8, [
 						freq: noteToFreq.(int, oct),
 						amp: index.linlin(0, 4, 1, 0.5),
 						rel: beat * 8,
-						out: arpBus
+						out: chordBus
 					]);
 				};
 			};
 			wait.(8);
+
 		};
 	};
 
@@ -266,7 +271,6 @@ Routine({
 				[0.75, 7, \port],
 				[0.75, 8],
 				[2.5, 2],
-
 				// 8 beats
 				[2.5, \],
 				[0.25, 8],
@@ -277,7 +281,6 @@ Routine({
 				[0.75, 7],
 				[0.75, 8, \port],
 				[2.5, 2],
-
 				// 8 beats
 				[2.5, \],
 				[0.25, 5],
@@ -286,7 +289,6 @@ Routine({
 				[0.75, 7],
 				[0.75, 8, \port],
 				[2.5, 2],
-
 				// 8 beats
 				[2.5, \],
 				[0.25, 8],
@@ -297,7 +299,6 @@ Routine({
 				[0.75, 7, \port],
 				[0.75, 8],
 				[2.5, 2],
-
 			].do { |spec|
                 var freq, duration, lag;
                 # duration, freq = spec;
@@ -321,43 +322,30 @@ Routine({
 
 	fork {
         var sub;
-        var synths, playChord, setSub;
         s.bind {
             sub = Synth(\sub, [out: sidechainBus]);
-            synths = 4.collect { Synth(\arp, [out: arpBus]) };
-        };
-        playChord = { |chord|
-            s.bind {
-                synths.do { |synth, i|
-                    synth.set(\trigger, 1, \freq, noteToFreq.(chord[i]));
-                };
-            };
-        };
-        setSub = { |note|
-            s.bind {
-                sub.set(\trigger, 1, \freq, noteToFreq.(note, octave: -2));
-            };
         };
         loop {
             [
 				// 16 beats
 				[0, 2],
-				[5, 2],
+				[-4, 2],
 				[-2, 2],
 				[7, 1],
 				[-5, 1],
-
 				[0, 2],
 				[5, 2],
 				[-2, 2],
 				[-5, 1],
 				[7, 1],
             ].do { |spec|
-                var root, duration;
-                # root, duration = spec;
-                setSub.(root);
+				var note, duration;
+				# note, duration = spec;
+				s.bind {
+					sub.set(\trigger, 1, \freq, noteToFreq.(note, octave: -2));
+				};
 				wait.(duration);
-            };
+			};
         };
     };
 

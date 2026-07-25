@@ -439,17 +439,17 @@ Routine({
 		// chords
 		fork {
 			var chordsA = [
-				(0 + [0, 2, 7, 10]),
-				(-2 + [0, 3, 7, 10]),
+				(0 + [0, 2, 7, 10]), // 1 sus2
+				(-2 + [0, 3, 7, 10]), // min 7th
 			];
 			var chordsB = [
-				(0 + [0, 2, 7, 10]),
-				(5 + [0, 3, 7-12, 10-12]),
+				(0 + [0, 2+12, 7, 10]), // 1 sus2
+				(5 + [0, 3, 8-12, 10-12+12]), // min 4th (6th instead of 5th)
 			];
 			[chordsA, chordsB].do { |chords|
 				chords.do { |chord|
-					chord.do { |int|
-						fork { play.(\lead, bar, [freq: noteHz.(int, 2), amp: 0.4]); };
+					chord.sort.postln.do { |int|
+						fork { play.(\lead, bar, [freq: noteHz.(int, 2), amp: 0.3]); };
 						fork { play.(\lead, bar, [freq: noteHz.(int, -1), amp: 0.4]); };
 					};
 					(bar).wait;
@@ -473,32 +473,40 @@ Routine({
 			};
 		};
 		// bass
-		2.do {
-			[
-				// 16 tatums / 1 Bar
-				[2, 2, -4],
-				[10-12, 3, -4],
-				[7-12, 3, -4],
-				[7-12, 8, -4],
-				// 16 tatums / 1 Bar
-				[5-12, 2, -4],
-				[5-12, 1, -4],
-				[5-12, 1, -4],
-				[5-12, 1, -4],
-				[5-12, 2, -4],
-				[8-12, 1, -4],
-				[10-12, 2, -4],
-				[5-12, 2, -4],
-				[10-12, 4, -4],
-			].do { |spec|
-				var int, dur, curve;
-				# int, dur, curve = spec;
-				play.(\sub, dur * tatum, [freq: noteHz.(int, -2), curve: -4]);
-				// (dur * tatum).wait;
+		fork {
+			0.do {
+				[
+					// 16 tatums / 2 Bars
+					[2, 2],
+					[10-12, 3],
+					[7-12, 3],
+					[7-12, 8],
+					// 16 tatums / 2 Bars
+					[5-12, 2],
+					[5-12, 1],
+					[5-12, 1],
+					[5-12, 1],
+					[5-12, 2],
+					[8-12, 1],
+					[10-12, 2],
+					[5-12, 2],
+					[10-12, 4],
+				].do { |spec|
+					var int, dur;
+					# int, dur = spec;
+					play.(\sub, dur * tatum, [freq: noteHz.(int, -2)]);
+					// (dur * tatum).wait;
+				};
 			};
 		};
-	};
 
+		//////////////////////////////////////////////////////////////
+		// global wait
+		//////////////////////////////////////////////////////////////
+		(bar * 4).wait;
+
+
+	};
 }).play;
 )
 
@@ -507,6 +515,9 @@ Routine({
 
 2.pow(2);
 [32, 16, 8, 4];
+
+32 / 4; // 8
+
 
 
 ///////////////////////////////////////////////////////////////////////

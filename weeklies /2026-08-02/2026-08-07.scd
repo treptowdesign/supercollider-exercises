@@ -89,7 +89,7 @@ SynthDef(\hat, {
     snd = snd * velocity.sqrt;
     snd = snd * Env.perc(0.001, 0.12).ar;
     snd = snd * Env.linen(0.0, \duration.kr(0.3), 0.01).ar(Done.freeSelf);
-    snd = snd * -12.dbamp;
+    snd = snd * -14.dbamp;
     snd = snd ! 2;
     Out.ar(\out.kr(0), snd);
 }).add;
@@ -303,6 +303,8 @@ play = { |synthDef, duration, args = #[]|
 };
 Routine({
 
+	var loopIndex = 0;
+
 	/*s.bind {
         Synth(\crackles);
         Synth(\rain);
@@ -310,49 +312,57 @@ Routine({
 
 	loop {
 
+		loopIndex.postln;
+
 		fork {
 			(0 + [0-12, 3, 7-12, 10, 14]).do { |int|
 				fork {
 					play.(\key, bar * 2, [freq: noteToFreq.(int, 0)]);
 				};
 			};
-			fork {
-				(beat).wait;
-				play.(\key, beat, [freq: noteToFreq.(7, 1)]);
-				play.(\key, beat/2, [freq: noteToFreq.(10, 0)]);
-				play.(\key, beat/2, [freq: noteToFreq.(2, 0)]);
-				play.(\key, beat/2, [freq: noteToFreq.(3, 1)]);
-				play.(\key, beat, [freq: noteToFreq.(7, 0)]);
-				play.(\key, beat, [freq: noteToFreq.(3, 1)]);
-				play.(\key, beat/2, [freq: noteToFreq.(10, 0)]);
-				play.(\key, beat/2, [freq: noteToFreq.(2, 0)]);
-				play.(\key, beat * 2, [freq: noteToFreq.(10, -1)]);
-			};
+			if(loopIndex >= 0, {
+				fork {
+					(beat).wait;
+					play.(\key, beat, [freq: noteToFreq.(7, 1)]);
+					play.(\key, beat/2, [freq: noteToFreq.(10, 0)]);
+					play.(\key, beat/2, [freq: noteToFreq.(2, 0)]);
+					play.(\key, beat/2, [freq: noteToFreq.(3, 1)]);
+					play.(\key, beat, [freq: noteToFreq.(7, 0)]);
+					play.(\key, beat, [freq: noteToFreq.(3, 1)]);
+					play.(\key, beat/2, [freq: noteToFreq.(10, 0)]);
+					play.(\key, beat/2, [freq: noteToFreq.(2, 0)]);
+					play.(\key, beat * 2, [freq: noteToFreq.(10, -1)]);
+				};
+			});
 			(bar * 2).wait;
 			(5 + [0-12, 3-12, 7, 10, 14-12]).do { |int|
 				fork {
 					play.(\key, bar * 2, [freq: noteToFreq.(int, 0)]);
 				};
 			};
-			fork {
-				(beat).wait;
-				play.(\key, beat, [freq: noteToFreq.(5+7, -1)]);
-				play.(\key, beat/2, [freq: noteToFreq.(5+2, 0)]);
-				play.(\key, beat/2, [freq: noteToFreq.(5+7, 0)]);
-				play.(\key, beat, [freq: noteToFreq.(5+7, -1)]);
-				(beat).wait;
-				play.(\key, beat, [freq: noteToFreq.(5+7, -1)]);
-				play.(\key, beat/2, [freq: noteToFreq.(5+2, 0)]);
-				play.(\key, beat, [freq: noteToFreq.(5+7, 0)]);
-			};
+			if(loopIndex >= 0, {
+				fork {
+					(beat).wait;
+					play.(\key, beat, [freq: noteToFreq.(5+7, -1)]);
+					play.(\key, beat/2, [freq: noteToFreq.(5+2, 0)]);
+					play.(\key, beat/2, [freq: noteToFreq.(5+7, 0)]);
+					play.(\key, beat, [freq: noteToFreq.(5+7, -1)]);
+					(beat).wait;
+					play.(\key, beat, [freq: noteToFreq.(5+7, -1)]);
+					play.(\key, beat/2, [freq: noteToFreq.(5+2, 0)]);
+					play.(\key, beat, [freq: noteToFreq.(5+7, 0)]);
+				};
+			});
 			(bar * 2).wait;
 		};
 
 		fork {
-			8.do {
-				beat.wait;
-				play.(\clap, beat);
-			};
+			if(loopIndex % 2 == 1, {
+				8.do {
+					beat.wait;
+					play.(\clap, beat);
+				};
+			});
 		};
 
 		/*fork {
@@ -422,6 +432,8 @@ Routine({
 			play.(\snare2, tatum * 2);
 
 		};
+
+		loopIndex = loopIndex + 1;
 
 	};
 }).play

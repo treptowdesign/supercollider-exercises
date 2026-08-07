@@ -2,7 +2,7 @@
 SynthDef(\kick, {
     var snd, velocity;
     velocity = \velocity.kr(1);
-    snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 52, 220) * [1, 1.25, 2.4] * XLine.ar(2, 1, 0.01));
+    snd = SinOsc.ar(Env.perc(0, 0.1).ar.linexp(0, 1, 52, 230) * [1, 1.25, 2.4] * XLine.ar(2, 1, 0.01));
     snd = snd * Env.perc(0.002, [2, 0.1, 0.03]).ar;
     snd = snd.sum;
     snd = snd + (BPF.ar(WhiteNoise.ar, 1220, 0.3) * Env.perc(0.02, 0.02).ar * -10.dbamp);
@@ -11,12 +11,12 @@ SynthDef(\kick, {
     snd = BLowShelf.ar(snd, 300, 0.3, -5);
 	snd = (snd * 5.dbamp).tanh;
 	snd = BLowShelf.ar(snd, 300, 0.3, 5);
-    snd = BLowShelf.ar(snd, 100, 0.3, 3);
+    snd = BLowShelf.ar(snd, 100, 0.3, 2);
     snd = snd * velocity.sqrt;
     snd = snd * Env.perc(0.01 * (2 - velocity), 0.3* velocity).ar(Done.freeSelf);
-    snd = snd + GVerb.ar(snd * -30.dbamp, 20, 1);
-	snd = snd * -8.dbamp;
-	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [30e-3, 54e-3]) * -25.dbamp);
+    // snd = snd + GVerb.ar(snd * -20.dbamp, 20, 1);
+	snd = snd * -5.dbamp ! 2;
+	// snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [30e-3, 54e-3]) * -20.dbamp);
     snd = snd * Env.linen(0.0, \duration.kr(0.3), 0.01).ar(Done.freeSelf);
     Out.ar(\out.kr(0), snd);
 }).add;
@@ -54,7 +54,7 @@ SynthDef(\808, {
 	snd = snd * Env.perc(0, 10.0).ar;
 	snd = snd * (1 + (1 * Env.perc(0, 1.0).ar * velocity));
 	snd = snd * Env.linen(0.0, \duration.kr(1.0), 0.3, curve: -4).ar;
-	snd = LPF.ar(snd, XLine.ar(200, 100, 0.2));
+	snd = LPF.ar(snd, XLine.ar(300, 100, 0.2));
 	hi = snd;
 	hi = hi * (1 + (LPF.ar(LPF.ar(RHPF.ar({ PinkNoise.ar } ! 2, 1230, 0.5), 2e3), 7e3) * -5.dbamp));
 	hi = (hi * 10).tanh;
@@ -67,8 +67,8 @@ SynthDef(\808, {
 	snd = snd + hi;
 	snd = snd.tanh;
 	snd = BLowShelf.ar(snd, 100, 0.3, 3);
-	snd = snd * Env.linen(0.0, duration * 1.6, 0.6, curve: -4).ar(Done.freeSelf);
-	snd = snd * -4.dbamp;
+	snd = snd * Env.linen(0.0, duration, 0.6, curve: -4).ar(Done.freeSelf);
+	snd = snd * -5.dbamp;
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
@@ -81,18 +81,18 @@ SynthDef(\hat, {
     snd = { WhiteNoise.ar } ! 4;
     snd = CombC.ar(snd, 0.1, 1 / [159, 474, 392, 723], 2.0);
     snd = LeakDC.ar(snd);
-    snd = FreqShift.ar(snd, [305, 234, 199, 923] * 1.2);
+    snd = FreqShift.ar(snd, [305, 234, 199, 923]);
     snd = snd.sum;
     snd = HPF.ar(snd, 6000);
     snd = HPF.ar(snd, 6000);
     snd = LPF.ar(snd, 12300);
     snd = snd * velocity.sqrt;
-    snd = snd * Env.perc(0.001, 0.12).ar;
+    snd = snd * Env.perc(0.005, 0.1).ar;
     snd = snd * Env.linen(0.0, \duration.kr(0.3), 0.01).ar(Done.freeSelf);
-    snd = snd * -12.dbamp;
+    snd = snd * -15.dbamp;
     snd = snd ! 2;
     Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 )
 
 (
@@ -127,16 +127,16 @@ SynthDef(\hat2b, {
     snd = FreqShift.ar(snd, [205, 134, 299, 423] * 2);
     snd = snd.sum;
     snd = snd + PinkNoise.ar;
-	snd = HPF.ar(snd, 8000);
-    snd = HPF.ar(snd, 8000);
-    snd = LPF.ar(snd, XLine.ar(12e3, 1000, 0.2));
+    snd = HPF.ar(snd, 9000);
+    snd = HPF.ar(snd, 9000);
+    snd = LPF.ar(snd, XLine.ar(12e3, 1000, 0.3));
     snd = snd * velocity.sqrt;
-    snd = snd * Env.perc(0.01, 0.12).ar;
+    snd = snd * Env.perc(0.005, 0.2).ar;
     snd = snd * Env.linen(0.0, \duration.kr(0.3), 0.01).ar(Done.freeSelf);
-    snd = snd * -12.dbamp;
+    snd = snd * -13.dbamp;
     snd = snd ! 2;
     Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 )
 
 
@@ -144,29 +144,29 @@ SynthDef(\hat2b, {
 SynthDef(\hat3, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar(Impulse.ar(230))) + Hasher.ar(Sweep.ar + 1);
-	snd = BPF.ar(snd, [7220, 9230], 0.5);
+	snd = BPF.ar(snd, [7220, 9230], 0.4);
 	snd = snd.sum;
 	snd = HPF.ar(snd, 6e3);
-	snd = snd * Env.perc(0.001, 0.1, curve: -8).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.003, 0.09, curve: -8).ar(Done.freeSelf);
 	snd = Pan2.ar(snd, \pan.kr(0));
-	snd = snd * -10.dbamp;
+	snd = snd * -14.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 )
 
 (
 SynthDef(\hatSoft, {
 	var snd;
 	snd = Hasher.ar(Sweep.ar);
-	snd = CombC.ar(snd, 0.2, 1 / 60, 0.2);
+	snd = CombC.ar(snd, 0.2, 1 / 40, 1);
 	snd = FreqShift.ar(snd, -34);
-	snd = BPF.ar(snd, [12240, 5230, 8832] * XLine.ar(0.8, 1.3, 0.06), 0.3).sum;
+	snd = BPF.ar(snd, [12240, 5230, 8832] * XLine.ar(0.9, 1.2, 0.1), 0.3).sum;
 	snd = HPF.ar(snd, 4e3);
-	snd = snd * Env.perc(0.01, 0.1, curve: 3).ar(Done.freeSelf);
+	snd = snd * Env.perc(0.05, 0.03, curve: 4).ar(Done.freeSelf);
 	snd = snd ! 2;
 	snd = snd * -20.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 )
 
 
@@ -175,16 +175,10 @@ SynthDef(\hatSoft, {
 
 
 Synth(\hat);
+Synth(\hat2);
+Synth(\hat2b);
 Synth(\hat3);
 Synth(\hatSoft);
-Synth(\hat2b);
-
-
-Synth(\hat2);
-
-
-
-
 
 
 (
@@ -233,8 +227,8 @@ SynthDef(\snare, {
     snd = BLowShelf.ar(snd, 200, 0.3, 3);
     snd = snd * velocity.sqrt;
     snd = snd * Env.perc(0.01 * (2 - velocity), 0.25).ar(Done.freeSelf);
-    snd = snd + GVerb.ar(snd * -22.dbamp, 20, 1);
-	snd = snd * -4.dbamp;
+    // snd = snd + GVerb.ar(snd * -20.dbamp, 20, 1);
+	snd = snd * -6.dbamp ! 2;
     snd = snd * Env.linen(0.0, \duration.kr(0.3), 0.01).ar(Done.freeSelf);
     Out.ar(\out.kr(0), snd);
 }).play;
@@ -252,17 +246,17 @@ SynthDef(\snare2, {
     snd = snd * (1 + (SinOsc.ar(220) * Env.perc(0, 0.09).ar * -5.dbamp));
     snd = snd * (1 + (SinOsc.ar(420) * Env.perc(0, 0.01).ar * -5.dbamp));
     snd = snd + (SinOsc.ar(930 * XLine.ar(1.5, 1, 0.01)) * Env.perc(0, 0.01).ar * 3.dbamp);
-    snd = snd + (BPF.ar(WhiteNoise.ar, 3420, 0.3) * Env.perc(0.01, 0.03).ar * 2.dbamp);
-    snd = snd + (BPF.ar(WhiteNoise.ar, 1620, 0.3) * Env.perc(0.01, 0.05, curve: \sin).ar * 4.dbamp);
+    snd = snd + (BPF.ar(WhiteNoise.ar, 2420, 0.3) * Env.perc(0.01, 0.03).ar * 2.dbamp);
+    snd = snd + (BPF.ar(WhiteNoise.ar, 1420, 0.3) * Env.perc(0.01, 0.05, curve: \sin).ar * 4.dbamp);
     snd = snd + (BPF.ar(WhiteNoise.ar, 720, 0.3) * Env.perc(0.01, 0.03).ar * 3.dbamp);
     snd = snd + (BPF.ar(WhiteNoise.ar, 820, 0.3) * Env.perc(0.005, 0.01).ar * -2.dbamp);
     snd = snd * (1 + (Env.perc(0, 0.1).ar * velocity));
     snd = snd.tanh;
     snd = snd * velocity.sqrt;
     snd = BLowShelf.ar(snd, 200, 0.3, 3);
-    snd = snd * Env.perc(0.01, 0.2).ar(Done.freeSelf);
-    snd = snd + GVerb.ar(snd * -22.dbamp, 50, 1);
-	snd = snd * -6.dbamp;
+    snd = snd * Env.perc(0.01, 0.25).ar(Done.freeSelf);
+    // snd = snd + GVerb.ar(snd * -20.dbamp, 50, 1);
+	snd = snd * -6.dbamp ! 2;
     snd = snd * Env.linen(0.0, \duration.kr(0.3), 0.01).ar(Done.freeSelf);
     Out.ar(\out.kr(0), snd);
 }).play;
@@ -291,21 +285,21 @@ play = { |synthDef, duration, args = #[]|
 };
 Routine({
 
-	/*s.bind {
+	s.bind {
         Synth(\crackles);
         Synth(\rain);
-    };*/
+    };
 
 	loop {
 
 		fork {
-			(0 + [0-12, 3, 7-12, 10, 14]).sort.postln.do { |int|
+			(0 + [0-12, 3, 7-12, 10]).sort.postln.do { |int|
 				fork {
 					play.(\key, bar * 2, [freq: noteToFreq.(int, 0)]);
 				};
 			};
 			(bar * 2).wait;
-			(5 + [0-12, 3-12, 7, 10, 14-12]).sort.postln.do { |int|
+			(5 + [0-12, 3, 7-24, 10-12]).sort.postln.do { |int|
 				fork {
 					play.(\key, bar * 2, [freq: noteToFreq.(int, 0)]);
 				};
@@ -320,47 +314,48 @@ Routine({
 			play.(\hat, tatum);
 			play.(\hat3, tatum);
 			play.(\hatSoft, tatum);
-			play.(\hat2b, tatum);
+			play.(\hat2, tatum);
 			play.(\snare, tatum * 2);
-			play.(\hat, tatum);
+			play.(\hat2, tatum);
 			play.(\hatSoft, tatum);
 			play.(\hat, tatum);
 			play.(\hat3, tatum);
 			play.(\kick, tatum * 2);
 			// bar
 			play.(\kick, tatum * 1);
-			play.(\kick, tatum * 3, [velocity: 0.8]);
+			play.(\kick, tatum * 3);
 			play.(\hat, tatum);
 			play.(\hat3, tatum);
-			play.(\kick, tatum, [velocity: 0.8]);
-			play.(\hat2b, tatum);
+			play.(\kick, tatum);
+			play.(\hat2, tatum);
 			play.(\snare, tatum * 2);
+			play.(\hat2, tatum);
 			play.(\hatSoft, tatum);
-			play.(\hat2b, tatum);
-			play.(\hat, tatum);
-			play.(\hat3, tatum);
 			play.(\snare2, tatum * 2);
+			play.(\hat, tatum);
+			play.(\hat3, tatum);
 			// bar
 			play.(\kick, tatum * 1);
-			play.(\kick, tatum * 3, [velocity: 0.8]);
+			play.(\kick, tatum * 3);
 			play.(\hat, tatum);
 			play.(\hat3, tatum);
 			play.(\hatSoft, tatum);
-			play.(\hat2b, tatum);
+			play.(\hat2, tatum);
 			play.(\snare, tatum * 2);
-			play.(\hat, tatum);
+			play.(\hat2, tatum);
 			play.(\hatSoft, tatum);
 			play.(\hat, tatum);
 			play.(\hat3, tatum);
-			play.(\kick, tatum * 2, [velocity: 0.8]);
+			play.(\kick, tatum * 2);
 			// bar
 			play.(\kick, tatum * 1);
-			play.(\kick, tatum * 3, [velocity: 0.8]);
+			play.(\kick, tatum * 3);
 			play.(\hat, tatum);
 			play.(\hat3, tatum);
-			play.(\808, tatum * 2, [freq: noteToFreq.(5, -3)]);
+			play.(\kick, tatum);
+			play.(\hat2, tatum);
 			play.(\snare, tatum * 2);
-			play.(\hat2b, tatum);
+			play.(\hat2, tatum);
 			play.(\hatSoft, tatum);
 			play.(\hat, tatum);
 			play.(\hat3, tatum);
@@ -383,8 +378,8 @@ Routine({
 SynthDef(\key, {
 	var snd, freq;
 	freq = \freq.kr(440) * XLine.ar(1.3, 1, 0.005) * XLine.ar(0.015.midiratio, 1, 3.0);
-	snd = SinOsc.ar(freq * [8, 16]) * Env.perc(0.001, [0.1, 0.03]).ar * [0.1, 0.2];
-	snd = SinOsc.ar(freq, snd.sum % 2pi);
+	snd = SinOsc.ar(freq * [8, 16]) * Env.perc(0.001, [0.2, 0.03]).ar * [0.1, 0.2];
+	snd = SinOsc.ar(freq, snd.sum);
 	snd = snd * Env.perc(0.003, 10.0).ar;
 	snd = snd * (1 + Env.perc(0.01, 0.1).ar);
 	snd = snd + (BPF.ar(Hasher.ar(Sweep.ar), 1320) * Env.perc(0.001, 0.01).ar * 1.5.dbamp);
@@ -393,10 +388,10 @@ SynthDef(\key, {
 	snd = (snd * 4.dbamp).tanh * -2.dbamp;
 	snd = BLowShelf.ar(snd, 500, 0.3, 3);
 	snd = snd * Env.linen(0.01, \duration.kr(1.0), 0.05, curve: -4).ar(Done.freeSelf);
-	snd = snd * SinOsc.ar(Rand(0.5, 1), Rand(0, pi) + [0, pi]).linlin(-1, 1, 0.3, 1);
+	snd = snd * SinOsc.ar(Rand(0.5, 1), [0, pi]).linlin(-1, 1, 0.3, 1);
 	snd = snd * -25.dbamp;
 	Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 )
 
 

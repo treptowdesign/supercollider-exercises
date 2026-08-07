@@ -403,18 +403,15 @@ Routine({
 			play.(\808, tatum * 2, [freq: noteToFreq.(5, -3)]);
 			play.(\snare, tatum * 2);
 			fork {
-				play.(\pitch, tatum, [freq: noteToFreq.(5, 0), amp: 0.1]);
+				play.(\pitch, tatum, [freq: noteToFreq.(0, 0), amp: 0.1]);
+				play.(\pitch, tatum * 2, [freq: noteToFreq.(2, 0), amp: 0.2]);
+				play.(\pitch, tatum, [freq: noteToFreq.(3, 0), amp: 0.3]);
+				play.(\pitch, tatum * 2, [freq: noteToFreq.(5, 0), amp: 0.7]);
 			};
 			play.(\hat2b, tatum);
 			play.(\hatSoft, tatum);
-			fork {
-				play.(\pitch, tatum, [freq: noteToFreq.(5, 0), amp: 0.4]);
-			};
 			play.(\hat, tatum);
 			play.(\hat3, tatum);
-			fork {
-				play.(\pitch, tatum, [freq: noteToFreq.(5, 0), amp: 0.8]);
-			};
 			play.(\snare2, tatum * 2);
 
 		};

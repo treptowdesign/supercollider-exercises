@@ -197,7 +197,7 @@ SynthDef(\clap, {
 	snd = snd + GVerb.ar(snd * -20.dbamp, 30, 3);
 	snd = BHiShelf.ar(snd, 2300, 0.3, -3);
 	snd = snd * Env.linen(0.0, 0.5, 0.9, curve: -4).ar(Done.freeSelf);
-	snd = snd * -16.dbamp;
+	snd = snd * -16.dbamp * \amp.kr(1.0);
 	Out.ar(\out.kr(0), snd);
 }).play;
 )
@@ -311,7 +311,7 @@ Routine({
 	loop {
 
 		fork {
-			(0 + [0-12, 3, 7-12, 10, 14]).sort.postln.do { |int|
+			(0 + [0-12, 3, 7-12, 10, 14]).do { |int|
 				fork {
 					play.(\key, bar * 2, [freq: noteToFreq.(int, 0)]);
 				};
@@ -329,7 +329,7 @@ Routine({
 				play.(\key, beat * 2, [freq: noteToFreq.(10, -1)]);
 			};
 			(bar * 2).wait;
-			(5 + [0-12, 3-12, 7, 10, 14-12]).sort.postln.do { |int|
+			(5 + [0-12, 3-12, 7, 10, 14-12]).do { |int|
 				fork {
 					play.(\key, bar * 2, [freq: noteToFreq.(int, 0)]);
 				};
@@ -354,6 +354,13 @@ Routine({
 				play.(\clap, beat);
 			};
 		};
+
+		/*fork {
+			8.do {
+				play.(\clap, beat, [amp: 0.5]);
+				play.(\clap, beat);
+			};
+		};*/
 
 		// 4x bar
 		1.do {
@@ -403,10 +410,10 @@ Routine({
 			play.(\808, tatum * 2, [freq: noteToFreq.(5, -3)]);
 			play.(\snare, tatum * 2);
 			fork {
-				play.(\pitch, tatum, [freq: noteToFreq.(0, 0), amp: 0.1]);
-				play.(\pitch, tatum * 2, [freq: noteToFreq.(2, 0), amp: 0.2]);
-				play.(\pitch, tatum, [freq: noteToFreq.(3, 0), amp: 0.3]);
-				play.(\pitch, tatum * 2, [freq: noteToFreq.(5, 0), amp: 0.7]);
+				play.(\pitch, tatum, [freq: noteToFreq.(0, 0), mult: 10, amp: 0.1]);
+				play.(\pitch, tatum * 2, [freq: noteToFreq.(2, 0), mult: 20, amp: 0.2]);
+				play.(\pitch, tatum, [freq: noteToFreq.(3, 0), mult: 30, amp: 0.3]);
+				play.(\pitch, tatum * 2, [freq: noteToFreq.(5, 0), mult: 45, amp: 0.6]);
 			};
 			play.(\hat2b, tatum);
 			play.(\hatSoft, tatum);
@@ -432,7 +439,7 @@ SynthDef(\key, {
 	var snd, freq, duration;
 	duration = \duration.kr(1.0);
 	freq = \freq.kr(440) * XLine.ar(1.3, 1, 0.005) * XLine.ar(0.015.midiratio, 1, 3.0);
-	freq = freq * (SinOsc.ar(30, mul: 0.1).midiratio);
+	freq = freq * (SinOsc.ar(Rand(20, 30), mul: Rand(0.1, 0.2)).midiratio);
 	snd = SinOsc.ar(freq * [8, 16]) * Env.perc(0.001, [0.2, 0.03]).ar * [0.1, 0.2];
 	snd = SinOsc.ar(freq, snd.sum);
 	snd = snd * Env.perc(0.003, 10.0).ar;

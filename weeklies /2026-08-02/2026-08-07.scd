@@ -19,7 +19,7 @@ SynthDef(\kick, {
 	snd = snd + (DelayC.ar(LPF.ar(HPF.ar(snd, 200), 2300), 0.1, [30e-3, 54e-3]) * -25.dbamp);
     snd = snd * Env.linen(0.0, \duration.kr(0.3), 0.01).ar(Done.freeSelf);
     Out.ar(\out.kr(0), snd);
-}).add;
+}).play;
 )
 
 (
